@@ -108,7 +108,7 @@ function Publish-Packages {
         
         ForEach ($pkg in $pkgsUntested) {
             $nupkg = $pkg |Split-Path -Leaf
-            $nupkg -match "^(?<pkgId>[^\.]+)\.(?<pkgVersion>.+)\.nupkg$" |
+            $nupkg -match $_nupkgRegex |
                 Out-Null
             
             $pkgId      = $Matches.pkgId
