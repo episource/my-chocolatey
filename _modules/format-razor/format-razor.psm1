@@ -1,5 +1,7 @@
 # Copyright 2007 - 2016 Danny Tuppeny (DanTup)
-
+# Modifications Copyright 2016 Philipp Serr (episource)
+#  - replace dead source link by a link to DanTup's blog
+#  - Load System.Web.Razor.dll from extracted nuget
 function Format-Razor()
 {
     <#
@@ -9,8 +11,9 @@ function Format-Razor()
         The Format-Razor function formats a set of objects using a supplied template using the Razor Engine created for ASP.NET.
     .NOTES
         Author: Danny Tuppeny (DanTup)
+        Modifications by: Philipp Serr (episource)
     .LINK
-        http://code.dantup.com/PSRazor
+        https://blog.dantup.com/2011/04/formatting-powershell-objects-using-the-razor-engine/
     .PARAMETER templateText
         The Razor template text to be processed for each object.
     .PARAMETER modelName
@@ -32,6 +35,14 @@ function Format-Razor()
     {
         # Load the MVC assembly so we can access the Razor classes
         [System.Reflection.Assembly]::LoadWithPartialName("System.Web.Razor") | Out-Null
+
+        $razorAssembly = [AppDomain]::CurrentDomain.GetAssemblies() |
+                ? { $_.FullName -match "^System.Web.Razor" }
+    
+        if ($razorAssembly -eq $null) {
+            Add-Type -Path "$PSScriptRoot/microsoft.aspnet.razor.3.2.3/System.Web.Razor.dll"
+        }
+
 
         # Create a StringReader for the template, which we'll need to pass into the Razor Engine
         $stringReader = New-Object System.IO.StringReader($templateText)
