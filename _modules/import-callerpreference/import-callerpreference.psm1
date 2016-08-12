@@ -13,43 +13,43 @@
 # limitations under the License.
 
 
-Set-StrictMode -Version latest -ErrorAction Stop
+Set-StrictMode -Version latest
+$ErrorActionPreference = "Stop"
+
 
 # Variables copied from about_Preference_Variables (posh 5.0)
-# The bound parameter name is documented in about_CommonParameters (posh 5.0)
-$imports = @{
-    # Variable Name                 = Bound Parameter Name
-    'ConfirmPreference'             = 'Confirm'
-    'DebugPreference'               = 'Debug'
-    'ErrorActionPreference'         = 'ErrorAction'
-    'ErrorView'                     = $null
-    'FormatEnumerationLimit'        = $null
-    'InformationPreference'         = 'InformationAction'
-    'LogCommandHealthEvent'         = $null
-    'LogCommandLifecycleEvent'      = $null
-    'LogEngineHealthEvent'          = $null
-    'LogEngineLifecycleEvent'       = $null
-    'LogProviderLifecycleEvent'     = $null
-    'LogProviderHealthEvent'        = $null
-    'MaximumAliasCount'             = $null
-    'MaximumDriveCount'             = $null
-    'MaximumErrorCount'             = $null
-    'MaximumFunctionCount'          = $null
-    'MaximumHistoryCount'           = $null
-    'MaximumVariableCount'          = $null
-    'OFS'                           = $null
-    'OutputEncoding'                = $null
-    'ProgressPreference'            = $null
-    'PSDefaultParameterValues'      = $null
-    'PSEmailServer'                 = $null
-    'PSModuleAutoLoadingPreference' = $null
-    'PSSessionApplicationName'      = $null
-    'PSSessionConfigurationName'    = $null 
-    'PSSessionOption'               = $null
-    'VerbosePreference'             = 'Verbose'
-    'WarningPreference'             = 'WarningAction'
-    'WhatIfPreference'              = 'WhatIf'
-}
+$preferenceVariables = @(
+    'ConfirmPreference'             
+    'DebugPreference'               
+    'ErrorActionPreference'         
+    'ErrorView'                     
+    'FormatEnumerationLimit'        
+    'InformationPreference'         
+    'LogCommandHealthEvent'         
+    'LogCommandLifecycleEvent'      
+    'LogEngineHealthEvent'          
+    'LogEngineLifecycleEvent'       
+    'LogProviderLifecycleEvent'     
+    'LogProviderHealthEvent'        
+    'MaximumAliasCount'             
+    'MaximumDriveCount'             
+    'MaximumErrorCount'             
+    'MaximumFunctionCount'          
+    'MaximumHistoryCount'           
+    'MaximumVariableCount'          
+    'OFS'                           
+    'OutputEncoding'                
+    'ProgressPreference'            
+    'PSDefaultParameterValues'      
+    'PSEmailServer'                 
+    'PSModuleAutoLoadingPreference' 
+    'PSSessionApplicationName'      
+    'PSSessionConfigurationName'    
+    'PSSessionOption'               
+    'VerbosePreference'             
+    'WarningPreference'             
+    'WhatIfPreference'              
+)
 
 <#
 .SYNOPSYS
@@ -95,17 +95,13 @@ function Import-CallerPreference {
         Write-Error "Import-CallerPreference not invoked by an advanced function ([CmdletBinding()])."
     }
     
-    $callingCmdletBoundParams = $callingCmdlet.MyInvocation.BoundParameters
-    Foreach ($import in $imports.GetEnumerator()) {
-        $prefName = $import.Name
-        $paramName = $import.Value
-        
-        # Only import the caller's preference if it has not been set explictly
-        # by one of the common parameters (see about_CommonParameters)
-        If (-not $callingCmdletBoundParams.ContainsKey($paramName)) {
+    Foreach ($preference in $preferenceVariables) {
+        # Only import a caller's preference if it has not been set explictly
+        # (common parameter or local/script scope variable)
+        If (-not $sessionState.PSVariable.Get($preference)) {
             $callerValue = $callingCmdletSessionState.PSVariable. `
-                GetValue($prefName)
-            $sessionState.PSVariable.Set($prefName, $callerValue)
+                GetValue($preference)
+            $sessionState.PSVariable.Set($preference, $callerValue)
         }
     }
 }
