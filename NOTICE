@@ -6,7 +6,7 @@ http://fearthecowboy.com/powershell/2015/12/11/PowerShell-A-Better-Ternary/
 format-razor by Danny Tuppeny (DanTup)
 https://blog.dantup.com/2011/04/formatting-powershell-objects-using-the-razor-engine/
 
-get-webfile by Joel Bennet, Bill Barry, Gwen Dallas, Mike Ling
+get-webfile by Joel Bennet, Bill Barry, Gwen Dallas, Mike Ling, Philipp Serr
 http://poshcode.org/3226
 
 Razor template engine (Microsoft.AspNet.Razor) by Microsoft
