@@ -333,14 +333,14 @@ function New-Package {
             & choco $chocoArgs
         } Else {
             $chocoArgs += '--limit-output'
-            & choco $chocoArgs | Out-Null            
+            $chocoOut = & choco $chocoArgs | Out-String
         }
         
         If ($LASTEXITCODE -ne 0) {
-            Write-Error "Choco returned exit code $LASTEXITCODE."
+            Write-Error "Choco returned exit code $LASTEXITCODE.`n$chocoOut"
             return
         }
-        
+            
         
         # prepare output
         If (-not (Test-Path $nupkgTmpFile)) {
