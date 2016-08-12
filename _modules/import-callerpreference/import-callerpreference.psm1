@@ -59,6 +59,10 @@ $preferenceVariables = @(
     This helper function can be used in script module functions to inherit the
     preference variables from their caller. This is the default behavior for
     compiled cmdlets, but script modules don't have this feature built-in.
+    
+.PARAMETER AdditionalPreferences
+    A list of additional (custom) preference variables to be imported.
+    
 
 .EXAMPLE
     function Receive-PreferencesExample {
@@ -80,7 +84,9 @@ $preferenceVariables = @(
 #>
 function Import-CallerPreference {
     [CmdletBinding()]
-    Param()
+    Param(
+        [Parameter(Mandatory=$false)] [String[]] $AdditionalPreferences = @()
+    )
     
     # Note: $PSCmdlet.SessionState gets information about "where the cmdlet
     #       is running" - that is information about the caller's context!
@@ -95,7 +101,7 @@ function Import-CallerPreference {
         Write-Error "Import-CallerPreference not invoked by an advanced function ([CmdletBinding()])."
     }
     
-    Foreach ($preference in $preferenceVariables) {
+    Foreach ($preference in ($preferenceVariables + $AdditionalPreferences)) {
         # Only import a caller's preference if it has not been set explictly
         # (common parameter or local/script scope variable)
         If (-not $sessionState.PSVariable.Get($preference)) {
