@@ -16,7 +16,7 @@ $_templateExtension       = '.nuspec'
 
 # https://github.com/mojombo/semver.org/issues/59#issuecomment-57884619
 $_semverRegex = @"
-^
+(?x)^
 (?'MAJOR'(?:
     0|(?:[1-9]\d*)
 ))
@@ -28,14 +28,14 @@ $_semverRegex = @"
 (?'PATCH'(?:
     0|(?:[1-9]\d*)
 ))
-(?:-(?'prerelease'
+(?:-(?<PRERELEASE>
     [0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*
 ))?
-(?:\+(?'build'
+(?:\+(?<BUILD>
     [0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*
 ))?
 $
-"@ -replace "`n" -replace "`r"
+"@
 
 function _Get-Var($var, $default) {
     $name  = $var -replace "^[a-zA-Z0-9]+:"
