@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>@Package.id</id>
+    <version>@Package.version</version>
+    <title>Notepad++</title>
+    <authors>Don Ho</authors>
+    <owners>episource</owners>
+    <projectUrl>https://notepad-plus-plus.org/</projectUrl>
+    <iconUrl>https://cdn.rawgit.com/ferventcoder/chocolatey-packages/02c21bebe5abb495a56747cbb9b4b5415c933fc0/icons/notepadplusplus.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Notepad++ is a free (as in "free speech" and also as in "free beer") source code editor and Notepad replacement that supports several languages. Running in the MS Windows environment, its use is governed by GPL License.
+
+Based on the powerful editing component Scintilla, Notepad++ is written in C++ and uses pure Win32 API and STL which ensures a higher execution speed and smaller program size. By optimizing as many routines as possible without losing user friendliness, Notepad++ is trying to reduce the world carbon dioxide emissions. When using less CPU power, the PC can throttle down and reduce power consumption, resulting in a greener environment.
+
+This project is mature. However, there may be still some bugs and missing features that are being worked on. If you have any questions or suggestions about this project, please post them in the forums. Also, if you wish to make a feature request, you can post it there as well. But there's no guarantee that I'll implement your request.
+
+You're encouraged to translate Notepad++ into your native tongue if there's not already a translation present in the Binary Translations page. And if you want, help translating Notepad++ official site into your native tongue would be greatly appreciated.
+
+I hope you enjoy Notepad++ as much as I enjoy coding it.</description>
+    <summary>Notepad++ is a free (as in "free speech" and also as in "free beer") source code editor and Notepad replacement that supports several languages.</summary>
+    <tags>admin notepad notepadplusplus notepad-plus-plus notepad++ editor scintilla</tags>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
