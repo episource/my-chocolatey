@@ -138,7 +138,8 @@ function Publish-Packages {
                     "Cleanup test installation: $pkgId-$pkgVersion"
                 _Update-Progress $ProgressBarState
             
-                $chocoArgs = @('uninstall', $pkgId, '--force', '--yes')
+                $chocoArgs = @('uninstall', $pkgId, '--force',
+                    '--removedependencies', '--yes')
                 $chocoOutput = & choco $chocoArgs | Out-String
                 
                 If ($LastExitCode -ne 0) {
