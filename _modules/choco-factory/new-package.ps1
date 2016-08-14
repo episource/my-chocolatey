@@ -172,7 +172,7 @@ function New-Package {
         [Parameter(Mandatory=$false)] [String]      $VTApiKey
             = (_Get-Var 'global:CFVtApiKey'             $null)
     )   
-    Import-CallerPreference -AdditionalPreferences "ProgressBarId"
+    Import-CallerPreference -AdditionalPreferences @{ ProgressBarId = 0 }
     
     
     # store current location to restore it later

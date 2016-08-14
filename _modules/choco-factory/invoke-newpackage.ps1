@@ -40,7 +40,7 @@ function Invoke-NewPackage {
     Param(
         [Parameter(Mandatory=$false)] [String]      $Path = $(Get-Location)
     )   
-    Import-CallerPreference -AdditionalPreferences "ProgressBarId"
+    Import-CallerPreference -AdditionalPreferences @{ ProgressBarId = 0 }
     
     # prepare progress bar
     $ProgressBarId          = $ProgressBarId + 1

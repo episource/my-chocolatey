@@ -18,6 +18,8 @@ $ErrorActionPreference = "Stop"
 
 
 # Variables copied from about_Preference_Variables (posh 5.0)
+# The MaximumXxxCount preference variables have been omited, as they should
+# always be set in global scope.
 $preferenceVariables = @(
     'ConfirmPreference'             
     'DebugPreference'               
@@ -30,13 +32,7 @@ $preferenceVariables = @(
     'LogEngineHealthEvent'          
     'LogEngineLifecycleEvent'       
     'LogProviderLifecycleEvent'     
-    'LogProviderHealthEvent'        
-    'MaximumAliasCount'             
-    'MaximumDriveCount'             
-    'MaximumErrorCount'             
-    'MaximumFunctionCount'          
-    'MaximumHistoryCount'           
-    'MaximumVariableCount'          
+    'LogProviderHealthEvent'                 
     'OFS'                           
     'OutputEncoding'                
     'ProgressPreference'            
@@ -61,8 +57,9 @@ $preferenceVariables = @(
     compiled cmdlets, but script modules don't have this feature built-in.
     
 .PARAMETER AdditionalPreferences
-    A list of additional (custom) preference variables to be imported.
-    
+    A list of additional (custom) preference variables to be imported. The key
+    is the name of the variable, the value is the default value to be used if
+    the variable is not found within the caller's scope.
 
 .EXAMPLE
     function Receive-PreferencesExample {
@@ -85,7 +82,7 @@ $preferenceVariables = @(
 function Import-CallerPreference {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$false)] [String[]] $AdditionalPreferences = @()
+        [Parameter(Mandatory=$false)] [HashTable] $AdditionalPreferences = @{}
     )
     
     # Note: $PSCmdlet.SessionState gets information about "where the cmdlet
@@ -101,15 +98,47 @@ function Import-CallerPreference {
         Write-Error "Import-CallerPreference not invoked by an advanced function ([CmdletBinding()])."
     }
     
-    Foreach ($preference in ($preferenceVariables + $AdditionalPreferences)) {
+    Foreach ($preference in ($preferenceVariables + $AdditionalPreferences.Keys)) {
         # Only import a caller's preference if it has not been set explictly
         # (common parameter or local/script scope variable)
-        If (-not $sessionState.PSVariable.Get($preference)) {
-            $callerValue = $callingCmdletSessionState.PSVariable. `
-                GetValue($preference)
-            $sessionState.PSVariable.Set($preference, $callerValue)
+        If (-not (_Get-LocalDefinition $sessionState $preference)) {
+            $callerVar = _Get-LocalDefinition `
+                $callingCmdletSessionState $preference
+            
+            If ($callerVar) {
+                $sessionState.PSVariable.Set($callerVar.Name, $callerVar.Value)
+                
+                Write-Host "Imported: $callerVar"
+            } ElseIf($AdditionalPreferences.ContainsKey($preference)) {
+                $sessionState.PSVariable.Set($preference,
+                    $AdditionalPreferences.$preference)
+            }
         }
     }
+}
+
+# Retrieves the PSVariable with name $varName if defined locally or in script
+# scope (relative to $sessionState). Otherwise a falselike value is returned.
+function _Get-LocalDefinition($sessionState, $varName) {
+    # A script cmdlet inherits variables from global and script scope only.
+    # To test whether a variable has been overwritten in local or script scope,
+    # it is removed temporarily from the global scope. If it vanishes from the
+    # calling cmdlet's scope, too, it has not been overwritten. Otherwise the
+    # variable was defined in local or script scope.
+    
+    Try {
+        $globalValue = Get-Variable -Scope global -Name $varName -ValueOnly `
+            -ErrorAction Stop
+    } Catch {
+        # Return the local variable's description
+        return $sessionState.PSVariable.Get($varName)
+    }
+    
+    Remove-Variable -Scope global -Name $varName
+    $localVar  = $sessionState.PSVariable.Get($varName)
+    Set-Variable -Scope global -Name $varName -Value $globalValue
+    
+    return $localVar    
 }
 
 Export-ModuleMember -Function Import-CallerPreference

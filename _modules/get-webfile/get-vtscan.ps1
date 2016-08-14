@@ -84,7 +84,7 @@ function Get-VtScan{
         [Parameter(Mandatory=$true)]  [String]$Url,
         [Parameter(Mandatory=$false)]    [int]$MinResults = $vtMinResults
     )
-    Import-CallerPreference -AdditionalPreferences "ProgressBarId"
+    Import-CallerPreference -AdditionalPreferences @{ ProgressBarId = 0 }
     
     $ProgressBarId      = $ProgressBarId + 1
     $pActivity          = "Perform VirusTotal.com virus scan: $Url"

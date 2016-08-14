@@ -93,7 +93,7 @@ function Get-VersionInfoFromGithub {
         [Parameter(Mandatory=$false)] [String]   $ApiToken 
             = (_Get-Var 'global:CFGithubToken'      $null)
     )
-    Import-CallerPreference -AdditionalPreferences "ProgressBarId"
+    Import-CallerPreference -AdditionalPreferences @{ ProgressBarId = 0 }
     
     # Build asset filter
     $normalizedFile     = @() + $File
@@ -236,7 +236,7 @@ function Invoke-GithubApiLatestRelease {
         [Parameter(Mandatory=$false)] [String]   $ApiToken 
             = (_Get-Var 'global:CFGithubToken'      $null)
     )
-    Import-CallerPreference -AdditionalPreferences "ProgressBarId"
+    Import-CallerPreference -AdditionalPreferences @{ ProgressBarId = 0 }
     
     $ProgressBarId = $ProgressBarId + 1
     $pActivity = "Querying latest release for github repository $Repo"

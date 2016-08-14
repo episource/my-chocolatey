@@ -61,7 +61,7 @@ function Publish-Packages {
         [Parameter(Mandatory=$false)] [Switch] $AssumeVm 
             = $false
     )
-    Import-CallerPreference -AdditionalPreferences "ProgressBarId"
+    Import-CallerPreference -AdditionalPreferences @{ ProgressBarId = 0 }
     
     # prepare progress bar
     $ProgressBarId          = $ProgressBarId + 1

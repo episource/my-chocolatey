@@ -120,7 +120,7 @@ function Get-WebFile {
 		[Parameter(HelpMessage="Turn off the progress reports.")]
       	[switch]$Quiet
 	)
-    Import-CallerPreference -AdditionalPreferences "ProgressBarId"
+    Import-CallerPreference -AdditionalPreferences @{ ProgressBarId = 0 }
     
     $ProgressBarId = $ProgressBarId + 1
     $ProgressBarActivity = "Downloading $Url"
