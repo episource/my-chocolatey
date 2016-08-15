@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>@Package.id</id>
+    <version>@Package.version</version>
+    <title>Notepad++ Custom Configuration</title>
+    <authors>episource</authors>
+    <owners>episource</owners>
+    <projectUrl>https://notepad-plus-plus.org/</projectUrl>
+    <iconUrl>https://cdn.rawgit.com/ferventcoder/chocolatey-packages/02c21bebe5abb495a56747cbb9b4b5415c933fc0/icons/notepadplusplus.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>My default notepad++ configuration:
+    - line wrap enabled
+    - line length marker at 80 characters
+    - linux EOL marker (line feed only)
+    - replace tab with space
+    - Consolas font
+    
+Delete "%AppData%\Notepad++" in order for notepad++ to recreate the configuration files using the new defaults.</description>
+    <summary>My default notepad++ configuration.</summary>
+    <tags>admin notepad notepadplusplus notepad-plus-plus notepad++ editor scintilla config</tags>
+    <dependencies>
+      <dependency id="notepadplusplus" version="[6.9.2,)"/>
+    </dependencies>
+  </metadata>
+</package>
