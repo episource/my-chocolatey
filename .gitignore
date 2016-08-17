@@ -2,3 +2,4 @@ _build
 *.nupkg
 /_repo
 /_config.private.ps1
+/_private_templates
