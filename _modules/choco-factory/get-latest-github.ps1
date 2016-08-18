@@ -43,7 +43,7 @@ Import-Module import-callerpreference
     The filename of an asset containing the hash of the file addressed by
     $File. The hash algorithm defaults to sha256, but can be overwritten
     using $HashAlgorithm. Just like $File, this can be an array, too. The number
-    of entries must be less  than the number of Files specified.
+    of entries must be less than the number of Files specified.
     
     If no $HashFile is provided, no hash can be retrieved and Export-Package
     won't be able to check file integrity.
@@ -73,6 +73,8 @@ Import-Module import-callerpreference
 .OUTPUT
     A VersionInfo structure according to the description of the Export-Package
     cmdlet.
+    
+    The raw github API response is available through the field GithubRelease.
         
 .EXAMPLE
     Get-VersionInfoFromGithub -Repo 'gurnec/HashCheck' -FilenameRegex '.*'
@@ -95,47 +97,49 @@ function Get-VersionInfoFromGithub {
     )
     Import-CallerPreference -AdditionalPreferences @{ ProgressBarId = 0 }
     
+    function Filter-Assets($assets, $filter) {
+        $urls = @()
+    
+        ForEach ($f in $filter) {
+            $matchingUrls = $assets | ?{ $_.name -match $f } |
+                Select-Object -First 1 -ExpandProperty browser_download_url
+            If (-not $matchingUrls) {
+                Write-Error "Asset $f has not been found. Available assets:`n`
+                    $($assets | Format-List | Out-String)"
+                return
+            }
+        
+            $urls += $matchingUrls
+        }
+        
+        return ,$urls
+    }
+    
+    
     # Build asset filter
     $normalizedFile     = @() + $File
     $normalizedHashFile = @() + $HashFile
-    $fileCount          = $normalizedFile.length
+    $algorithms         = @() + $HashAlgorithm
     
-    If ($EnableRegex) {
-        $filter = @() + $normalizedFile + $normalizedHashFile
-    } Else {
-        $filter = @()
-        ForEach ($f in $normalizedFile) {
-            $filter += '^' + [Regex]::Escape($f) + '$'
-        }
-        ForEach ($f in $normalizedHashFile) {
-            $filter += '^' + [Regex]::Escape($f) + '$'
-        }
+    If (-not $EnableRegex) {
+        $normalizedFile     = $normalizedFile | %{
+            return '^' + [Regex]::Escape($_) + '$' }
+        $normalizedHashFile = $normalizedHashFile | %{
+            return '^' + [Regex]::Escape($_) + '$' }
     }
-    
-    $algorithms  = @() + $HashAlgorithm
     
     
     # Query the latest release
-    $release = Invoke-GithubApiLatestRelease -Repo $repo `
-        -Filter $filter -ApiToken $ApiToken
-    $normalizedUrls = @() + $release.Url
-    For ($i = 0; $i -lt $filter.length; $i++) {
-        If ($normalizedUrls.length -le $i -or -not $normalizedUrls[$i]) {
-            Write-Error "Asset $($filter[$i]) has not been found."
-            return
-        }
-    }
-        
-    $fileUrls       = $normalizedUrls[0..($fileCount - 1)]
-    $hashUrls       = @()
+    $jsonResponse = Invoke-GithubApiLatestRelease -Repo $repo `
+        -ApiToken $ApiToken
+    $assets       = $jsonResponse.assets
     
-    If ($normalizedUrls.length -gt $fileCount) {
-        $hashUrls   = $normalizedUrls[$fileCount..($normalizedUrls.length - 1)]
-    }
-    
+    $fileUrls = Filter-Assets $assets $normalizedFile
+    $hashUrls = Filter-Assets $assets $normalizedHashFile
+
     
     # Extract and validate version
-    $version = & $ExtractVersionHook $release.name $release.tag_name
+    $version = & $ExtractVersionHook $jsonResponse.name $jsonResponse.tag_name
     If (-not ($version -match $_semverRegex)) {
         Write-Error "$version does not comply with semver specification"
         return
@@ -159,9 +163,10 @@ function Get-VersionInfoFromGithub {
 
     # Format all version info
     $versionInfo = @{
-        Version = $version
-        Url     = $fileUrls
-        UrlHash = $hashValues
+        Version       = $version
+        Url           = $fileUrls
+        UrlHash       = $hashValues
+        GithubRelease = $jsonResponse
     }
     Write-Verbose (
         "Latest release of github repository $Repo`n" +
@@ -206,32 +211,17 @@ function Get-VersionInfoFromGithub {
     should be assigned.
         
 .OUTPUT
-    The function returns a hash with the following values:
-        version : The version string of the latest release. This is either the
-                  name of the latest release - if defined - or the associated
-                  tag_name. This item is common to all functions in the
-                  get-latest module.
-        url     : Download url of the selected asset. See also parameter  
-                  $FilenameRegex. An array of urls might might be returned if
-                  $Limit is greater 1. An array of urls is always returned if
-                  multiple $Filter regular expressions have been provided. When
-                  multiple $Filter regular expressions are provided and $Limit
-                  is set to a value greater than 1, each array entry might be an
-                  array of urls, too.
-                  $null is returned if no matching asset has been found.
-                  This item is common to all functions in the get-latest module.
-        name    : The name of the release as provided by the github api.
-        tag_name: The name of the underlying git tag.
+    The function returns the response returned by the github API. See
+    https://developer.github.com/v3/repos/releases/#get-the-latest-release for
+    details.
         
 .EXAMPLE
-    Get-LatestVersionFromGithub -Repo 'gurnec/HashCheck' -FilenameRegex '.*'
+    Get-Invoke-GithubApiLatestRelease -Repo 'git-for-windows/git'
 #>
 function Invoke-GithubApiLatestRelease {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]  [String]   $Repo,
-        [Parameter(Mandatory=$false)] [String[]] $Filter = ".*",
-        [Parameter(Mandatory=$false)] [Int]      $Limit = 1,
         [Parameter(Mandatory=$false)] [String]   $ApiToken 
             = (_Get-Var 'global:CFGithubToken'      $null)
     )
@@ -247,9 +237,8 @@ function Invoke-GithubApiLatestRelease {
         $requestHeader.Authorization = "token $ApiToken"
     }
     
-    $json = $null
     Try {
-        While ($json -eq $null) {
+        While ($true) {
             Write-Progress -Activity $pActivity `
                     -Id $ProgressBarId -ParentId ($ProgressBarId - 1) `
                     -Status "Waiting for API resonse" `
@@ -268,8 +257,7 @@ function Invoke-GithubApiLatestRelease {
             Write-Debug "Raw response:`n$(_Format-Object $response)"
             
             If ($response.StatusCode -eq 200) {
-                $json = $response.Content | ConvertFrom-Json
-                break
+                return $response.Content | ConvertFrom-Json
             } ElseIf ($response.StatusCode -eq 403) {
                 $rateLimit      = $response.Headers.'X-RateLimit-Limit'
                 $rateLimitReset = [DateTimeOffset]::FromUnixTimeSeconds(
@@ -302,37 +290,6 @@ function Invoke-GithubApiLatestRelease {
     } Finally {
         Write-Progress -Completed -Activity $pActivity `
             -Id $ProgressBarId -ParentId ($ProgressBarId - 1) 
-    }
-    
-    $normalizedFilters = @() + $Filter
-    $assets            = $json.assets
-    $allUrls           = @()
-    
-    ForEach ($filter in $normalizedFilters) {
-        $curUrls = $assets | ? { $_.name -match $filter } |
-            Select-Object -First $Limit -ExpandProperty 'browser_download_url'
-        $curUrls = @() + $curUrls
-            
-        If ($curUrls.length -eq 1) {
-            $allUrls += $curUrls[0]
-        } ElseIf ($curUrls.length -eq 0) {
-            $allUrls += $null
-        } Else {
-            # http://stackoverflow.com/questions/6157179/append-an-array-to-an-array-of-arrays-in-powershell
-            $allUrls += ,$curUrls
-        } 
-    }
-    
-    $url              = $allUrls
-    If ($url.length -eq 1) {
-        $url = $allUrls[0]
-    }
-
-    return @{
-        url      = $url
-
-        name     = $json.name
-        tag_name = $json.tag_name
     }
 }
 
