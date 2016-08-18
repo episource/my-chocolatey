@@ -17,7 +17,10 @@
     - replace tab with space
     - Consolas font
     
-Delete "%AppData%\Notepad++" in order for notepad++ to recreate the configuration files using the new defaults.</description>
+Delete "%AppData%\Notepad++" in order for notepad++ to recreate the configuration files using the new defaults.
+
+Release notes:
+@Package.ReleaseNotes</description>
     <summary>My default notepad++ configuration.</summary>
     <tags>admin notepad notepadplusplus notepad-plus-plus notepad++ editor scintilla config</tags>
     <dependencies>

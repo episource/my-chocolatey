@@ -9,3 +9,6 @@ $configModelBackup  = "$configModel.bak"
 
 $stylersModel       = Join-Path $nppdir "stylers.model.xml"
 $stylersModelBackup = "$stylersModel.bak"
+
+$shortcuts          = Join-Path $nppdir "shortcuts.xml"
+$shortcutsBackup    = "$shortcuts.bak"

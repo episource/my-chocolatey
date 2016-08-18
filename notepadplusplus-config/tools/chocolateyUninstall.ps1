@@ -7,3 +7,6 @@ If (Test-Path -Path $configModelBackup) {
 If (Test-Path -Path $stylersModelBackup) {
     Move-item $stylersModelBackup $stylersModel -Force
 }
+If (Test-Path -Path $shortcutsBackup) {
+    Move-item $shortcutsBackup $shortcuts -Force
+}
