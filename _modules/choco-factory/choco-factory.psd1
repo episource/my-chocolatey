@@ -82,8 +82,9 @@ FunctionsToExport = @(
     'Invoke-NewPackage',
     'New-Package',
     'Publish-Packages',
-    'Invoke-GithubApiLatestRelease',
-    'Get-VersionInfoFromGithub'
+    'Get-ChecksumFromWeb',
+    'Get-VersionInfoFromGithub',
+    'Invoke-GithubApiLatestRelease'
 )
 
 # Cmdlets to export from this module

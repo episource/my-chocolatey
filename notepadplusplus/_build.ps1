@@ -41,14 +41,9 @@ If (-not $zipUrl -or -not $sha1Url) {
     return
 }
 
+
 # Extract checksum
-$zipFileRegex = [Regex]::Escape((Split-Path -Leaf $zipUrl))
-$sha1Regex    = "(?m)^(?<SHA1>[a-zA-Z0-9]+)\s+$zipFileRegex"
-$sha1Response = Invoke-WebRequest -UseBasicParsing -Uri $sha1url
-If (-not ($sha1Response.Content -match $sha1Regex)) {
-    Write-Error "Failed to parse notepad++ download page - file hash not found!"
-}
-$sha1 = $Matches.SHA1
+$sha1 = Get-ChecksumFromWeb -Url $sha1url -Filename (Split-Path -Leaf $zipUrl)
 
 
 # Format version info

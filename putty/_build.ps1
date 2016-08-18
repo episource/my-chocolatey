@@ -21,21 +21,13 @@ While ($version.Split('.').length -lt 3) {
 }
 
 
-# Get putty.zip url + checksum
+# Get putty.zip url
 $zipUrl = $latestUrl + $zipFile
 
-$sha256Url      = $latestUrl + $sha256File
-$sha256Regex    = "(?m)^(?<CHECKSUM>[a-zA-Z0-9]+)\s+" + `
-    [Regex]::Escape($zipFile)
-$sha256Response = Invoke-WebRequest -UseBasicParsing -Uri $sha256Url
 
-# The content property gives only a byte[] due to missing ContentType
-# => ToString() gives the expected plain text result
-If (-not ($sha256Response.ToString() -match $sha256Regex)) {
-    Write-Error "Failed to retrieve putty.zip checksum!"
-}
-
-$sha256 = $Matches.CHECKSUM
+# Get checksum
+$sha256Url = $latestUrl + $sha256File
+$sha256    =  Get-ChecksumFromWeb -Url $sha256Url -Filename $zipFile
 
 
 # Format version info

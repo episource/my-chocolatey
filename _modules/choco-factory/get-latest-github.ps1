@@ -13,6 +13,8 @@
 # limitations under the License.
 
 Set-StrictMode -Version latest
+$ErrorAction = "Stop"
+
 . $PSScriptRoot/_utils.ps1
 
 Import-Module import-callerpreference
@@ -148,16 +150,16 @@ function Get-VersionInfoFromGithub {
     
     # Download the hash file and extract the hash value
     $hashValues = @()
-    For ($i = 0; $i -lt $hashUrls.length; $i++) {
+    For ($i = 0; $i -lt [Math]::Min($hashUrls.length, $fileUrls.length); $i++) {
         $algoIdx = $i
         If ($algoIdx -ge $algorithms.length) {
-            $algoIdx = $algorithms[-1]
+            $algoIdx = -1
         }
+        
+        $filename = Split-Path -Leaf $fileUrls[$i]
+        $checksum = Get-ChecksumFromWeb -Url $hashUrls[$i] -Filename $filename
     
-        $hashResponse = Invoke-WebRequest -Uri $hashUrls[$i] -UseBasicParsing
-        $hashString   = [System.Text.UTF8Encoding]::UTF8. `
-            GetString($hashResponse.Content) -replace ' .*$'
-        $hashValues  += "$($algorithms[$algoIdx]):$hashString" 
+        $hashValues  += "$($algorithms[$algoIdx]):$checksum" 
     }
    
 
