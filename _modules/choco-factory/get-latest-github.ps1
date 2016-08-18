@@ -118,18 +118,17 @@ function Get-VersionInfoFromGithub {
     # Query the latest release
     $release = Invoke-GithubApiLatestRelease -Repo $repo `
         -Filter $filter -ApiToken $ApiToken
+    $normalizedUrls = @() + $release.Url
     For ($i = 0; $i -lt $filter.length; $i++) {
-        If (-not $release.Url[$i]) {
+        If ($normalizedUrls.length -le $i -or -not $normalizedUrls[$i]) {
             Write-Error "Asset $($filter[$i]) has not been found."
             return
         }
     }
         
-    $normalizedUrls = @() + $release.Url
     $fileUrls       = $normalizedUrls[0..($fileCount - 1)]
     $hashUrls       = @()
     
-    write-debug "here"
     If ($normalizedUrls.length -gt $fileCount) {
         $hashUrls   = $normalizedUrls[$fileCount..($normalizedUrls.length - 1)]
     }
@@ -143,7 +142,7 @@ function Get-VersionInfoFromGithub {
     }
 
     
-    # Download the hash file and exract the hash value
+    # Download the hash file and extract the hash value
     $hashValues = @()
     For ($i = 0; $i -lt $hashUrls.length; $i++) {
         $algoIdx = $i
