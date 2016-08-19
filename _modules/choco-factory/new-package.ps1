@@ -61,16 +61,15 @@ $msDefenderDirScanArgs   = @(
                  
     Furthermore, the following information is consumed by the default 
     $PrepareFilesHook:
-        Url     : The default ExtractHook downloads the file pointed to by
-                  this url to the tools directory prior to building the package.
-                  If the file ends with 'zip' it is extracted to the tools
-                  folder, instead. If this item is an array, all urls are
-                  downloaded.
-        UrlHash : [Optional] A string of the form <md5|sha1|sha256>:<hash value>
-                  that is interpreted as hash value to check the integrity of
-                  the file pointed to by Url. If an array of urls has been
-                  provided, the i-th file is checked against the i-th hash (if 
-                  available).
+        FileUrl  : The default ExtractHook downloads the file pointed to by this
+                   url to the tools directory prior to building the package. If
+                   the file ends with 'zip' it is extracted to the tools folder,
+                   instead. If this item is an array, all urls are downloaded.
+        Checksum : [Optional] A string of the form <md5|sha1|sha256>:<hash value>
+                   that is interpreted as hash value to check the integrity of
+                   the file pointed to by Url. If an array of urls has been
+                   provided, the i-th file is checked against the i-th hash (if 
+                   available).
                
 .PARAMETER PrepareFilesHook
     A anonymous powershell function for preparing the files required to build
@@ -381,8 +380,8 @@ $defaultPrepareFilesHook = {
     }
 
     $targetFolder = "tools"
-    $urlList      = @() + $pkgData.Url
-    $hashList     = @() + $pkgData['UrlHash'] # optional property
+    $urlList      = @() + $pkgData.FileUrl
+    $hashList     = @() + $pkgData['Checksum'] # optional property
     
     For ($i = 0; $i -lt $urlList.length; $i++) {
         $url = $urlList[$i]

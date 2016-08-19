@@ -32,9 +32,9 @@ $sha256    =  Get-ChecksumFromWeb -Url $sha256Url -Filename $zipFile
 
 # Format version info
 $versionInfo = @{
-    Version = $version
-    Url     = $zipUrl
-    UrlHash = "sha256:$sha256"
+    Version  = $version
+    FileUrl  = $zipUrl
+    Checksum = "sha256:$sha256"
 }
 Write-Verbose `
     "Putty version info`n$($versionInfo | Format-List | Out-String)"

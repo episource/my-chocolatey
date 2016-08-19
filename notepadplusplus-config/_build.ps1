@@ -6,8 +6,8 @@
 # Format version info
 $versionInfo = @{
     Version      = "1.1.0"
-    Url          = @()
-    UrlHash      = @()
+    FileUrl      = @()
+    Checksum     = @()
     ReleaseNotes = @"
 v1.1.0 : Change shortcuts
     - SCI_SELECTIONDUPLICATE: Ctrl+Shift+D (custom - default was Ctrl+D)

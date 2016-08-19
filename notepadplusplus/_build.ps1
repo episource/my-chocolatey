@@ -48,9 +48,9 @@ $sha1 = Get-ChecksumFromWeb -Url $sha1url -Filename (Split-Path -Leaf $zipUrl)
 
 # Format version info
 $versionInfo = @{
-    Version = $version
-    Url     = $zipUrl
-    UrlHash = "sha1:$sha1"
+    Version  = $version
+    FileUrl  = $zipUrl
+    Checksum = "sha1:$sha1"
 }
 Write-Verbose `
     "Notepad++ version info`n$($versionInfo | Format-List | Out-String)"

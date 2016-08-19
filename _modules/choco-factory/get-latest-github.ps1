@@ -166,8 +166,8 @@ function Get-VersionInfoFromGithub {
     # Format all version info
     $versionInfo = @{
         Version       = $version
-        Url           = $fileUrls
-        UrlHash       = $hashValues
+        FileUrl       = $fileUrls
+        Checksum      = $hashValues
         GithubRelease = $jsonResponse
     }
     Write-Verbose (
