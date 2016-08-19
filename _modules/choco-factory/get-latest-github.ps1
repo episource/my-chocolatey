@@ -22,11 +22,11 @@ Import-Module import-callerpreference
 <#
 .SYNOPSIS
     Retrieves current version information from github, that is compatible with
-    the input expected by Export-Package.
+    the input expected by New-Package.
 
 .DESCRIPTION
-    This functions queries the github.api to get information about the latest
-    release from github. The result is compatible with the Export-Package
+    This functions queries the github API to get information about the latest
+    release from github. The result is compatible with the New-Package
     function from the choco-factory module.
     
     This function is a more specialized variant of Get-LatestReleaseFromGithub.
@@ -42,7 +42,7 @@ Import-Module import-callerpreference
     filenames.
     
 .PARAMETER EnableRegex
-    Interpret $File and $HashFile as regular expression.
+    Interpret $File as regular expression.
     
 .PARAMETER ExtractVersionHook
     A use defined script block to extract the version string from the release
@@ -51,7 +51,7 @@ Import-Module import-callerpreference
     The resulting version string is checked to comply with the semver
     specification.
     
-    The default is to return (1) if not null or empty and otherwise (2).
+    The default is to return the tag name with any leading 'v' removed.
     
 .OUTPUT
     A VersionInfo structure according to the description of the Export-Package
@@ -70,7 +70,7 @@ function Get-VersionInfoFromGithub {
         [Parameter(Mandatory=$false)] [Switch]   $EnableRegex
             = $false,
         [Parameter(Mandatory=$false)] [ScriptBlock] $ExtractVersionHook
-            = { param($name, $tag_name) If ($name) { return $name } return $tag_name },
+            = { param($name, $tag_name) return $tag_name -replace "^v" },
         [Parameter(Mandatory=$false)] [String]   $ApiToken 
             = (_Get-Var 'global:CFGithubToken'      $null)
     )

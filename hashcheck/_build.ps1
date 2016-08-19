@@ -11,8 +11,6 @@ $hashfile = "HashCheckSetup-v[0-9\.]+\.exe\.sha256"
 
 
 # Export the package (subject to _config.ps1)
-Get-VersionInfoFromGithub -Repo $repo -File $filename -EnableRegex `
-    -ExtractVersionHook `
-        { param($name, $tag_name) return $tag_name -replace "^v" } |
+Get-VersionInfoFromGithub -Repo $repo -File $filename -EnableRegex |
 Add-ChecksumFromGithubAsset -ChecksumFileRegex $hashfile -Algorithm sha256 |
 New-Package -TemplateDir $PSScriptRoot
