@@ -79,9 +79,15 @@ PowerShellVersion = '5.0'
 
 # Functions to export from this module
 FunctionsToExport = @(
+    # Main cmldets
     'Invoke-NewPackage',
     'New-Package',
     'Publish-Packages',
+    
+    # Auxiliary cmdlets
+    'Add-Checksum',
+    'Add-ChecksumFromGithubAsset',
+    'Add-ChecksumFromWeb',
     'Get-ChecksumFromWeb',
     'Get-VersionInfoFromGithub',
     'Invoke-GithubApiLatestRelease'

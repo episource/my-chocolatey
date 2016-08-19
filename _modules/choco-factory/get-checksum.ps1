@@ -19,6 +19,12 @@ $ErrorAction = "Stop"
 
 Import-Module import-callerpreference
 
+
+$script:lastFileContent = @{
+    Url     = $null
+    Content = $null
+}
+
 <#
 .SYNOPSIS
     Retrieves a file's checksum from a checksum file found at some url.
@@ -66,16 +72,27 @@ function Get-ChecksumFromWeb {
         $Filename = $Filename | %{
             return [Regex]::Escape($_) }
     }
+
+
+    # Cache last web request to accomodate Add-ChecksumFromWeb which might
+    # perform repeated requests for the same set of urls
+    If ($script:lastFileContent.Url -eq $Url.ToString()) {
+        Write-Verbose "Using cached checksum file!"
+        $checksumFileContent = $script:lastFileContent.Content
+    } Else {
+        $checksumFileContent = ""
     
-    
-    $checksumFileContent = ""
-    ForEach ($u in $Url) {
-        $checksumWebResponse  = Invoke-WebRequest -UseBasicParsing -Uri $u
+        ForEach ($u in $Url) {
+            $checksumWebResponse  = Invoke-WebRequest -UseBasicParsing -Uri $u
+            
+            # The content property might consist of a byte[] only (depending on the
+            # content type header) => ToString() gives the expected plain text
+            # result
+            $checksumFileContent += "`n" + $checksumWebResponse.ToString()
+        }
         
-        # The content property might consist of a byte[] only (depending on the
-        # content type header) => ToString() gives the expected plain text
-        # result
-        $checksumFileContent += "`n" + $checksumWebResponse.ToString()
+        $script:lastFileContent.Url     = $Url.ToString()
+        $script:lastFileContent.Content = $checksumFileContent
     }
     
     
@@ -84,6 +101,7 @@ function Get-ChecksumFromWeb {
 
         If (-not ($checksumFileContent -match $checksumRegex)) {
             Write-Error "Failed to retrieve checksum of $_!"
+            return $null
         }
         
         If ($ValueOnly) {

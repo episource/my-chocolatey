@@ -40,25 +40,6 @@ Import-Module import-callerpreference
 .PARAMETER File
     The filename for which the asset url is to be extracted. Can be an array of
     filenames.
-        
-.PARAMETER HashFile
-    The filename of an asset containing the hash of the file addressed by
-    $File. The hash algorithm defaults to sha256, but can be overwritten
-    using $HashAlgorithm. Just like $File, this can be an array, too. The number
-    of entries must be less than the number of Files specified.
-    
-    If no $HashFile is provided, no hash can be retrieved and Export-Package
-    won't be able to check file integrity.
-        
-.PARAMETER HashAlgorithm
-    The hash algorithm that has been used to create $HashFile. Supported values
-    are all arguments accepted by the Get-FileHash cmdlet's Algorithm parameter.
-    
-    An array can be specified to set a different algorithm vor each $HashFile.
-    If there are more $HashFile-s than $HashAlgorithm-s specified, the last
-    algorithm is used for all remaining files.
-    
-    The default algorithm is sha256.
     
 .PARAMETER EnableRegex
     Interpret $File and $HashFile as regular expression.
@@ -70,7 +51,7 @@ Import-Module import-callerpreference
     The resulting version string is checked to comply with the semver
     specification.
     
-    The default is to return (1) if not null or empty and otherwiese (2).
+    The default is to return (1) if not null or empty and otherwise (2).
     
 .OUTPUT
     A VersionInfo structure according to the description of the Export-Package
@@ -79,17 +60,13 @@ Import-Module import-callerpreference
     The raw github API response is available through the field GithubRelease.
         
 .EXAMPLE
-    Get-VersionInfoFromGithub -Repo 'gurnec/HashCheck' -FilenameRegex '.*'
+    Get-VersionInfoFromGithub -Repo 'gurnec/HashCheck' -File "HashCheckSetup-v[0-9\.]+\.exe" -EnableRegex
 #>
 function Get-VersionInfoFromGithub {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]  [String]   $Repo,
         [Parameter(Mandatory=$true)]  [String[]] $File,
-        [Parameter(Mandatory=$false)] [String[]] $HashFile
-            = @(),
-        [Parameter(Mandatory=$false)] [String[]] $HashAlgorithm 
-            = @('sha256'),
         [Parameter(Mandatory=$false)] [Switch]   $EnableRegex
             = $false,
         [Parameter(Mandatory=$false)] [ScriptBlock] $ExtractVersionHook
@@ -114,19 +91,15 @@ function Get-VersionInfoFromGithub {
             $urls += $matchingUrls
         }
         
-        return ,$urls
+        return $urls
     }
     
     
     # Build asset filter
     $normalizedFile     = @() + $File
-    $normalizedHashFile = @() + $HashFile
-    $algorithms         = @() + $HashAlgorithm
     
     If (-not $EnableRegex) {
         $normalizedFile     = $normalizedFile | %{
-            return '^' + [Regex]::Escape($_) + '$' }
-        $normalizedHashFile = $normalizedHashFile | %{
             return '^' + [Regex]::Escape($_) + '$' }
     }
     
@@ -135,9 +108,7 @@ function Get-VersionInfoFromGithub {
     $jsonResponse = Invoke-GithubApiLatestRelease -Repo $repo `
         -ApiToken $ApiToken
     $assets       = $jsonResponse.assets
-    
     $fileUrls = Filter-Assets $assets $normalizedFile
-    $hashUrls = Filter-Assets $assets $normalizedHashFile
 
     
     # Extract and validate version
@@ -148,27 +119,10 @@ function Get-VersionInfoFromGithub {
     }
 
     
-    # Download the hash file and extract the hash value
-    $hashValues = @()
-    For ($i = 0; $i -lt [Math]::Min($hashUrls.length, $fileUrls.length); $i++) {
-        $algoIdx = $i
-        If ($algoIdx -ge $algorithms.length) {
-            $algoIdx = -1
-        }
-        
-        $filename = Split-Path -Leaf $fileUrls[$i]
-        $checksum = Get-ChecksumFromWeb -Url $hashUrls[$i] -Filename $filename `
-            -ValueOnly
-    
-        $hashValues  += "$($algorithms[$algoIdx]):$checksum" 
-    }
-   
-
     # Format all version info
     $versionInfo = @{
         Version       = $version
         FileUrl       = $fileUrls
-        Checksum      = $hashValues
         GithubRelease = $jsonResponse
     }
     Write-Verbose (
