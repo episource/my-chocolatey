@@ -27,7 +27,7 @@ $zipUrl = $latestUrl + $zipFile
 
 # Get checksum
 $sha256Url = $latestUrl + $sha256File
-$sha256    =  Get-ChecksumFromWeb -Url $sha256Url -Filename $zipFile
+$sha256    =  Get-ChecksumFromWeb -Url $sha256Url -Filename $zipFile -ValueOnly
 
 
 # Format version info

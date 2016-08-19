@@ -31,11 +31,13 @@ Import-Module import-callerpreference
     {checksum/hash} SPACE* ASTERISK? {filename}
     
 .PARAMETER Url
-    Url pointing to a checksum file.
+    Url pointing to one or many checksum files. If more than one $Url is given,
+    the files are appended.
     
 .PARAMETER Filename
     The name of the file whose checksum is extracted. Can be an array if
-    multiple checksums are to be extracted.               
+    multiple checksums are to be extracted. The first matching checksum entry is
+    being returned.
     
 .PARAMETER EnableRegex
     Interpret $Filename as regular expression. Per default $Filename-s are
@@ -47,32 +49,50 @@ Import-Module import-callerpreference
 function Get-ChecksumFromWeb {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]  [String]   $Url,
+        [Parameter(Mandatory=$true)]  [String[]] $Url,
         [Parameter(Mandatory=$true)]  [String[]] $Filename,
         [Parameter(Mandatory=$false)] [Switch]   $EnableRegex
+            = $false,
+        [Parameter(Mandatory=$false)] [Switch]   $ValueOnly
             = $false
     )
     Import-CallerPreference
 
-    $normalizedFilename = @() + $Filename
+    $Filename = @() + $Filename
+    $Url      = @() + $Url
+    
+    
     If (-not $EnableRegex) {
-        $normalizedFilename = $normalizedFilename | %{
+        $Filename = $Filename | %{
             return [Regex]::Escape($_) }
     }
     
-    $checksumWebResponse = Invoke-WebRequest -UseBasicParsing -Uri $Url
     
-    # The content property might consist of a byte[] only (depending on the
-    # content type header) => ToString() gives the expected plain text result
-    $checksumFileContent = $checksumWebResponse.ToString()
+    $checksumFileContent = ""
+    ForEach ($u in $Url) {
+        $checksumWebResponse  = Invoke-WebRequest -UseBasicParsing -Uri $u
+        
+        # The content property might consist of a byte[] only (depending on the
+        # content type header) => ToString() gives the expected plain text
+        # result
+        $checksumFileContent += "`n" + $checksumWebResponse.ToString()
+    }
     
-    return $normalizedFilename | %{
-        $checksumRegex = "(?m)^(?<CHECKSUM>[a-zA-Z0-9]+)\s+\*?$_"
+    
+    return $Filename | %{
+        $checksumRegex = "(?m)^(?<CHECKSUM>[a-zA-Z0-9]+)\s+\*?(?<FILENAME>$_)"
 
         If (-not ($checksumFileContent -match $checksumRegex)) {
             Write-Error "Failed to retrieve checksum of $_!"
         }
         
-        return $Matches.CHECKSUM
+        If ($ValueOnly) {
+            return $Matches.CHECKSUM
+        } Else {
+            return @{
+                Checksum = $Matches.CHECKSUM
+                Filename = $Matches.FILENAME
+            }
+        }
     }
 }

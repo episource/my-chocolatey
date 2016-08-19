@@ -157,7 +157,8 @@ function Get-VersionInfoFromGithub {
         }
         
         $filename = Split-Path -Leaf $fileUrls[$i]
-        $checksum = Get-ChecksumFromWeb -Url $hashUrls[$i] -Filename $filename
+        $checksum = Get-ChecksumFromWeb -Url $hashUrls[$i] -Filename $filename `
+            -ValueOnly
     
         $hashValues  += "$($algorithms[$algoIdx]):$checksum" 
     }

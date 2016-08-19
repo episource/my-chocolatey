@@ -43,7 +43,8 @@ If (-not $zipUrl -or -not $sha1Url) {
 
 
 # Extract checksum
-$sha1 = Get-ChecksumFromWeb -Url $sha1url -Filename (Split-Path -Leaf $zipUrl)
+$sha1 = Get-ChecksumFromWeb -Url $sha1url -Filename (Split-Path -Leaf $zipUrl) `
+    -ValueOnly
 
 
 # Format version info
