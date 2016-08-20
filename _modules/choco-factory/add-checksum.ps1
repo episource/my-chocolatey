@@ -198,7 +198,7 @@ function Add-ChecksumFromWeb {
     VersionInfo.FileUrl and VersionInfo.GithubRelease items.
     
 .PARAMETER Algorithm
-    Tha hash algorithm that has been used to create the checksum file pointed to
+    The hash algorithm that has been used to create the checksum file pointed to
     by $ChecksumFileUrl. See Get-FileHash for a list of supported algorithms.
     
 .PARAMETER ChecksumFileRegex
@@ -241,6 +241,100 @@ function Add-ChecksumFromGithubAsset {
             
             Write-Output $vi | Add-ChecksumFromWeb `
                 -ChecksumFileUrl $checksumFileUrl -Algorithm $Algorithm
+        }
+    } End {
+    
+    }
+}
+
+
+<#
+.SYNOPSIS
+    Extract checksums from the description of a github release and append them
+    to a VersionInfo structure (HashTable).
+
+.DESCRIPTION
+    A user defined hook ($GetChecksumHook) is used for extracting checksum
+    checksums that are missing in the VersionInfo structure by parsing the
+    github release description.     information from the github release description. 
+    
+    The $VersionInfo must have been created with Get-VersionInfoFromGithub. More
+    precise it must contain a VersionInfo.GithubRelease item containing the raw
+    API response (see Get-VersionInfoFromGithub for details).
+    
+.PARAMETER VersionInfo
+    The VersionInfo structure to which checksums are to be appended. Must have
+    VersionInfo.FileUrl and VersionInfo.GithubRelease items.
+    
+.PARAMETER GetChecksumHook
+    A user defined script block that extracts checksums from the github release
+    description. The script block is passed the following parameters (in the
+    given order):
+        GithubRelease  : The github API response describing the latest release.
+        Filename       : The name of the file for which a checksum is to be
+                         retrieved.
+        FilenameEscaped: The Filename (see above) escaped to be used inside
+                         above regular expression.
+        FileUrl        : Url of the file for which a checksum is to be
+                         retrieved.
+        
+    The script block should return a String of the form 
+    "<md5|sha1|sha256|*>:<hash>" where <md5|sha1|sha256|*> is any hash algorithm
+    supported by the Get-FileHash cmdlet and <hash> is the hex encoded checksum
+    value. If no checksum could be extracted, $null should be returned instead.
+    
+.OUTPUT
+    The $VersionInfo structure with VersionInfo.Checksum containing the checksum
+    values belonging to the VersionInfo.FileUrl-s.
+#>
+function Add-ChecksumFromGithubRelease {
+    [CmdletBinding()]
+    param(
+        [Parameter(
+            Mandatory=$true,
+            ValueFromPipeline=$true)]
+        [HashTable[]] $VersionInfo,
+        
+        [Parameter(Mandatory=$true)]
+        [ScriptBlock] $GetChecksumHook
+    )
+
+    Begin {
+        Import-CallerPreference
+    } Process {
+        ForEach ($vi in $VersionInfo) {
+            $fileUrls  = @()  + $vi.FileUrl
+            $checksums = @()  + $vi['Checksum']
+            
+            For ($i = 0; $i -lt $fileUrls.length; $i++) {
+                If ($checksums.length -le $i) {
+                    $checksums += $null
+                }
+                $csum = $checksums[$i]
+                
+                
+                # Replace missing checksums only
+                If (-not $csum) {
+                    $furl         = $fileUrls[$i]
+                    $fname        = Split-Path -Leaf $furl
+                    $fnameEscaped = [Regex]::Escape($fname)
+                    
+                    $checksums[$i] = & $GetChecksumHook `
+                        $vi.GithubRelease $fname $fnameEscaped $furl
+                    
+                    If (-not $checksums[$i]) {
+                        Write-Error "Failed to retrieve checksum for $furl!"
+                    }
+                }
+            }
+                        
+            If ($checksums.length -eq 1) {
+                $vi.Checksum = $checksums[0]
+            } Else {
+                $vi.Checksum = $checksums
+            }
+            
+            Write-Output $vi
         }
     } End {
     

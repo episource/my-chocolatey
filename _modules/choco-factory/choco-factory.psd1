@@ -87,6 +87,7 @@ FunctionsToExport = @(
     # Auxiliary cmdlets
     'Add-Checksum',
     'Add-ChecksumFromGithubAsset',
+    'Add-ChecksumFromGithubRelease',
     'Add-ChecksumFromWeb',
     'Get-ChecksumFromWeb',
     'Get-VersionInfoFromGithub',
