@@ -70,7 +70,14 @@ function Get-VersionInfoFromGithub {
         [Parameter(Mandatory=$false)] [Switch]   $EnableRegex
             = $false,
         [Parameter(Mandatory=$false)] [ScriptBlock] $ExtractVersionHook
-            = { param($name, $tag_name) return $tag_name -replace "^v" },
+            = { 
+                param($name, $tag_name)
+                $version = $tag_name -replace "^v"
+                While ($version.Split('.').length -lt 3) {
+                    $version += '.0'
+                }
+                return $version
+            },
         [Parameter(Mandatory=$false)] [String]   $ApiToken 
             = (_Get-Var 'global:CFGithubToken'      $null)
     )
