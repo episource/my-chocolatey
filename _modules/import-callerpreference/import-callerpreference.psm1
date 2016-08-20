@@ -108,7 +108,7 @@ function Import-CallerPreference {
             If ($callerVar) {
                 $sessionState.PSVariable.Set($callerVar.Name, $callerVar.Value)
                 
-                Write-Host "Imported: $($callerVar.Name)"
+                Write-Verbose "Imported: $($callerVar.Name)"
             } ElseIf($AdditionalPreferences.ContainsKey($preference)) {
                 $sessionState.PSVariable.Set($preference,
                     $AdditionalPreferences.$preference)
