@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>@Package.id</id>
+    <version>@Package.version</version>
+    <title>Process hacker</title>
+    <authors>Wen Jia Liu</authors>
+    <owners>episource</owners>
+    <projectUrl>http://processhacker.sourceforge.net</projectUrl>
+    <projectSourceUrl>https://github.com/processhacker2/processhacker2</projectSourceUrl>
+    <bugTrackerUrl>http://wj32.org/processhacker/forums/viewforum.php?f=24</bugTrackerUrl>
+    <iconUrl>https://cdn.rawgit.com/dtgm/chocolatey-packages/ecf89d2382d3d3dd063b171e626c32d9ae81d70c/icons/processhacker.png</iconUrl>
+    <copyright>Copyright © 2008-2016 Wen Jia Liu (wj32)</copyright>
+    <licenseUrl>https://github.com/processhacker2/processhacker2/blob/@Package.GithubRelease.tag_name/LICENSE.txt</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>A free, powerful, multi-purpose tool that helps you monitor system resources, debug software and detect malware.</summary>
+    <description>A free, powerful, multi-purpose tool that helps you monitor system resources, debug software and detectb malware:
+ * Clear overview of running processes and resource usage
+ * Detailed system information and graphs
+ * Views and edits services
+ * Other features useful for debugging and analyzing software</description>
+    <tags>process taskmgr taskmanager procexp processexplorer security debug system admin</tags>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
