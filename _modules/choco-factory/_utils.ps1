@@ -109,3 +109,12 @@ function _Format-Object($Obj) {
     $str = $Obj | Format-List | Out-String
     return $str.Trim()
 }
+
+function _Get-CallingScriptDirOrCurrentDir {
+    $mi = Get-Variable -Scope 1 -Name "MyInvocation" -ValueOnly
+    If (-not $mi.ScriptName) {
+        return Get-Location
+    } Else {
+        return Split-Path -Parent $mi.ScriptName
+    }
+}

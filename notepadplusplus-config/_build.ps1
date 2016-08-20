@@ -16,5 +16,5 @@ v1.0.0 : Initial version
 "@
 }
 
-New-Package -VersionInfo $versionInfo -TemplateDir $PSScriptRoot
+New-Package -VersionInfo $versionInfo
 

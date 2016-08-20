@@ -40,4 +40,4 @@ Write-Verbose `
     "Putty version info`n$($versionInfo | Format-List | Out-String)"
     
 # Buid the package (subject to _config.ps1)
-New-Package -VersionInfo $versionInfo -TemplateDir $PSScriptRoot
+New-Package -VersionInfo $versionInfo

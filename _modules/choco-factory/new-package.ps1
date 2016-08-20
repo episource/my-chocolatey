@@ -96,8 +96,10 @@ $msDefenderDirScanArgs   = @(
     VirusTotal.com prior to downloading a file.
     
 .PARAMETER TemplateDir
-    Directory containing the package template. Defaults to the current 
-    directory.
+    Directory containing the package template. If invoked by a script, the
+    default value is the directory containing the calling script. If invoked
+    from the command line, this parameter defaults to $(Get-Location), that is
+    the current working directory.
     
 .PARAMETER BuildRoot
     A working directory "$BuildRoot/<id>-<version>" for performing the build is
@@ -107,8 +109,10 @@ $msDefenderDirScanArgs   = @(
     The directory $BuildRoot is created if it does not yet exist. If so, it is
     also deleted after the package has been built.
     
-    This parameter defaults to $global:CFBuildRoot if defined, or otherwise 
-    './_build'.
+    This parameter defaults to $global:CFBuildRoot if defined. Otherwise, if the
+    cmdlet is invoked by a script, the default value is 
+    "$(Directory with script)/_build". If invoked from the command line, the
+    default is "$(Get-Location)/_build".
     
 .PARAMETER OutDir
     The final package "<id>.<version>.nupkg" is copied to this directory. Any
@@ -116,7 +120,10 @@ $msDefenderDirScanArgs   = @(
     
     The directory $OutDir is created if it does not yet exist.
     
-    This parameter defaults to $global:CFBuildRoot if defined, or otherwise '.'.
+    This parameter defaults to $global:CFBuildRoot if defined. Otherwise, if the
+    cmdlet is invoked by a script, the default value is 
+    $(Directory with script). If invoked from the command line, the default is
+    $(Get-Location).
     
 .PARAMETER IfNotInRepository
     No new package is exported if the file 
@@ -159,11 +166,13 @@ function New-Package {
         [Parameter(Mandatory=$false)] [ScriptBlock] $PrepareFilesHook
             = $defaultPrepareFilesHook,
         [Parameter(Mandatory=$false)] [String]      $TemplateDir 
-            = '.',
+            = $(_Get-CallingScriptDirOrCurrentDir),
         [Parameter(Mandatory=$false)] [String]      $BuildRoot   
-            = (_Get-Var 'global:CFBuildRoot'            './_build'),
+            = (_Get-Var 'global:CFBuildRoot' `
+                '$(_Get-CallingScriptDirOrCurrentDir)/_build'),
         [Parameter(Mandatory=$false)] [String]      $OutDir      
-            = (_Get-Var 'global:CFBuildRoot'            '.'),
+            = (_Get-Var 'global:CFBuildRoot' `
+                '$(_Get-CallingScriptDirOrCurrentDir)'),
         [Parameter(Mandatory=$false)] [String]      $IfNotInRepository
             = (_Get-Var 'global:CFRepository'           $null),
         [Parameter(Mandatory=$false)] [Switch]      $NoScan
@@ -172,7 +181,7 @@ function New-Package {
             = (_Get-Var 'global:CFVtApiKey'             $null)
     )   
     Import-CallerPreference -AdditionalPreferences @{ ProgressBarId = 0 }
-    
+
     
     # store current location to restore it later
     $location               = Get-Location
