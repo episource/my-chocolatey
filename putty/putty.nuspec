@@ -14,6 +14,9 @@
     <description>PuTTY is a free implementation of SSH and Telnet for Windows and Unix platforms, along with an xterm terminal emulator.</description>
     <summary>PuTTY is a free implementation of SSH and Telnet for Windows and Unix platforms, along with an xterm terminal emulator.</summary>
     <tags>putty telnet ssh network</tags>
+    <dependencies>
+      <dependency id="startmenu.extension" version="[1.1.0,)"/>
+    </dependencies>
   </metadata>
   <files>
     <file src="tools\**" target="tools" />

@@ -1,5 +1,6 @@
-. $PSScriptRoot/chocolateyCommon.ps1
+$destdir = Split-Path -parent $MyInvocation.MyCommand.Definition
+$exe     = Join-Path $destDir "PUTTY.EXE"
+
 
 # Install start menu shortcut
-Install-ChocolateyShortCut `
-    -ShortcutFilePath $startLink -TargetPath $exe
+Install-StartMenuLink -LinkName Putty -TargetPath $exe
