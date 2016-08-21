@@ -8,6 +8,10 @@ $global:CFBuildRoot = "$PSScriptRoot/_build"
 # build and passes some simple install tests, it is deployed to CFRepository.
 $global:CFRepository = "$PSScriptRoot/_repo"
 
+# Files downloaded by New-Package's default extract files hook are cached if
+# $global:CFCacheDir is set
+# $global:CFCacheDir = "$PSScriptRoot/_cache"
+
 # The config variable CFNoScan can be used to disable virus scans. By default
 # all package content is scanned with MS Defender. If a VirusTotal.com api key
 # is provided (see config.private.ps1 below), files from the web are even

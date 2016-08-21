@@ -389,6 +389,7 @@ $defaultPrepareFilesHook = {
     }
 
     $targetFolder = "tools"
+    $cacheFolder  = _Get-Var global:CFCacheDir $null
     $urlList      = @() + $pkgData.FileUrl
     $hashList     = @() + $pkgData['Checksum'] # optional property
     
@@ -396,8 +397,37 @@ $defaultPrepareFilesHook = {
         $url = $urlList[$i]
         $hash = $hashList[$i]            
         
-        $file = Get-WebFile -Uri $url -OutFile $targetFolder `
-            -VtApiKey $VTApiKey -Debug:$false
+        
+        # Retrieve file from web or cache
+        $cacheKey = $null
+        $fileFromCache = $null
+        If ($cacheFolder) {
+            $cacheKey = _Get-StringHash $url
+            $fileFromCache = Get-Item "$cacheFolder/$cacheKey*" `
+                -ErrorAction SilentlyContinue | Select-Object -First 1
+        }
+        
+        If ($fileFromCache) {
+            $fname = (Split-Path -Leaf $fileFromCache) -replace "^$cacheKey"
+            $file = Join-Path $targetFolder $fname
+            
+            Copy-Item -Path $fileFromCache -Destination $file -Force
+            $file = Get-Item $file
+        } Else {
+            $file = Get-WebFile -Uri $url -OutFile $targetFolder `
+                -VtApiKey $VTApiKey -Debug:$false
+                
+            If ($cacheKey) {
+                $fname = Split-Path -Leaf $file
+                
+                New-Item -Type Directory $cacheFolder -Force
+                Copy-Item -Path $file `
+                    -Destination "$cacheFolder/$cacheKey$fname" -Force
+            }
+        }
+        
+        
+        # Validate checksum
         if ($hash -and ($hash -match "^(?<algorithm>[a-zA-Z0-9]+):(?<hash>.+)$")) {
             $algorithm = $Matches.algorithm
             $expected  = $Matches.hash.ToLower()

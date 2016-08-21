@@ -4,3 +4,4 @@ _build
 /_config.private.ps1
 /_private_templates
 /testpkg
+/_cache

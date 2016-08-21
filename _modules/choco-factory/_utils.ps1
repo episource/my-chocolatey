@@ -118,3 +118,15 @@ function _Get-CallingScriptDirOrCurrentDir {
         return Split-Path -Parent $mi.ScriptName
     }
 }
+
+function _Get-StringHash($String, $Algorithm="MD5") {
+    $sb       = New-Object System.Text.StringBuilder
+    $bytes    = [System.Text.Encoding]::UTF8.GetBytes($String)
+    $hashfunc = [System.Security.Cryptography.HashAlgorithm]::Create($Algorithm)
+    
+    ForEach ($byte in $hashfunc.ComputeHash($bytes)) {
+        $sb.Append($byte.ToString("x2")) | Out-Null
+    }
+    
+    return $sb.ToString()
+}
