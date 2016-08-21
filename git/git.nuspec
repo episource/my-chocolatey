@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>@Package.id</id>
+    <version>@Package.version</version>
+    <title>Git</title>
+    <authors>Johannes Schindelin &amp; msysgit Community</authors>
+    <owners>episource</owners>
+    <projectUrl>https://git-for-windows.github.io/</projectUrl>
+    <projectSourceUrl>https://github.com/git-for-windows/git</projectSourceUrl>
+    <bugTrackerUrl>https://github.com/git-for-windows/git/issues</bugTrackerUrl>
+    <docsUrl>http://git-scm.com/doc</docsUrl>
+    <mailingListUrl>http://groups.google.com/group/git-for-windows</mailingListUrl>
+    <iconUrl>https://cdn.rawgit.com/ferventcoder/chocolatey-packages/02c21bebe5abb495a56747cbb9b4b5415c933fc0/icons/git.svg</iconUrl>
+    <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.html</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>Git is a fast, scalable, distributed revision control system .</summary>
+    <description> Git is a free and open source distributed version control system designed to handle everything from small to very large projects with speed and efficiency.
+
+Git is easy to learn and has a tiny footprint with lightning fast performance. It outclasses SCM tools like Subversion, CVS, Perforce, and ClearCase with features like cheap local branching, convenient staging areas, and multiple workflows. </description>
+    <tags>git vcs dvcs version control msysgit admin</tags>
+    <dependencies>
+      <dependency id="startmenu.extension" version="[1.1.0,)"/>
+      <dependency id="shimgen.extension" version="[1.0.0,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
