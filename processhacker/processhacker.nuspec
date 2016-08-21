@@ -21,6 +21,10 @@
  * Views and edits services
  * Other features useful for debugging and analyzing software</description>
     <tags>process taskmgr taskmanager procexp processexplorer security debug system admin</tags>
+    <dependencies>
+      <dependency id="startmenu.extension" version="[1.1.0,)"/>
+      <dependency id="shimgen.extension" version="[1.0.0,)"/>
+    </dependencies>
   </metadata>
   <files>
     <file src="tools\**" target="tools" />
