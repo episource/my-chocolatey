@@ -34,22 +34,27 @@ function Uninstall-StartMenuLink {
     
     $pkgFolder    = $env:chocolateyPackageFolder
     $uninstallLog = Join-Path $pkgFolder $uninstallLogName  
+    $uninstalled  = @()
     
-    $uninstalled = @()
-    Get-Content $uninstallLog | %{
-        $lnk = $_
-        
-        If ($lnk) {
-            Try {
-                Remove-Item $lnk -ErrorAction Stop
-                $uninstalled += $lnk
-            } Catch {
-                Write-Warning "Failed to uninstall ${lnk}:`n$_"
+    If (Test-Path $uninstallLog) {
+        Get-Content $uninstallLog | %{
+            $lnk = $_
+            
+            If ($lnk) {
+                Try {
+                    Remove-Item $lnk -ErrorAction Stop
+                    $uninstalled += $lnk
+                } Catch {
+                    Write-Warning "Failed to uninstall ${lnk}:`n$_"
+                }
             }
         }
+        
+        Remove-Item $uninstallLog
+    } Else {
+        Write-Verbose "No uninstall log found. Nothing to do."
     }
     
-    Remove-Item $uninstallLog
     If ((Get-ChildItem $startPath | Measure-Object) -eq 0) {
         Remove-Item $startPath
     }

@@ -5,7 +5,7 @@
 
 # Format version info
 $versionInfo = @{
-    Version      = "1.0.0"
+    Version      = "1.1.0"
     FileUrl      = @()
     Checksum     = @()
 }
