@@ -317,7 +317,7 @@ function Format-PowershellRegistryImage {
         $value   = [RegistryValue]$entry.Value
         
         If ($value.isKey) {
-            $expression = ConvertTo-PowershellRegistryImage `
+            $expression = Format-PowershellRegistryImage `
                 -Image $value.Value -FirstIndent 0 -Indent $Indent `
                 -OneLine:$OneLine
         } Else {
