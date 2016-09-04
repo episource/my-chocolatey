@@ -45,7 +45,7 @@ $_semverRegex = @"
 $
 "@
 
-$_nupkgRegex = $_semverRegex -replace '\^','^(?<pkgId>.+)\.(?<pkgVersion>' -replace '\$',').nupkg$'
+$_nupkgRegex = $_semverRegex -replace '\^','^(?<pkgId>[^\.]+(?:\.[^0-9]+)?)\.(?<pkgVersion>' -replace '\$',').nupkg$'
 
 function _Get-Var($var, $default) {
     $name  = $var -replace "^[a-zA-Z0-9]+:"
