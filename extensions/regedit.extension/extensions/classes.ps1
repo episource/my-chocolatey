@@ -118,53 +118,67 @@ class PowershellExpression {
 }
 
 
-$registryPathComparerCache = @{}
-
 # Sort registry keys, such that values come before subkeys at each level.
 # The result of the sort operation is equal to visiting all keys in the windows
 # registry editor in a depth-first manner. At each level, values are visited
 # before subkeys.
 # Example: /a/b/c < /a/b/d < /a/b/a/e
-class RegistryPathComparer : System.Collections.Generic.IComparer[String] {
-    $stringComparer = [StringComparer]::InvariantCultureIgnoreCase
-    
-    [Int] Compare([String]$s1, [String]$s2) {
-        $cacheKey = [System.Tuple[String,String]]::new($s1, $s2)
+Add-Type @"
+using System;
+using System.Collections.Generic;
+
+public class RegistryPathComparer : IComparer<string> {
+    private static readonly char[] pathSeparators = @"/\".ToCharArray();
+    private static readonly StringComparer stringComparer =
+        StringComparer.InvariantCultureIgnoreCase;
         
-        $result = $script:registryPathComparerCache[$cacheKey]
-        If ($result) {
-            return $result
+    private IDictionary<Tuple<string, string>, int> cache =
+        new Dictionary<Tuple<string, string>, int>();
+    
+    public int Compare(string s1, string s2) {
+        Tuple<string, string> cacheKey = Tuple.Create(s1, s2);
+        int order = 0;
+        
+        if (this.cache.TryGetValue(cacheKey, out order)) {
+            return order;
         }
         
-        $result = $this.CompareImpl($s1, $s2)
-        $script:registryPathComparerCache[$cacheKey] = $result
-        return $result
+        order = CompareImpl(s1, s2);
+        this.cache.Add(cacheKey, order);
+        
+        return order;
     }
     
-    [Int] CompareImpl([String]$s1, [String]$s2) {
-        $p1 = $s1.Split("/\", [StringSplitOptions]::RemoveEmptyEntries)
-        $p2 = $s2.Split("/\", [StringSplitOptions]::RemoveEmptyEntries)
+    private int CompareImpl(string s1, string s2) {   
+        int order = 0;
+        string[] p1 = s1.Split(
+            pathSeparators, StringSplitOptions.RemoveEmptyEntries);
+        string[] p2 = s2.Split(
+            pathSeparators, StringSplitOptions.RemoveEmptyEntries);
         
-        # Compare common parent keys first
-        $maxLevel = [Math]::Min($p1.length, $p2.length) - 1
-        for ($i = 0; $i -lt  $maxLevel; $i++) {
-            $order = $this.stringComparer.Compare($p1[$i], $p2[$i])
-            If ($order -ne 0) {
-                return $order
+        // Compare common parent keys first
+        int maxLevel = Math.Min(p1.Length, p2.Length) - 1;
+        for (int i = 0; i < maxLevel; i++) {
+            order = stringComparer.Compare(p1[i], p2[i]);
+            if (order != 0) {
+                return order;
             }
         }
         
-        # Sort values before subkeys at level min($p1.length, $p2.length)
-        $order = $p1.length.CompareTo($p2.length)
-        If ($order -ne 0) {
-            return $order
+        // Sort values before subkeys at level min(p1.Length, p2.Length)
+        order = p1.Length.CompareTo(p2.Length);
+        if (order != 0) {
+            return order;
         }
         
-        # Both paths are have the same level (number of parent keys), which
-        # means they are values at the same level => sort alphabetically
-        return $this.stringComparer.Compare($p1[-1], $p2[-1])
+        // Both paths are have the same level (number of parent keys), which
+        // means they are values at the same level => sort alphabetically
+        return stringComparer.Compare(p1[maxLevel], p2[maxLevel]);
+        
+        
     }
 }
+"@
 
 
 <#
