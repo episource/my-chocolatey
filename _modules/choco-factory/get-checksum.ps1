@@ -20,11 +20,6 @@ $ErrorAction = "Stop"
 Import-Module import-callerpreference
 
 
-$script:lastFileContent = @{
-    Url     = $null
-    Content = $null
-}
-
 <#
 .SYNOPSIS
     Retrieves a file's checksum from a checksum file found at some url.
@@ -63,6 +58,14 @@ function Get-ChecksumFromWeb {
             = $false
     )
     Import-CallerPreference
+    If (-not (Get-Variable -Scope script -Name lastFileContent `
+            -ErrorAction SilentlyContinue)
+    ) {
+        $script:lastFileContent = @{
+            Url     = $null
+            Content = $null
+        }
+    }
 
     $Filename = @() + $Filename
     $Url      = @() + $Url
@@ -72,7 +75,6 @@ function Get-ChecksumFromWeb {
         $Filename = $Filename | %{
             return [Regex]::Escape($_) }
     }
-
 
     # Cache last web request to accomodate Add-ChecksumFromWeb which might
     # perform repeated requests for the same set of urls
