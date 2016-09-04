@@ -89,6 +89,7 @@ function Install-RegistryImage {
     }
         
     If (-not $NoAutoUninstall) {
+        $pkgFolder       = $env:chocolateyPackageFolder
         $uninstallScript = "$pkgFolder/tools/chocolateyUninstall.ps1"
         
         $imageCode = Format-PowershellRegistryImage -Image $Image -OneLine
@@ -341,6 +342,7 @@ function Install-UserProfileRegistryImage {
     }
         
     If (-not $NoAutoUninstall) {
+        $pkgFolder       = $env:chocolateyPackageFolder
         $uninstallScript = "$pkgFolder/tools/chocolateyUninstall.ps1"
         
         $imageCode = Format-PowershellRegistryImage -Image $Image -OneLine
