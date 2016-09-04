@@ -21,21 +21,21 @@ $_templateExtension       = '.nuspec'
 #         has been added by nuget
 $_semverRegex = @"
 (?x)^
-(?'MAJOR'(?:
+(?<MAJOR>(?:
     0|(?:[1-9]\d*)
 ))
 \.
-(?'MINOR'(?:
+(?<MINOR>(?:
     0|(?:[1-9]\d*)
 ))
 \.
-(?'PATCH'(?:
+(?<PATCH>(?:
     0|(?:[1-9]\d*)
 ))
-\.
-(?'PKGRELEASE'(?:
+(?:\.
+(?<PKGRELEASE>(?:
     0|(?:[1-9]\d*)
-))?
+)))?
 (?:-(?<PRERELEASE>
     [0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*
 ))?
