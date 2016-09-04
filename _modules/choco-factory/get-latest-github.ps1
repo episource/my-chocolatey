@@ -196,7 +196,9 @@ function Invoke-GithubApiLatestRelease {
     
 
     $apiUrl = "https://api.github.com/repos/$repo/releases/latest"
-    $requestHeader = @{}
+    $requestHeader = @{
+        Accept = "application/vnd.github.v3+json"
+    }
     If ($ApiToken) {
         $requestHeader.Authorization = "token $ApiToken"
     }
