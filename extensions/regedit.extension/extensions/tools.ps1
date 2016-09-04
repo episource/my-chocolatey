@@ -244,7 +244,24 @@ function _ForEach-HKU {
                     "Loading $ntuserFile as $loadPath."
                 _Update-Progress $ProgressBarState -noIncrease
                 
-                $result = & reg.exe load $loadPath $ntuserFile | Out-String
+                Try {
+                    $lastError = $null
+                
+                    # http://stackoverflow.com/a/35980675
+                    $result = & cmd /c reg.exe load $loadPath $ntuserFile '2>&1' | Out-String
+                    
+                    If ($LASTEXITCODE -ne 0) {
+                        $lastError = $result
+                    }
+                } Catch {
+                    $lastError = "$_ - $result"
+                }
+
+                If ($lastError) {
+                     Write-Error (
+                        "Failed to load user profile registry hive: " +
+                        "$loadPath`n$lastError")
+                }
             }
             
             $ProgressBarState.status = `
@@ -272,18 +289,20 @@ function _ForEach-HKU {
                     [GC]::WaitForPendingFinalizers()
                     
                     Try {
-                        $result = & reg.exe unload $loadPath | Out-String
+                        # http://stackoverflow.com/a/35980675
+                        $result = & cmd /c reg.exe unload $loadPath '2>&1' | Out-String
+                        If ($LASTEXITCODE -ne 0) {
+                            $lastError = $result
+                        }
                     } Catch {
-                        $lastError = $_
-                        Write-Verbose "Retrying: $lastError"
-                        Start-Sleep -Milliseconds 50
+                        $lastError = "$_ - $result"
                     }
-                }
-                
-                If ($lastError) {
-                    Write-Error (
-                        "Failed to unload user profile registry:`n" +
-                        "$result`n$lastError")
+
+                    If ($lastError) {
+                        Write-Verbose `
+                            "Retrying ($($retry+2)/$maxRetries): $lastError"
+                        Start-Sleep -Milliseconds 100
+                    }
                 }
             }
         }
