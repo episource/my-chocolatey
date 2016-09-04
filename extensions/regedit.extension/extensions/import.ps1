@@ -246,36 +246,91 @@ function Import-Registry {
         [Switch] $Rebuild = $false
     )
         
+    $flatImage    = ConvertTo-FlatRegistryImage $Image
+    _Import-RegistryImpl -FlatImage $flatImage -ParentKey $ParentKey `
+        -Force:$Force -Rebuild:$Rebuild
+}
+
+<#
+.SYNOPSIS
+    Private implemenation of the Import-Registry cmdlet.
+    
+.DESCRIPTION
+    See Import-Registry.
+    
+.PARAMETER FlatImage
+    A flat registry image preprocessed with ConvertTo-FlatRegistryImage. All
+    paths must be absolute if no $ParentKey is given, or relative otherwise.
+    
+.OUTPUT
+    None.
+#>
+function _Import-RegistryImpl {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true)]
+        [System.Collections.IDictionary] $FlatImage,
+    
+        [Parameter(Mandatory=$false)] 
+        [String] $ParentKey = $null,
+        
+        [Parameter(Mandatory=$false)]
+        [Switch] $Force = $false,
+        
+        [Parameter(Mandatory=$false)]
+        [Switch] $Rebuild = $false
+    )
+    
     $defaultValue = $null
     $noExpandVars = `
         [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames
         
+    # Use an up-to-date list of registry drives when validating registry paths.
+    # => See also Test-RegistryPathValidity
+    Sync-KnownRegistryDrives
+        
+    If ($ParentKey) {
+        $imgPathType = 'Relative'
+    
+        $ParentKey = $ParentKey.TrimEnd('/\') + '\'
+        Test-RegistryPathValidity $ParentKey -Type Absolute
+    } Else {
+        $imgPathType = 'Relative'
+    }
+    
+    # Test first entry only - ConvertTo-FlatRegistryImage ensures all entries
+    # use the same path type
+    If ($Image.Count -gt 0) {
+        $firstKey = $Image.Keys | Select-Object -First 1
+        If (-not (Test-RegistryPathValidity $firstKey -Type $imgPathType)) {
+            # Test-RegistryPathValidity uses Write-Error internally
+            return
+        }
+    }
+    
     $lastKeyPath  = $null
-    $flatImage    = ConvertTo-FlatRegistryImage $Image
-    ForEach ($entry in $flatImage.GetEnumerator()) {
-        $path = $entry.Key
+    ForEach ($entry in $FlatImage.GetEnumerator()) {
         If ($ParentKey) {
-            $path = Join-Path $ParentKey $path
-        } 
+            $path = $ParentKey + $entry.Key
+        } Else {
+            $path = $entry.Key
+        }
         If (-not $path.Contains(":")) {
             $path = "Registry::$path"
         }
-        If (-not (Test-RegistryPathValidity $Path -Type Absolute)) {
-            # Test-RegistryPathValidity uses Write-Error internally
-            continue
-        }
         
-        If (-not ($path -match "(?<KEY>.+)[/\\](?<VALUE>[^/\\]+)")) {
-            Write-Error "A value cannot be created without parent key: $path"
+        $splitPathResult = Split-RegistryPath $path
+        If (-not $splitPathResult) {
+            # Split-RegistryPath uses Write-Error internally
             continue
         } Else {
-            $keyPath       = $Matches.KEY
+            $keyPath       = $splitPathResult.Key
             
             # Both PowerShell and .Net API are used below: Both expect different
             # names for the default value.
             # PowerShell - $poshValueName: "(Default)"
             # .Net       - $netValueName : ""
-            $poshValueName = $Matches.VALUE
+            $poshValueName = $splitPathResult.Value
             $netValueName  = $poshValueName
             If ($netValueName -eq "(Default)") {
                 $netValueName = ""
@@ -386,15 +441,60 @@ function Import-UserRegistry {
         [Switch] $Rebuild = $false
     )
     
+    $flatImage = ConvertTo-FlatRegistryImage $Image
+    _Import-UserRegistryImpl -FlatImage $flatImage -ParentKey $ParentKey `
+        -SkipDefaultProfile:$SkipDefaultProfile -AlsoHklm:$AlsoHklm `
+        -Force:$Force -Rebuild:$Rebuild
+}
+
+
+<#
+.SYNOPSIS
+    Private implemenation of the Import-UserRegistry cmdlet.
+    
+.DESCRIPTION
+    See Import-Registry.
+    
+.PARAMETER FlatImage
+    A flat registry image preprocessed with ConvertTo-FlatRegistryImage. All
+    paths must be relative.
+    
+.OUTPUT
+    None.
+#>
+function _Import-UserRegistryImpl {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true)]
+        [System.Collections.IDictionary] $FlatImage,
+        
+        [Parameter(Mandatory=$false)] 
+        [String] $ParentKey = $null,
+        
+        [Parameter(Mandatory=$false)]
+        [Alias("NoDefault", "NoDefaultProfile", "SkipDefault")]
+        [Switch] $SkipDefaultProfile = $false,
+        
+        [Parameter(Mandatory=$false)]
+        [Alias("AlsoHKEY_LOCAL_MACHINE")]
+        [Switch] $AlsoHklm = $false,
+        
+        [Parameter(Mandatory=$false)]
+        [Switch] $Force = $false,
+        
+        [Parameter(Mandatory=$false)]
+        [Switch] $Rebuild = $false
+    )
+       
     _ForEach-HKU -SkipDefaultProfile:$SkipDefaultProfile -AlsoHklm:$AlsoHklm `
             -Action {
         If ($ParentKey) {
-            $ParentKey = Join-Path $hkuPath $ParentKey
+            $ParentKey = $hkuPath + '\' + $ParentKey
         } Else {
             $ParentKey = $hkuPath
         }
         
-        Import-Registry -ParentKey $ParentKey -Image $Image `
+        _Import-RegistryImpl -ParentKey $ParentKey -FlatImage $FlatImage `
             -Force:$Force -Rebuild:$Rebuild
     }
 }

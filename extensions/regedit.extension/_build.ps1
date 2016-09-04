@@ -5,10 +5,9 @@
 
 # Format version info
 $versionInfo = @{
-    Version      = "1.0.0"
+    Version      = "1.0.0.1"
     FileUrl      = @()
     Checksum     = @()
 }
 
 New-Package -VersionInfo $versionInfo
-

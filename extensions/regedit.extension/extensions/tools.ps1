@@ -15,6 +15,170 @@
 Set-StrictMode -Version latest
 $ErrorAction = "Stop"
 
+$registryPathRegex = [Regex]::new( 
+    "^(?<PROVIDERORDRIVE>(?:(?<PROVIDER>[^:]+)::)|(?:(?<DRIVE>[^:]+):))?(?<PATH>(?:(?<KEY>[^:]+)[/\\])?(?<VALUE>[^:/\\]+)?)$",
+    [System.Text.RegularExpressions.RegexOptions]::Compiled)
+
+$knownRegistryHives = [System.Collections.Generic.HashSet[Object]]::new( `
+    [System.Collections.Generic.IEnumerable[Object]]( `
+        Get-ChildItem Registry:: | %{ $_.Name }))
+
+<#
+.SYNOPSIS
+    Update the cached list of known registry drives.
+    
+.DESCRIPTION
+    Updates the cached list of known registry drives used by
+    Test-RegistryPathValidity.
+    
+.OUTPUT
+    None.
+#>
+function Sync-KnownRegistryDrives {
+    [CmdletBinding()]
+    Param()
+    
+    $script:knownRegistryDrives = `
+        [System.Collections.Generic.HashSet[Object]]::new( `
+        [System.Collections.Generic.IEnumerable[Object]]( `
+            Get-PSDrive | ?{ $_.Provider.Name -eq "Registry" } |
+                Select-Object -Expand Name))
+}
+Sync-KnownRegistryDrives
+        
+<#
+.SYNOPSIS
+    Tests whether a registry path is a valid absolute or relative path.
+
+.DESCRIPTION
+    Tests whether a registry path is a valid absolute or relative path.
+    
+    Set the ErrorAction parameter to SilentlyContinue if only a boolean result
+    should be returned without any error messages.
+    
+    Note: You might want to refresh the cached list of known registry drives
+    before using this cmdlet. See Sync-KnownRegistryDrives.
+    
+.OUTPUT
+    $true if the path was found to be valid -or- otherwise $false.
+    
+#>
+function Test-RegistryPathValidity {
+	[CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true)]
+        [String] $Path,
+        
+        [Parameter(Mandatory=$false)]
+        [ValidateSet("Any", "Absolute", "Relative")]
+        [String] $Type = "Any"
+    )
+    
+    $regexResult = $registryPathRegex.Match($Path)
+    If (-not $regexResult.Success) {
+        Write-Error "Illegal path: $Path"
+        return $false
+    } 
+    
+    
+    $provider   = $regexResult.Groups['PROVIDER']
+    $drive      = $regexResult.Groups['DRIVE']
+    $pathspec   = $regexResult.Groups['PATH'].Value
+    $isAbsolute = $provider.Success -or $drive.Success
+    If (-not $isAbsolute -and ($Type -eq "Absolute")) {
+        Write-Error "Wanted absolute path, but is relative: $Path"
+        return $false
+    }
+    
+    If ($provider.Success) {
+        $provider = $provider.Value
+        
+        $providerRegex = "^(Microsoft\.PowerShell\.Core\\)?Registry"
+        If (-not ($provider -match $providerRegex)) {
+            Write-Error ( 
+                "Unsupported provider ""$provider"" in path ""$Path"".`n" +
+                "Must be either ""Microsoft.PowerShell.Core\Registry"" " +
+                "or ""Registry"".")
+            return $false
+        } 
+        
+        $maxParts  = 2
+        $pathParts = $pathspec.Split(`
+            '/\', $maxParts, [StringSplitOptions]::RemoveEmptyEntries)
+        If ($pathParts.length -lt 2) {
+            Write-Error (
+                "The given absolute does not specify at least a registry " +
+                "hive and the name of a value.`nPath: $Path"
+            )
+            return $false
+        }
+        
+        $actualHive = $pathParts[0]
+        If (-not ($script:knownRegistryHives -contains $actualHive)) {
+            Write-Error (
+                "Unknown registry hive ""$actualHive"" in absolute path " +
+                "specification: $Path")
+            return $false
+        }
+        
+    } ElseIf ($drive.Success) {
+        $drive = $drive.Value
+    
+        If (-not ($script:knownRegistryDrives -contains $drive)) {
+            $supportedDrivesString = [String]::Join(', ', $supportedDrives)
+            Write-Error (
+                "Unsupported PSDrive ""$drive"" in path ""$Path"".`n" +
+                "Valid drives are: $supportedDrivesString. " +
+                "See New-PSDrive for for details."
+            )
+            return $false
+        }
+        
+        If (-not $pathspec.StartsWith("\") -and -not $pathspec.StartsWith("/")) {
+            Write-Error (
+                "PSDrive not followed by directory separator:`n" +
+                "Should be: ${drive}:\$pathspec`n" +
+                "Was      : $pathspec")
+            return $false
+        }
+    }
+    
+    If ($isAbsolute -and ($Type -eq "Relative")) {
+        Write-Error "Wanted relative path, but is absolute: $Path"
+        return $false
+    }
+    
+    return $true
+}
+
+
+<#
+.SYNOPSIS
+    Splits a registry path into its key and value part.
+    
+.OUTPUT
+    An object with properties "Key" and "Value" if the path is valid, or $null
+    otherwise.
+#>
+function Split-RegistryPath {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true)]
+        [String] $Path
+    )
+    $regexResult = $registryPathRegex.Match($Path)
+    If (-not $regexResult.Success) {
+        Write-Error "Illegal path: $Path"
+        return $null
+    }
+    
+    return @{
+        Key   = $regexResult.Groups['PROVIDERORDRIVE'].Value + `
+            $regexResult.Groups['KEY'].Value
+        Value = $regexResult.Groups['VALUE'].Value
+    }    
+}
+
 
 <#
 .SYNOPSIS
@@ -55,6 +219,17 @@ function _ForEach-HKU {
         $profiles +=  @{ SID=".DEFAULT" }
     }    
     
+    _Init-ProgressBarId
+    $ProgressBarState       = @{
+        activity = "Importing registry image to user profile hives..."
+        status   = "Initializing..."
+        current  = 0
+        max      = $profiles.Count
+    }
+    If ($AlsoHklm) {
+        $ProgressBarState.max++
+    }
+    
     ForEach ($p in $profiles) {
         $hkuPath  = "Registry::\HKEY_USERS\$($p.SID)"
         $loadPath = $null
@@ -65,18 +240,31 @@ function _ForEach-HKU {
                 $hkuPath    += ".tmp"
                 $loadPath    = $hkuPath -replace "^Registry::\\HKEY_USERS","HKU"
                 
-                Write-Verbose "Loading $ntuserFile as $loadPath."
+                $ProgressBarState.status = `
+                    "Loading $ntuserFile as $loadPath."
+                _Update-Progress $ProgressBarState -noIncrease
+                
                 $result = & reg.exe load $loadPath $ntuserFile | Out-String
             }
             
-            Write-Verbose "Processing user profile registry: $hkuPath"
-            & $Action
+            $ProgressBarState.status = `
+                "Processing user profile hive: $hkuPath"
+            _Update-Progress $ProgressBarState -noIncrease
+            
+            & $Action | Out-Null
+            
+            _Update-Progress $ProgressBarState
         } Finally {
             If ($loadPath) {
-                $lastError = "dummy"
-                For ($retry = 0; $retry -lt 10 -and $lastError; $retry++) {
+                $maxRetries = 10
+                $lastError  = "dummy"
+                
+                For ($retry = 0; $retry -lt $maxRetries -and $lastError; $retry++) {
                     $lastError = $null
-                    Write-Verbose "Trying to unload $loadPath."
+                    
+                    $ProgressBarState.status = `
+                        "Trying to unload $loadPath ($($retry+1)/$maxRetries)."
+                    _Update-Progress $ProgressBarState -noIncrease
                     
                     # Ensure that there are no pending references that could fail
                     # the unload operation
@@ -86,8 +274,8 @@ function _ForEach-HKU {
                     Try {
                         $result = & reg.exe unload $loadPath | Out-String
                     } Catch {
-                        Write-Verbose "Retrying: $_"
                         $lastError = $_
+                        Write-Verbose "Retrying: $lastError"
                         Start-Sleep -Milliseconds 50
                     }
                 }
@@ -103,8 +291,51 @@ function _ForEach-HKU {
     
     If ($AlsoHklm) {
         $hkuPath = "Registry::HKEY_LOCAL_MACHINE\"
-        & $Action
+        
+        $ProgressBarState.status = `
+                "Processing local machine hive: $hkuPath"
+        _Update-Progress $ProgressBarState -NoIncrease
+        
+        & $Action | Out-Null
     }
+    
+    $ProgressBarState.status = `
+        "Done processing user profile hives."
+    _Update-Progress $ProgressBarState
+}
+
+
+<#
+.SYNOPSIS
+    Format a string or boolean as powershell code.
+    
+.DESCRIPTION
+    Converts a string or boolean into a string that can converted back with
+    the Invoke-Expression cmdlet.
+    
+.OUTPUT
+    A string that can be passed to the Invoke-Expression cmdlet.
+    
+#>
+function _Format-ValueAsCode {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true)]
+        [AllowNull()]
+        [Object] $Value
+    )
+    
+    If ($Value -eq $null) {
+        return '$null'
+    } ElseIf ($Value -eq $true) {
+        return '$true'
+    } ElseIf ($Value -eq $false) {
+        return '$false'
+    } ElseIf ($Value.GetType() -eq [String]) {
+        return """$Value"""
+    }
+    
+    Write-Error "Unknown value: $Value"
 }
 
 
@@ -204,5 +435,35 @@ function _Read-Confirmation {
             return $false 
         }
         2 { return $null }
+    }
+}
+
+function _Init-ProgressBarId() {
+    $pId = Get-Variable -Scope 1 -Name ProgressBarId `
+        -ErrorAction SilentlyContinue
+    If (-not $pId) {
+        Set-Variable -Scope 1 -Name ProgressBarId -Value 0
+    }
+}
+
+function _Update-Progress($pState, [switch]$noIncrease, [switch]$completed) {
+    If (-not $noIncrease) {
+        $pState.current++
+    }
+    If ($pState.current -gt $pState.max) {
+        $pState.max = $pState.current
+    }
+    
+    $percent = $pState.current / $pState.max * 100
+    
+    If ($pState.status) {
+        Write-Progress -Activity $pState.Activity `
+            -Id $ProgressBarId -ParentId ($ProgressBarId - 1) `
+            -PercentComplete $percent `
+            -Status $pState.status -Completed:$completed
+    } Else {
+        Write-Progress -Activity $pState.Activity `
+            -Id $ProgressBarId -ParentId ($ProgressBarId - 1) `
+            -PercentComplete $percent -Completed:$completed
     }
 }

@@ -42,6 +42,9 @@ $ErrorAction = "Stop"
     OPTIONAL - This path is prepended to every registry path in the resulting
     image.
     
+.PARAMETER
+
+    
 .OUTPUT
     A flat registry image (see description of the Import-Registry cmdlet).
     
@@ -56,80 +59,81 @@ function ConvertTo-FlatRegistryImage {
         [Parameter(Mandatory=$false)]
         [String] $ParentKey = $null
     )
-       
-    $isAbsolute = $null
-    $flatImage  = `
-        [System.Collections.Generic.SortedDictionary[String, Object]]::new(
-            [RegistryPathComparer]::new())
-    function Add-RegEntry($fullPath, $value) {
-        If (-not (Test-RegistryPathValidity $fullPath)) {
-            Write-Error "Illegal registry path: $fullPath"
-            return
-        }
-        If ($isAbsolute -eq $null) {
-            Set-Variable -Scope 1 -Name "isAbsolute" `
-                -Value $fullPath.Contains(":")
-        }
-        If ($isAbsolute -ne $fullPath.Contains(":")) {
-            If ($isAbsolute) {
-                Write-Error (
-                    "The registry image already contains absolute paths. " +
-                    "Can't add relative path:`n$fullPath")
-            } Else {
-                Write-Error (
-                    "The registry image already contains relative paths. " +
-                    "Can't add absolute path:`n$fullPath")
-            }
-            return
-        }
     
-        # Ensure that a registry entry is not defined twice (see
-        # Import-Registry, General Rules: 1). However, values and subkeys with
-        # the same name are supported side by side:
-        # Bad : Key\Item\Value = 1
-        #       Key\Item\Value = 2
-        #       => a value shall not be specified twice (causes more confusion 
-        #          than help)
-        # Good: Key\Item\Value = 1
-        #       Key\Item       = 2
-        #       => Item is both a value of Key and a subkey of Key. This is
-        #          supported by the windows registry.
-        If ($flatImage.ContainsKey($fullPath)) {
-            $currentValue = $flatImage.$fullPath
-            Write-Error (
-                "Registry entry $fullPath has conflicting definitions:`n" +
-                "Conflict: $([PowershellExpression]::Get($value))`n" +
-                "     Was: $([PowershellExpression]::Get($currentValue))")
-        } Else {
-            $flatImage.$fullPath = $value
-        }
-    }
-    
-    ForEach ($key in $Image.Keys) {
-        $path = $key
-        If ($ParentKey) {
-            $path = Join-Path $ParentKey $key
-        }
-    
-        Try {
-            $regValue = [RegistryValue]$Image.$key
-        } Catch {
-            $rawValue = $Image.$key
-            $typeName = $rawValue.GetType().FullName
-            Write-Error "Unsupported value <$path=$rawValue> ($typeName).`n$_"
-        }
+    # Use an up-to-date list of registry drives when validating registry paths.
+    # => See also Test-RegistryPathValidity
+    Sync-KnownRegistryDrives
+
+    # Performance is better when adding values to an unsorted dictionary first
+    # and sorting them add the end
+    $flatImage   = `
+        [System.Collections.Generic.Dictionary[String, Object]]::new()
         
-        If ($regValue.isKey) { # Expand subkey
-            $subtree = ConvertTo-FlatRegistryImage `
-                -Image $regValue.value -ParentKey $path
-            ForEach ($path in $subtree.Keys) {
-                Add-RegEntry $path $subtree.$path
-            }
-        } Else { # Append property
-            Add-RegEntry $path $regValue.value
+    $imgPathType = 'Relative'
+    If ($ParentKey) {
+        $ParentKey = $ParentKey.TrimEnd('/\') + '\'
+    
+        If ($ParentKey.Contains(':')) {
+            $imgPathType = 'Absolute'
+        }
+    } ElseIf ($Image.Count -gt 0) {
+        $firstKey = $Image.Keys | Select-Object -First 1
+        If ($firstKey.Contains(':')) {
+            $imgPathType = 'Absolute'
         }
     }
     
+    $inputQueue = [System.Collections.Queue]::new()
+    $inputQueue.Enqueue(@{ image = $Image; parentKey = $ParentKey})
+        
+    While ($inputQueue.Count -gt 0) {
+        $input = $inputQueue.Dequeue()
+        
+        ForEach ($entry in $input.image.GetEnumerator()) {
+            If ($input.ParentKey) {
+                $path = $input.ParentKey + $entry.Key
+            } Else {
+                $path = $entry.Key
+            }
+        
+            Try {
+                $regValue = [RegistryValue]$entry.Value
+            } Catch {
+                $rawValue = $entry.Value
+                $typeName = $rawValue.GetType().FullName
+                Write-Error "Unsupported value <$path=$rawValue> ($typeName).`n$_"
+            }
+            
+            If ($regValue.isKey) { # Expand subkey
+                $inputQueue.Enqueue(@{
+                    image     = $regValue.value
+                    parentKey = $path.TrimEnd('/\') + '\'
+                })
+            } Else { # Append property
+                If (-not (Test-RegistryPathValidity $path -Type $imgPathType)) {
+                    Write-Error "Illegal registry path: $path"
+                    return
+                }
+                If ($flatImage.ContainsKey($path)) {
+                    $curValueExpression = [PowershellExpression]::Get( `
+                        $flatImage[$path])
+                    $newValueExpression = [PowershellExpression]::Get( `
+                        $regValue.value)
+                    Write-Error (
+                        "Registry entry $path has conflicting definitions:`n" +
+                        "Conflict: $newValueExpression`n" +
+                        "     Was: $curValueExpression")
+                } Else {
+                   $flatImage[$path] = $regValue.value
+                }
+            }
+        }
+    }
+    
+    $flatImage = `
+        [System.Collections.Generic.SortedDictionary[String, Object]]::new(
+            $flatImage,
+            [RegistryPathComparer]::new())
     return $flatImage
 } 
 
@@ -342,104 +346,4 @@ function Format-PowershellRegistryImage {
     $outString += Format-Line "}" -lastLine $true
     
     return $outString
-}
-
-
-<#
-.SYNOPSIS
-    Tests whether a registry path is a valid absolute or relative path.
-
-.DESCRIPTION
-    Tests whether a registry path is a valid absolute or relative path.
-    
-    Set the ErrorAction parameter to SilentlyContinue if only a boolean result
-    should be returned without any error messages.
-    
-.OUTPUT
-    $true if the path was found to be valid -or- otherwise $false.
-    
-#>
-function Test-RegistryPathValidity {
-	[CmdletBinding()]
-    Param(
-        [Parameter(Mandatory=$true)]
-        [String] $Path,
-        
-        [Parameter(Mandatory=$false)]
-        [ValidateSet("Any", "Absolute", "Relative")]
-        [String] $Type = "Any"
-    )
-    
-    $pathRegex  = `
-        "^(?:(?:(?<PROVIDER>[^:]+)::)|(?:(?<DRIVE>[^:]+):))?(?<PATH>[^:]+)$"
-    If (-not ($Path -match $pathRegex)) {
-        Write-Error "Illegal path: $Path"
-        return $false
-    } 
-    
-    $provider   = $Matches['PROVIDER']
-    $drive      = $Matches['DRIVE']
-    $pathspec   = $Matches['PATH']
-    $isAbsolute = $provider -or $drive
-    If (-not $isAbsolute -and ($Type -eq "Absolute")) {
-        Write-Error "Wanted absolute path, but is relative: $Path"
-        return $false
-    }
-    
-    If ($provider) {
-        $providerRegex = "^(Microsoft\.PowerShell\.Core\\)?Registry"
-        If (-not ($provider -match $providerRegex)) {
-            Write-Error ( 
-                "Unsupported provider ""$provider"" in path ""$Path"".`n" +
-                "Must be either ""Microsoft.PowerShell.Core\Registry"" " +
-                "or ""Registry"".")
-            return $false
-        } 
-        
-        $pathParts = $pathspec.Trim('/\').Split('/\')
-        If ($pathParts.length -lt 2) {
-            Write-Error (
-                "The given absolute does not specify at least a registry " +
-                "hive and the name of a value.`nPath: $Path"
-            )
-            return $false
-        }
-        
-        $knownHives = Get-ChildItem Registry:: | %{ $_.Name }
-        $actualHive = $pathParts[0]
-        If (-not ($knownHives -contains $actualHive)) {
-            Write-Error (
-                "Unknown registry hive ""$actualHive"" in absolute path " +
-                "specification: $Path")
-            return $false
-        }
-        
-    } ElseIf ($drive) {
-        $supportedDrives = Get-PSDrive | ?{ $_.Provider.Name -eq "Registry" } |
-            Select-Object -Expand Name
-        If (-not ($supportedDrives -contains $drive)) {
-            $supportedDrivesString = [String]::Join(', ', $supportedDrives)
-            Write-Error (
-                "Unsupported PSDrive ""$drive"" in path ""$Path"".`n" +
-                "Valid drives are: $supportedDrivesString. " +
-                "See New-PSDrive for for details."
-            )
-            return $false
-        }
-        
-        If (-not $pathspec.StartsWith("\") -and -not $pathspec.StartsWith("/")) {
-            Write-Error (
-                "PSDrive not followed by directory separator:`n" +
-                "Should be: ${drive}:\$pathspec`n" +
-                "Was      : $pathspec")
-            return $false
-        }
-    }
-    
-    If ($isAbsolute -and ($Type -eq "Relative")) {
-        Write-Error "Wanted relative path, but is absolute: $Path"
-        return $false
-    }
-    
-    return $true
 }

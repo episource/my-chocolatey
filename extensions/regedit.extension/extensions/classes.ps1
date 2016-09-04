@@ -118,6 +118,8 @@ class PowershellExpression {
 }
 
 
+$registryPathComparerCache = @{}
+
 # Sort registry keys, such that values come before subkeys at each level.
 # The result of the sort operation is equal to visiting all keys in the windows
 # registry editor in a depth-first manner. At each level, values are visited
@@ -127,11 +129,25 @@ class RegistryPathComparer : System.Collections.Generic.IComparer[String] {
     $stringComparer = [StringComparer]::InvariantCultureIgnoreCase
     
     [Int] Compare([String]$s1, [String]$s2) {
-        $p1 = $s1.Split("/\")
-        $p2 = $s2.Split("/\")
+        $cacheKey = [System.Tuple[String,String]]::new($s1, $s2)
+        
+        $result = $script:registryPathComparerCache[$cacheKey]
+        If ($result) {
+            return $result
+        }
+        
+        $result = $this.CompareImpl($s1, $s2)
+        $script:registryPathComparerCache[$cacheKey] = $result
+        return $result
+    }
+    
+    [Int] CompareImpl([String]$s1, [String]$s2) {
+        $p1 = $s1.Split("/\", [StringSplitOptions]::RemoveEmptyEntries)
+        $p2 = $s2.Split("/\", [StringSplitOptions]::RemoveEmptyEntries)
         
         # Compare common parent keys first
-        for ($i = 0; $i -lt [Math]::Min($p1.length, $p2.length) - 1; $i++) {
+        $maxLevel = [Math]::Min($p1.length, $p2.length) - 1
+        for ($i = 0; $i -lt  $maxLevel; $i++) {
             $order = $this.stringComparer.Compare($p1[$i], $p2[$i])
             If ($order -ne 0) {
                 return $order
