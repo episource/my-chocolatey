@@ -15,6 +15,10 @@
 $_templateExtension       = '.nuspec'
 
 # https://github.com/mojombo/semver.org/issues/59#issuecomment-57884619
+# Note: - BUILD is currently not supported by chocolatey
+#         => https://github.com/NuGet/NuGet2/pull/59
+#       - The PKGRELEASE component is not part of the semver specification, but
+#         has been added by nuget
 $_semverRegex = @"
 (?x)^
 (?'MAJOR'(?:
@@ -28,6 +32,10 @@ $_semverRegex = @"
 (?'PATCH'(?:
     0|(?:[1-9]\d*)
 ))
+\.
+(?'PKGRELEASE'(?:
+    0|(?:[1-9]\d*)
+))?
 (?:-(?<PRERELEASE>
     [0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*
 ))?
