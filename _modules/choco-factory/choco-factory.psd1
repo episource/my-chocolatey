@@ -78,21 +78,7 @@ PowerShellVersion = '5.0'
 # NestedModules = @()
 
 # Functions to export from this module
-FunctionsToExport = @(
-    # Main cmldets
-    'Invoke-NewPackage',
-    'New-Package',
-    'Publish-Packages',
-    
-    # Auxiliary cmdlets
-    'Add-Checksum',
-    'Add-ChecksumFromGithubAsset',
-    'Add-ChecksumFromGithubRelease',
-    'Add-ChecksumFromWeb',
-    'Get-ChecksumFromWeb',
-    'Get-VersionInfoFromGithub',
-    'Invoke-GithubApiLatestRelease'
-)
+FunctionsToExport = '*'
 
 # Cmdlets to export from this module
 CmdletsToExport = @()
