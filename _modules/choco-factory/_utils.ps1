@@ -33,7 +33,7 @@ $_semverRegex = @"
     0|(?:[1-9]\d*)
 ))
 (?:\.
-(?<PKGRELEASE>(?:
+(?<REVISION>(?:
     0|(?:[1-9]\d*)
 )))?
 (?:-(?<PRERELEASE>
