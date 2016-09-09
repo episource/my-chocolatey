@@ -420,7 +420,7 @@ $defaultPrepareFilesHook = {
             If ($cacheKey) {
                 $fname = Split-Path -Leaf $file
                 
-                New-Item -Type Directory $cacheFolder -Force
+                New-Item -Type Directory $cacheFolder -Force | Out-Null
                 Copy-Item -Path $file `
                     -Destination "$cacheFolder/$cacheKey$fname" -Force
             }
