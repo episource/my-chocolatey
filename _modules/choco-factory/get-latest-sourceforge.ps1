@@ -78,8 +78,9 @@ function Get-VersionInfoFromSourceforge {
     $rssXml      = [Xml]$rssResponse
     
     $versionInfo = @{
-        Version = $null
-        FileUrl = @()
+        Version  = $null
+        FileUrl  = @()
+        Checksum = @()
     }
     
     ForEach ($f in $Filter) {
@@ -91,6 +92,7 @@ function Get-VersionInfoFromSourceforge {
                     $_.pubDate, 'ddd, dd MMM yyyy HH:mm:ss UT',
                     [CultureInfo]::InvariantCulture)
                 FileUrl = $_.link
+                Checksum = "$($_.content.hash.algo):$($_.content.hash.'#text')"
             }
             
             $isMatch = $false
@@ -116,7 +118,9 @@ function Get-VersionInfoFromSourceforge {
         Select-Object -First 1
         
         If ($newestItem) {
-            $versionInfo.FileUrl += $newestItem.FileUrl
+            $versionInfo.FileUrl  += $newestItem.FileUrl
+            $versionInfo.Checksum += $newestItem.Checksum
+            
             If (-not $versionInfo.Version) {
                 $versionInfo.Version = $newestItem.Version
             }
@@ -127,7 +131,8 @@ function Get-VersionInfoFromSourceforge {
     }
     
     If ($versionInfo.FileUrl.length -eq 1) {
-        $versionInfo.FileUrl = $versionInfo.FileUrl[0]
+        $versionInfo.FileUrl  = $versionInfo.FileUrl[0]
+        $versionInfo.Checksum = $versionInfo.Checksum[0]
     }
     return $versionInfo    
 }
