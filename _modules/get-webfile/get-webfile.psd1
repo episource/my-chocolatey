@@ -4,7 +4,7 @@
 RootModule = 'get-webfile.psm1'
 
 # Version number of this module.
-ModuleVersion = '2016.08.02'
+ModuleVersion = '2016.09.01'
 
 # ID used to uniquely identify this module
 GUID = '9544653d-ac56-4b59-9f29-40c58a06f6a5'

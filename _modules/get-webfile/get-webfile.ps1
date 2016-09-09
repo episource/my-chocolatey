@@ -56,6 +56,7 @@ Turn off the progress reports.
 .NOTES 	
     Get-WebFile (aka wget for PowerShell)	
     History:
+    v2016.09.01 - Improve handling of redirects
     v2016.08.02 - Use VirusTotal to scan files prior to downloading
     v2016.08.01 - Create a powershell module for Get-WebFile
                 - Add suppport for ftp
@@ -105,7 +106,7 @@ function Get-WebFile {
 		Mandatory=$true,
 		HelpMessage="URL to download.")]
         [Alias("Uri")]
-		[string]$Url = (Read-Host "The URL to download"),		
+		[String]$Url = (Read-Host "The URL to download"),		
 		
 		[Parameter(Position=1,
 		Mandatory=$false,
@@ -129,38 +130,6 @@ function Get-WebFile {
     
     $vtResult = $null
 	if ($Url -match "^https?://") {
-        If ($VTApiKey -ne $null -and $VtApiKey -ne "") {
-            $vtResult = $null
-            Try {
-                $vtResult = Get-VtScan -ApiKey $VtApiKey -Url $url
-            } Catch {
-                Write-Warning "VirusTotal.com scan did not provide any results:`n$_"
-            }
-                
-            If ($vtResult) {
-                If ($vtResult.positives -eq 0) {
-                    Write-Verbose (
-                        "No threat found!`n -> $Url`n" +
-                        "VirusTotal.com positives: " +
-                            "$($vtResult.positives)/$($vtResult.totalScans)`n" +
-                        "Detailed VirusTotal.com reports:`n" +
-                        " -> File: $($vtResult.permalink)`n" +
-                        " -> Url : $($vtResult.urlPermalink)"
-                    )
-                } Else {
-                    Write-Warning -WarningAction Inquire (
-                        "Threat found!`n -> $Url`n" +
-                        "VirusTotal.com positives: " +
-                            "$($vtResult.positives)/$($vtResult.totalScans)`n" +
-                        "Detailed VirusTotal.com reports:`n" +
-                        " -> File: $($vtResult.permalink)`n" +
-                        " -> Url : $($vtResult.urlPermalink)`n" +
-                        "Please check detailed report! Press [H] if unsure."
-                    )
-                }
-            }
-        }
-    
    		$request = [System.Net.HttpWebRequest]::Create($Url)
         
         #http://stackoverflow.com/questions/518181/too-many-automatic-redirections-were-attempted-error-message-when-using-a-httpw
@@ -183,12 +152,59 @@ function Get-WebFile {
 		$response = $request.GetResponse()
 		Write-Verbose "Response Status: $($response.StatusCode) ContentType: $($response.ContentType) CharacterSet: $($response.CharacterSet)"
    	} catch {
-  		Write-Error $_.Exception.Message
+  		Write-Error $_
    		return
 	}
  
     try {
         $location = Get-Location | Convert-Path
+        $realUrl  = $Url
+        If ($response.ResponseUri) {
+            $realurl = [String]$response.ResponseUri
+        }
+        If ($realUrl -ne $Url) {
+            Write-Verbose "Redirect detected: $Url`n => $realUrl"
+        }
+        
+        If ($realUrl -match "^https?://") {
+            If ($VTApiKey -ne $null -and $VtApiKey -ne "") {
+                $vtResult = $null
+                Try {
+                    $vtResult = Get-VtScan -ApiKey $VtApiKey -Url $realUrl
+                } Catch {
+                    Write-Warning `
+                        "VirusTotal.com scan did not provide any results:`n$_"
+                }
+                    
+                If ($vtResult) {
+                    $urlInfo = $realUrl
+                    If ($Url -ne $realUrl) {
+                        $urlInfo += " (redirected from $Url)"
+                    }
+                    
+                    If ($vtResult.positives -eq 0) {
+                        Write-Verbose (
+                            "No threat found!`n -> $urlInfo`n" +
+                            "VirusTotal.com positives: " +
+                            "$($vtResult.positives)/$($vtResult.totalScans)`n" +
+                            "Detailed VirusTotal.com reports:`n" +
+                            " -> File: $($vtResult.permalink)`n" +
+                            " -> Url : $($vtResult.urlPermalink)"
+                        )
+                    } Else {
+                        Write-Warning -WarningAction Inquire (
+                            "Threat found!`n -> $urlInfo`n" +
+                            "VirusTotal.com positives: " +
+                            "$($vtResult.positives)/$($vtResult.totalScans)`n" +
+                            "Detailed VirusTotal.com reports:`n" +
+                            " -> File: $($vtResult.permalink)`n" +
+                            " -> Url : $($vtResult.urlPermalink)`n" +
+                            "Please check detailed report! Press [H] if unsure."
+                        )
+                    }
+                }
+            }
+        }
         
         if ( $OutFile -and -not (Split-Path $OutFile) ) {
             $OutFile = Join-Path $location $OutFile
@@ -210,7 +226,7 @@ function Get-WebFile {
             }        
             
             if ($fileName -eq $null) {
-                $fileName = Split-Path -Leaf -Path $Url
+                $fileName = Split-Path -Leaf -Path $realUrl
             }
             
             if (-not $fileName -eq ( Split-Path -Leaf -Path $fileName) ) {
@@ -265,6 +281,7 @@ function Get-WebFile {
                     Write-Warning -WarningAction Inquire (
                         "The sha256 hash of the downloaded file does not " + 
                         "match the hash reported by VirusTotal.com!`n" +
+                        "Path     : $OutFile`n" +
                         "Expected : $expected`n" +
                         "Actual   : $actual`n"
                     )
