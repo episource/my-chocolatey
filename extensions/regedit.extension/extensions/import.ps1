@@ -486,8 +486,8 @@ function _Import-UserRegistryImpl {
         [Switch] $Rebuild = $false
     )
        
-    _ForEach-HKU -SkipDefaultProfile:$SkipDefaultProfile -AlsoHklm:$AlsoHklm `
-            -Action {
+    Edit-AllLocalUserProfileHives -SkipDefaultProfile:$SkipDefaultProfile `
+        -AlsoHklm:$AlsoHklm -Action {
         If ($ParentKey) {
             $ParentKey = $hkuPath + '\' + $ParentKey
         } Else {

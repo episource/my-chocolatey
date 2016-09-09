@@ -479,8 +479,8 @@ function Uninstall-UserProfileRegistryImage {
     )
     
     $flatImage = ConvertTo-FlatRegistryImage $Image
-    _ForEach-HKU -SkipDefaultProfile:$SkipDefaultProfile -AlsoHklm:$AlsoHklm `
-            -Action {
+    Edit-AllLocalUserProfileHives -SkipDefaultProfile:$SkipDefaultProfile `
+        -AlsoHklm:$AlsoHklm -Action {
         If ($ParentKey) {
             $ParentKey = $hkuPath + '\' + $ParentKey
         } Else {

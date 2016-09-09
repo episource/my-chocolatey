@@ -10,6 +10,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>Install and modify registry images.</summary>
     <description>A Cmdlet to edit the windows registry. Focuses on importing prepared registry images.</description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
     <tags>chocolatey choco extension registry regedit reg admin</tags>
   </metadata>
   <files>

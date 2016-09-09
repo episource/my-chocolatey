@@ -196,7 +196,7 @@ function Split-RegistryPath {
 .OUTPUT
     None.
 #>
-function _ForEach-HKU {
+function Edit-AllLocalUserProfileHives {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true)]
@@ -322,6 +322,7 @@ function _ForEach-HKU {
         "Done processing user profile hives."
     _Update-Progress $ProgressBarState
 }
+Set-Alias Edit-HKU Edit-AllLocalUserProfileHives
 
 
 <#
