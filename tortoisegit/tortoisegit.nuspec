@@ -16,11 +16,8 @@
     <licenseUrl>https://www.gnu.org/licenses/gpl-2.0</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>TortoiseGit is a Windows Shell Interface to Git</summary>
-    <description>TortoiseGit is a Windows Shell Interface to Git and based on TortoiseSVN. Since it's not an integration for a specific IDE like Visual Studio, Eclipse or others, you can use it with whatever development tools you like, and with any type of file. Main interaction with TortoiseGit will be using the context menu of the Windows explorer.
-
-Release notes:
-<![CDATA[@Package.ReleaseNotes]]>
-    </description>
+    <description>TortoiseGit is a Windows Shell Interface to Git and based on TortoiseSVN. Since it's not an integration for a specific IDE like Visual Studio, Eclipse or others, you can use it with whatever development tools you like, and with any type of file. Main interaction with TortoiseGit will be using the context menu of the Windows explorer.</description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
     <tags>git vcs dvcs version control explorer shell admin</tags>
     <dependencies>
         <dependency id="git"                 version="[1.9.5,)"/>
