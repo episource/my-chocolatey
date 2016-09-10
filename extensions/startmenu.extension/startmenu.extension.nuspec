@@ -10,6 +10,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>Install a link to the start menu.</summary>
     <description>Cmdlet to install a link to the start menu (all users) under Programs/Chocolatey.</description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
     <tags>chocolatey choco extension</tags>
   </metadata>
   <files>

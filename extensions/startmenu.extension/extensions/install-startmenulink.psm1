@@ -114,7 +114,7 @@ function Install-StartMenuLink {
         -IconLocation     $IconLocation `
         -Description      $Description `
         -WindowStyle      $WindowStyle `
-        -RunAsAdmin       $RunAsAdmin
+        -RunAsAdmin:      $RunAsAdmin
 
         
     # Remember path for Uninstall-StartMenuLink
