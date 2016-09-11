@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <title>Package Title</title>
+    <authors>The author et. al</authors>
+    <owners>episource</owners>
+    <projectUrl>https://the.url/</projectUrl>
+    <projectSourceUrl>https://the.url/</projectSourceUrl>
+    <bugTrackerUrl>https://the.url/</bugTrackerUrl>
+    <docsUrl>https://the.url/</docsUrl>
+    <mailingListUrl>https://the.url/</mailingListUrl>
+    <iconUrl>https://the.url/</iconUrl>
+    <licenseUrl>https://the.url/</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>The summary</summary>
+    <description>The description.</description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+    <tags>admin?</tags>
+    <dependencies>
+        <dependency id="some-dependency"     version="[1.0.0,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
