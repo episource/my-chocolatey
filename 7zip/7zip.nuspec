@@ -33,6 +33,9 @@ The main features of 7-Zip:
 - Localizations for 87 languages</description>
     <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
     <tags>7zip lzma archiver 7z xz bzip2 gzip tar zip wim ar arj cab chm cpio cramfs dmg ext fat gpt hfs ihex iso lzh lzma mbr msi nsis ntfs qcow2 rar rpm squashfs udf uefi vdi vhd vmdk wim xar z admin</tags>
+    <dependencies>
+        <dependency id="shimgen.extension"   version="[1.0.0,)"/>
+    </dependencies>
   </metadata>
   <files>
     <file src="tools\**" target="tools" />

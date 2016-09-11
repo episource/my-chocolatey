@@ -1,4 +1,5 @@
-$toolsDir = "$(Split-Path -Parent $MyInvocation.MyCommand.Definition)"
+$toolsDir    = "$(Split-Path -Parent $MyInvocation.MyCommand.Definition)"
+$sevenzipDir = "$env:ProgramFiles\7-Zip"
 Set-Location $toolsDir
 
 
@@ -14,3 +15,5 @@ $msiFile = Get-Item *.msi | Select-Object -First 1 -ExpandProperty FullName
 Install-ChocolateyInstallPackage -PackageName $env:chocolateyPackageName `
     -File $msiFile -FileType 'msi' -ValidExitCodes $validExitCodes `
     -SilentArgs $msiArgs 
+    
+Install-Shim -Name "7z" -Path "$sevenzipDir\7z.exe"
