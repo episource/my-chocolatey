@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <title>Windows PowerShell</title>
+    <authors>Microsoft</authors>
+    <owners>episource</owners>
+    <projectUrl>https://msdn.microsoft.com/powershell/scripting/whats-new/what-s-new-in-windows-powershell-50</projectUrl>
+    <docsUrl>https://technet.microsoft.com/de-de/library/hh847741.aspx</docsUrl>
+    <iconUrl><![CDATA[https://i-technet.sec.s-msft.com/de-de/Powershell/ux/library/dn966235.Powershell_32.png?isResponsive=true&Segments=http%3a%2f%2ftechnet.microsoft.com%2flibrary&isLibrary=true&OverwriteHostBase=https%3a%2f%2fmsdn.microsoft.com%2f&isMtpsRequest=true&ThemeBranding=Powershell&HideProfileLink=true&HideProfileText=true]]></iconUrl>
+    <licenseUrl>https://opensource.org/licenses/Apache-2.0</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>Check PowerShell compatibility.</summary>
+    <description>A virtual package that checks whether a compatible PowerShell version is installed. No software is installed by this package.
+
+Note: This package is required as dependency by https://github.com/chocolatey/ChocolateyGUI.
+</description>
+    <releaseNotes>https://msdn.microsoft.com/powershell/scripting/whats-new/what-s-new-in-windows-powershell-50</releaseNotes>
+    <tags>PowerShell scripting shell</tags>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
