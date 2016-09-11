@@ -20,7 +20,7 @@
 - Only show HashCheck in the extended shortcut/context menuchoice
 - Enable calculation of MD5 checksums</description>
     <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
-    <tags>7zip archiver 7z config admin</tags>
+    <tags>hashcheck admin shell extension checksum hash</tags>
     <dependencies>
         <dependency id="hashcheck"           version="[2.3.0,)"/>
         <dependency id="regedit.extension"   version="[1.0.0,)"/>
