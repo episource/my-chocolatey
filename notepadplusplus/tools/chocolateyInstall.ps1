@@ -5,8 +5,8 @@ Remove-Item -Path "$destDir/doLocalConf.xml"
 
 
 # Install start menu shortcut
-Install-ChocolateyShortCut `
-    -ShortcutFilePath $startLink -TargetPath $exe
+Install-StartMenuLink -LinkName $startName -TargetPath $exe
+
 
 # Install context menu entry
 $menuCmdKey = "$menuKey/Command"

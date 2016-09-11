@@ -21,6 +21,10 @@ You're encouraged to translate Notepad++ into your native tongue if there's not 
 I hope you enjoy Notepad++ as much as I enjoy coding it.</description>
     <summary>Notepad++ is a free (as in "free speech" and also as in "free beer") source code editor and Notepad replacement that supports several languages.</summary>
     <tags>admin notepad notepadplusplus notepad-plus-plus notepad++ editor scintilla</tags>
+    <dependencies>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+        <dependency id="shimgen.extension"   version="[1.0.0,)"/>
+    </dependencies>
   </metadata>
   <files>
     <file src="tools\**" target="tools" />

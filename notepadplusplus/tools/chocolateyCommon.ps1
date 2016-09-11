@@ -8,7 +8,7 @@ $startPath = Join-Path `
 
 
 $exe       = Join-Path $destDir "notepad++.exe"
-$startLink = Join-Path $startPath "notepad++.lnk"
+$startName = "notepad++"
 $menuKey   = "HKCR:/*/shell/chocolatey.$env:chocolateyPackageName"
 $menuEntry = "Open with notepad++"
 $menuCmd   = "$exe %1"
