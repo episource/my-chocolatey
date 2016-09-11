@@ -20,6 +20,7 @@
     
     <licenseUrl>https://the.url/</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>the copyright</copyright>
     
     <description>The description.</description>
     <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
