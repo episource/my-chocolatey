@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <title>HashCheck Shell Extension Custom Configuration</title>
+    <authors>episource</authors>
+    <owners>episource</owners>
+    <projectUrl>https://github.com/gurnec/HashCheck</projectUrl>
+    <packageSourceUrl>http://gitlab.episource.de/my-chocolatey/tree/master/hashcheck</packageSourceUrl>
+    <projectSourceUrl>https://github.com/gurnec/HashCheck</projectSourceUrl>
+    <docsUrl>http://code.kliu.org/hashcheck/faq.html</docsUrl>
+    <bugTrackerUrl>https://github.com/gurnec/HashCheck/issues</bugTrackerUrl>
+    <iconUrl>https://cdn.rawgit.com/Thilas/chocolatey-packages/7a3c4f4863596657c0ebe23d64b12bbaa4433d53/icons/hashcheck.png</iconUrl>
+    <licenseUrl>https://opensource.org/licenses/Apache-2.0</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>My default HashCheck configuration.</summary>
+    <description>This configuration package changes the following settings:
+- Only show HashCheck in the extended shortcut/context menuchoice
+- Enable calculation of MD5 checksums</description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+    <tags>7zip archiver 7z config admin</tags>
+    <dependencies>
+        <dependency id="hashcheck"           version="[2.3.0,)"/>
+        <dependency id="regedit.extension"   version="[1.0.0,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
