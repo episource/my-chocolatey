@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <title>fileseek</title>
+    <authors>Binary Fortress Software</authors>
+    <owners>episource</owners>
+    <projectUrl>https://www.fileseek.ca/</projectUrl>
+    <bugTrackerUrl>https://www.fileseek.ca/Discussions/</bugTrackerUrl>
+    <docsUrl>https://www.fileseek.ca/Help/</docsUrl>
+    <iconUrl>https://www.fileseek.ca/ImagesCommon/Icons/64x64/FileSeek.png</iconUrl>
+    <licenseUrl>hhttps://www.fileseek.ca/License/</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>Lightning Fast File Search!</summary>
+    <description>Have you ever needed to find a file buried somewhere in your computer? Have you ever needed to find a specific string of text inside a file? FileSeek can do that, and more. FileSeek is lightning fast, small and super easy to use. It can even be integrated right into the Windows Explorer right-click menu to provide quick and easy access. FileSeek doesn’t use background indexing, so when FileSeek is closed your computer’s performance won’t be affected.</description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+    <tags>fileseek search admin</tags>
+    <dependencies>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
