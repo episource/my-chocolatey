@@ -29,7 +29,8 @@ $notes = ""
 $notesListResponse = Invoke-WebRequest `
     "https://github.com/ConEmu/ConEmu.github.io/tree/master/_posts"
 $notesUrls = $notesListResponse.Links | ?{ 
-    $_.PSObject.Properties['title'] -and $_.title -match ".*build.*\.md" 
+    $_.PSObject.Properties['title'] -and $_.title -match ".*build.*\.md" `
+    -and $_.PSObject.Properties['class'] -and $_.class -eq "js-navigation-open"
 } | Sort-Object -Property 'title' -Descending | %{
     "https://github.com" + $_.href -replace "/blob/","/raw/" }
 
