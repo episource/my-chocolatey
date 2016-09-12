@@ -205,9 +205,6 @@ function New-Package {
     $pkgData.Nuspec         = Join-Path `
         $pkgData.BuildDir $pkgData.NuspecTemplate.Name
     
-    Write-Verbose "PkgData`n$(_Format-Hash $pkgData)"
-    
-    
     # prepare progress bar
     $ProgressBarId          = $ProgressBarId + 1
     $ProgressBarState       = @{
@@ -249,6 +246,14 @@ function New-Package {
     
     Write-Verbose "Building package $($pkgData.Id)-$($pkgData.Version) from $($pkgData.NuspecTemplate)"
     
+    # take care of lazy initialized version info items
+    ForEach ($e in $VersionInfo.GetEnumerator()) {
+        If ([ScriptBlock].IsAssignableFrom($e.Value.GetType())) {
+            $pkgData[$e.Key] = & $e.Value
+        }
+    }
+    Write-Verbose "PkgData`n$(_Format-Hash $pkgData)"
+    
     
     # prepare build directory: 
     #  - delete if already existing
@@ -263,7 +268,7 @@ function New-Package {
         }
     }
     
-    $ProgressBarState.status = "Creating workign directory."
+    $ProgressBarState.status = "Creating working directory."
     _Update-Progress $ProgressBarState
     Write-Verbose "Preparing build directory $($pkgData.BuildDir)"
     New-Item -Path $pkgData.BuildDir -ItemType Directory | Out-Null
