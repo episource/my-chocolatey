@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>episource</authors>
+    <owners>episource</owners>
+    
+    <title>ConEmu Custom Configuration</title>
+    <summary>My default ConEmu configuration.</summary>
+    <tags>graphical console emulator tabs</tags>
+    
+    <iconUrl>http://conemu.github.io/img/logo.png</iconUrl>
+    
+    <licenseUrl>https://opensource.org/licenses/Apache-2.0</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    
+    <description>This configuration package changes the following settings:
+    * Enable anti-aliasing for the "Alternative font"
+    * Use consolas font
+    * Disable auto save of window size and position on exit
+    * Set default window size to 120x40
+    * Increase console buffer height to 5000
+    * Enable single instance mode
+    * Use default charset for tabs
+    * Duplicate tab on double click at tab button
+    * Open new shell on double click at tab bar
+    * Disable close ConEmu with last tab
+    * Confirm crating new console/tab
+    * Auto save/restore opened tabs
+    * Enable sleep in background
+    * Adjust transparency (90% when active, 65% when inactive)
+    * Change status bar columns to: Active process, Active VCon, Create new console, Synchronize cur dir, Active console buffer, Current zoom value, Current DPI value, Console visible size, Cursor information, System time, Size grip
+    * Change cmd.exe output code page to unicode (/U)
+    * Freeze console contents before selection
+    * Select PowerShell color scheme with color 9 "40 40 255" instead of default "0 0 255"
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+      <dependency id="conemu" version="[16.9.4,)"/>
+      <dependency id="regedit.extension" version="[1.0.0,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
