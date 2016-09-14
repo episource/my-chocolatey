@@ -67,7 +67,7 @@ function Export-Registry {
     If (-not $Path.Contains(":")) {
         $Path = "Registry::$Path"
     }
-    Test-RegistryPathValidity $Path -Type Absolute -ErrorAction Stop
+    Test-RegistryPathValidity $Path -Type Absolute -ErrorAction Stop | Out-Null
     
     $flatImage = `
         [System.Collections.Generic.SortedDictionary[String, Object]]::new(
