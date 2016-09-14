@@ -109,7 +109,8 @@ class PowershellExpression {
     }
     
     static [String] Get([Byte[]]$binary) {
-        return "[Byte[]]@(" + [String]::Join(",", $binary) + ")"
+        $binaryAsHex = $binary | %{ "0x{0:x2}" -f $_ }
+        return "[Byte[]]@(" + [String]::Join(",", $binaryAsHex) + ")"
     }
     
     static [String] Get([RegistryValue]$regValue) {
