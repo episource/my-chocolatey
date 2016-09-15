@@ -16,7 +16,7 @@ Set-StrictMode -Version latest
 $ErrorAction = "Stop"
 
 $registryPathRegex = [Regex]::new( 
-    "^(?<PROVIDERORDRIVE>(?:(?<PROVIDER>[^:]+)::)|(?:(?<DRIVE>[^:]+):))?(?<PATH>(?:(?<KEY>[^:]+)[/\\])?(?<VALUE>[^:/\\]+)?)$",
+    "^(?<PROVIDERORDRIVE>(?:(?<PROVIDER>[^:]+)::)|(?:(?<DRIVE>[^:]+):))?(?<PATH>[/\\]?(?:(?<KEY>[^:]+)[/\\])?(?<VALUE>[^:/\\]+)?)$",
     [System.Text.RegularExpressions.RegexOptions]::Compiled)
 
 $knownRegistryHives = [System.Collections.Generic.HashSet[Object]]::new( `
@@ -66,89 +66,91 @@ Sync-KnownRegistryDrives
 function Test-RegistryPathValidity {
 	[CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
         [String] $Path,
         
         [Parameter(Mandatory=$false)]
         [ValidateSet("Any", "Absolute", "Relative")]
         [String] $Type = "Any"
     )
-    
-    $regexResult = $registryPathRegex.Match($Path)
-    If (-not $regexResult.Success) {
-        Write-Error "Illegal path: $Path"
-        return $false
-    } 
-    
-    
-    $provider   = $regexResult.Groups['PROVIDER']
-    $drive      = $regexResult.Groups['DRIVE']
-    $pathspec   = $regexResult.Groups['PATH'].Value
-    $isAbsolute = $provider.Success -or $drive.Success
-    If (-not $isAbsolute -and ($Type -eq "Absolute")) {
-        Write-Error "Wanted absolute path, but is relative: $Path"
-        return $false
-    }
-    
-    If ($provider.Success) {
-        $provider = $provider.Value
-        
-        $providerRegex = "^(Microsoft\.PowerShell\.Core\\)?Registry"
-        If (-not ($provider -match $providerRegex)) {
-            Write-Error ( 
-                "Unsupported provider ""$provider"" in path ""$Path"".`n" +
-                "Must be either ""Microsoft.PowerShell.Core\Registry"" " +
-                "or ""Registry"".")
+    Process {
+        $regexResult = $registryPathRegex.Match($Path)
+        If (-not $regexResult.Success) {
+            Write-Error "Illegal path: $Path"
             return $false
         } 
         
-        $maxParts  = 2
-        $pathParts = $pathspec.Split(`
-            '/\', $maxParts, [StringSplitOptions]::RemoveEmptyEntries)
-        If ($pathParts.length -lt 2) {
-            Write-Error (
-                "The given absolute does not specify at least a registry " +
-                "hive and the name of a value.`nPath: $Path"
-            )
+        
+        $provider   = $regexResult.Groups['PROVIDER']
+        $drive      = $regexResult.Groups['DRIVE']
+        $pathspec   = $regexResult.Groups['PATH'].Value
+        $isAbsolute = $provider.Success -or $drive.Success
+        If (-not $isAbsolute -and ($Type -eq "Absolute")) {
+            Write-Error "Wanted absolute path, but is relative: $Path"
             return $false
         }
         
-        $actualHive = $pathParts[0]
-        If (-not ($script:knownRegistryHives -contains $actualHive)) {
-            Write-Error (
-                "Unknown registry hive ""$actualHive"" in absolute path " +
-                "specification: $Path")
+        If ($provider.Success) {
+            $provider = $provider.Value
+            
+            $providerRegex = "^(Microsoft\.PowerShell\.Core\\)?Registry"
+            If (-not ($provider -match $providerRegex)) {
+                Write-Error ( 
+                    "Unsupported provider ""$provider"" in path ""$Path"".`n" +
+                    "Must be either ""Microsoft.PowerShell.Core\Registry"" " +
+                    "or ""Registry"".")
+                return $false
+            } 
+            
+            $maxParts  = 2
+            $pathParts = $pathspec.Split(`
+                '/\', $maxParts, [StringSplitOptions]::RemoveEmptyEntries)
+            If ($pathParts.length -lt 2) {
+                Write-Error (
+                    "The given absolute does not specify at least a registry " +
+                    "hive and the name of a value.`nPath: $Path"
+                )
+                return $false
+            }
+            
+            $actualHive = $pathParts[0]
+            If (-not ($script:knownRegistryHives -contains $actualHive)) {
+                Write-Error (
+                    "Unknown registry hive ""$actualHive"" in absolute path " +
+                    "specification: $Path")
+                return $false
+            }
+            
+        } ElseIf ($drive.Success) {
+            $drive = $drive.Value
+        
+            If (-not ($script:knownRegistryDrives -contains $drive)) {
+                $supportedDrivesString = [String]::Join(', ', $supportedDrives)
+                Write-Error (
+                    "Unsupported PSDrive ""$drive"" in path ""$Path"".`n" +
+                    "Valid drives are: $supportedDrivesString. " +
+                    "See New-PSDrive for for details."
+                )
+                return $false
+            }
+            
+            If (-not $pathspec.StartsWith("\") -and `
+                    -not $pathspec.StartsWith("/")) {
+                Write-Error (
+                    "PSDrive not followed by directory separator:`n" +
+                    "Should be: ${drive}:\$pathspec`n" +
+                    "Was      : $pathspec")
+                return $false
+            }
+        }
+        
+        If ($isAbsolute -and ($Type -eq "Relative")) {
+            Write-Error "Wanted relative path, but is absolute: $Path"
             return $false
         }
         
-    } ElseIf ($drive.Success) {
-        $drive = $drive.Value
-    
-        If (-not ($script:knownRegistryDrives -contains $drive)) {
-            $supportedDrivesString = [String]::Join(', ', $supportedDrives)
-            Write-Error (
-                "Unsupported PSDrive ""$drive"" in path ""$Path"".`n" +
-                "Valid drives are: $supportedDrivesString. " +
-                "See New-PSDrive for for details."
-            )
-            return $false
-        }
-        
-        If (-not $pathspec.StartsWith("\") -and -not $pathspec.StartsWith("/")) {
-            Write-Error (
-                "PSDrive not followed by directory separator:`n" +
-                "Should be: ${drive}:\$pathspec`n" +
-                "Was      : $pathspec")
-            return $false
-        }
+        return $true
     }
-    
-    If ($isAbsolute -and ($Type -eq "Relative")) {
-        Write-Error "Wanted relative path, but is absolute: $Path"
-        return $false
-    }
-    
-    return $true
 }
 
 
@@ -163,20 +165,22 @@ function Test-RegistryPathValidity {
 function Split-RegistryPath {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
         [String] $Path
     )
-    $regexResult = $registryPathRegex.Match($Path)
-    If (-not $regexResult.Success) {
-        Write-Error "Illegal path: $Path"
-        return $null
+    Process {
+        $regexResult = $registryPathRegex.Match($Path)
+        If (-not $regexResult.Success) {
+            Write-Error "Illegal path: $Path"
+            return $null
+        }
+        
+        return @{
+            Key   = $regexResult.Groups['PROVIDERORDRIVE'].Value + `
+                $regexResult.Groups['KEY'].Value
+            Value = $regexResult.Groups['VALUE'].Value
+        }    
     }
-    
-    return @{
-        Key   = $regexResult.Groups['PROVIDERORDRIVE'].Value + `
-            $regexResult.Groups['KEY'].Value
-        Value = $regexResult.Groups['VALUE'].Value
-    }    
 }
 
 

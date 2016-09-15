@@ -232,7 +232,7 @@ $ErrorAction = "Stop"
 function Import-Registry {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
         [Alias("Data","KeyValuePairs")]
         [System.Collections.IDictionary] $Image,
     
@@ -245,10 +245,11 @@ function Import-Registry {
         [Parameter(Mandatory=$false)]
         [Switch] $Rebuild = $false
     )
-        
-    $flatImage    = ConvertTo-FlatRegistryImage $Image
-    _Import-RegistryImpl -FlatImage $flatImage -ParentKey $ParentKey `
-        -Force:$Force -Rebuild:$Rebuild
+    Process {
+        $flatImage    = ConvertTo-FlatRegistryImage $Image
+        _Import-RegistryImpl -FlatImage $flatImage -ParentKey $ParentKey `
+            -Force:$Force -Rebuild:$Rebuild
+    }
 }
 
 <#
@@ -419,7 +420,7 @@ function _Import-RegistryImpl {
 function Import-UserRegistry {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
         [Alias("Data","KeyValuePairs")]
         [System.Collections.IDictionary] $Image,
         
@@ -440,11 +441,12 @@ function Import-UserRegistry {
         [Parameter(Mandatory=$false)]
         [Switch] $Rebuild = $false
     )
-    
-    $flatImage = ConvertTo-FlatRegistryImage $Image
-    _Import-UserRegistryImpl -FlatImage $flatImage -ParentKey $ParentKey `
-        -SkipDefaultProfile:$SkipDefaultProfile -AlsoHklm:$AlsoHklm `
-        -Force:$Force -Rebuild:$Rebuild
+    Process {
+        $flatImage = ConvertTo-FlatRegistryImage $Image
+        _Import-UserRegistryImpl -FlatImage $flatImage -ParentKey $ParentKey `
+            -SkipDefaultProfile:$SkipDefaultProfile -AlsoHklm:$AlsoHklm `
+            -Force:$Force -Rebuild:$Rebuild
+    }
 }
 
 
@@ -536,7 +538,7 @@ function _Import-UserRegistryImpl {
 function New-RegistryKey {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
         [String] $Path,
         
         [Parameter(Mandatory=$false)]
@@ -545,31 +547,33 @@ function New-RegistryKey {
         [Parameter(Mandatory=$false)]
         [Switch] $Force = $false
     )
-    
-    If (-not $Path.Contains(":")) {
-        $Path = "Registry::$Path"
-    }
-    Test-RegistryPathValidity $Path -Type Absolute -ErrorAction Stop | Out-Null
-    
-    If (Test-Path $Path) {
-        If ($Rebuild -and -not $Force) {
-            $confirmation = _Read-Confirmation -ErrorAction Stop `
-                -Message `
-                     "Rebuild $Path, deleting all subkeys and values?" `
-                -YesMessage `
-                    "Rebuild the registry key!" `
-                -NoMessage `
-                    "Stop it! Don't do anything!"
-                    
-            If (-not $confirmation) {
-                return $null
-            }           
+    Process {
+        If (-not $Path.Contains(":")) {
+            $Path = "Registry::$Path"
         }
-	
-        If (-not $Rebuild) {
-            return Get-Item $Path
+        Test-RegistryPathValidity $Path -Type Absolute -ErrorAction Stop |
+            Out-Null
+        
+        If (Test-Path $Path) {
+            If ($Rebuild -and -not $Force) {
+                $confirmation = _Read-Confirmation -ErrorAction Stop `
+                    -Message `
+                         "Rebuild $Path, deleting all subkeys and values?" `
+                    -YesMessage `
+                        "Rebuild the registry key!" `
+                    -NoMessage `
+                        "Stop it! Don't do anything!"
+                        
+                If (-not $confirmation) {
+                    return $null
+                }           
+            }
+        
+            If (-not $Rebuild) {
+                return Get-Item $Path
+            }
         }
+        
+        return New-Item -Force $Path
     }
-    
-	return New-Item -Force $Path
 }

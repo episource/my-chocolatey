@@ -5,10 +5,12 @@
 
 # Format version info
 $versionInfo = @{
-    Version      = "1.2.0"
+    Version      = "2.0.0"
     FileUrl      = @()
     Checksum     = @()
     ReleaseNotes = @"
+v2.0.0   - Read registry image from pipeline
+         - Make Test-RegistryPathValidity accept PSDrives again
 v1.2.0   - Format powershell byte arrays using hex notation
 v1.1.1   - Stop Export-Registry to write 'true' to the pipeline as first item
 v1.1.0   - Export Edit-AllLocalUserProfileHives cmdlet

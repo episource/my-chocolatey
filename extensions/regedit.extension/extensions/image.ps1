@@ -52,89 +52,94 @@ $ErrorAction = "Stop"
 function ConvertTo-FlatRegistryImage {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
         [Alias("Data","KeyValuePairs")]
         [System.Collections.IDictionary] $Image,
         
         [Parameter(Mandatory=$false)]
         [String] $ParentKey = $null
     )
-    
-    # Use an up-to-date list of registry drives when validating registry paths.
-    # => See also Test-RegistryPathValidity
-    Sync-KnownRegistryDrives
-
-    # Performance is better when adding values to an unsorted dictionary first
-    # and sorting them add the end
-    $flatImage   = `
-        [System.Collections.Generic.Dictionary[String, Object]]::new()
-        
-    $imgPathType = 'Relative'
-    If ($ParentKey) {
-        $ParentKey = $ParentKey.TrimEnd('/\') + '\'
-    
-        If ($ParentKey.Contains(':')) {
-            $imgPathType = 'Absolute'
-        }
-    } ElseIf ($Image.Count -gt 0) {
-        $firstKey = $Image.Keys | Select-Object -First 1
-        If ($firstKey.Contains(':')) {
-            $imgPathType = 'Absolute'
-        }
+    Begin {
+        # Use an up-to-date list of registry drives when validating registry
+        # paths => See also Test-RegistryPathValidity
+        Sync-KnownRegistryDrives
     }
-    
-    $inputQueue = [System.Collections.Queue]::new()
-    $inputQueue.Enqueue(@{ image = $Image; parentKey = $ParentKey})
-        
-    While ($inputQueue.Count -gt 0) {
-        $input = $inputQueue.Dequeue()
-        
-        ForEach ($entry in $input.image.GetEnumerator()) {
-            If ($input.ParentKey) {
-                $path = $input.ParentKey + $entry.Key
-            } Else {
-                $path = $entry.Key
-            }
-        
-            Try {
-                $regValue = [RegistryValue]$entry.Value
-            } Catch {
-                $rawValue = $entry.Value
-                $typeName = $rawValue.GetType().FullName
-                Write-Error "Unsupported value <$path=$rawValue> ($typeName).`n$_"
-            }
+    Process {
+        # Performance is better when adding values to an unsorted dictionary
+        # first and sorting them add the end
+        $flatImage   = `
+            [System.Collections.Generic.Dictionary[String, Object]]::new()
             
-            If ($regValue.isKey) { # Expand subkey
-                $inputQueue.Enqueue(@{
-                    image     = $regValue.value
-                    parentKey = $path.TrimEnd('/\') + '\'
-                })
-            } Else { # Append property
-                If (-not (Test-RegistryPathValidity $path -Type $imgPathType)) {
-                    Write-Error "Illegal registry path: $path"
-                    return
-                }
-                If ($flatImage.ContainsKey($path)) {
-                    $curValueExpression = [PowershellExpression]::Get( `
-                        $flatImage[$path])
-                    $newValueExpression = [PowershellExpression]::Get( `
-                        $regValue.value)
-                    Write-Error (
-                        "Registry entry $path has conflicting definitions:`n" +
-                        "Conflict: $newValueExpression`n" +
-                        "     Was: $curValueExpression")
+        $imgPathType = 'Relative'
+        If ($ParentKey) {
+            $ParentKey = $ParentKey.TrimEnd('/\') + '\'
+        
+            If ($ParentKey.Contains(':')) {
+                $imgPathType = 'Absolute'
+            }
+        } ElseIf ($Image.Count -gt 0) {
+            $firstKey = $Image.Keys | Select-Object -First 1
+            If ($firstKey.Contains(':')) {
+                $imgPathType = 'Absolute'
+            }
+        }
+        
+        $inputQueue = [System.Collections.Queue]::new()
+        $inputQueue.Enqueue(@{ image = $Image; parentKey = $ParentKey})
+            
+        While ($inputQueue.Count -gt 0) {
+            $input = $inputQueue.Dequeue()
+            
+            ForEach ($entry in $input.image.GetEnumerator()) {
+                If ($input.ParentKey) {
+                    $path = $input.ParentKey + $entry.Key
                 } Else {
-                   $flatImage[$path] = $regValue.value
+                    $path = $entry.Key
+                }
+            
+                Try {
+                    $regValue = [RegistryValue]$entry.Value
+                } Catch {
+                    $rawValue = $entry.Value
+                    $typeName = $rawValue.GetType().FullName
+                    Write-Error `
+                        "Unsupported value <$path=$rawValue> ($typeName).`n$_"
+                }
+                
+                If ($regValue.isKey) { # Expand subkey
+                    $inputQueue.Enqueue(@{
+                        image     = $regValue.value
+                        parentKey = $path.TrimEnd('/\') + '\'
+                    })
+                } Else { # Append property
+                    If (-not (Test-RegistryPathValidity $path `
+                            -Type $imgPathType)) {
+                        Write-Error "Illegal registry path: $path"
+                        return
+                    }
+                    If ($flatImage.ContainsKey($path)) {
+                        $curValueExpression = [PowershellExpression]::Get( `
+                            $flatImage[$path])
+                        $newValueExpression = [PowershellExpression]::Get( `
+                            $regValue.value)
+                        Write-Error (
+                            "Registry entry $path has conflicting " + 
+                                "definitions:`n" +
+                            "Conflict: $newValueExpression`n" +
+                            "     Was: $curValueExpression")
+                    } Else {
+                       $flatImage[$path] = $regValue.value
+                    }
                 }
             }
         }
+        
+        $flatImage = `
+            [System.Collections.Generic.SortedDictionary[String, Object]]::new(
+                $flatImage,
+                [RegistryPathComparer]::new())
+        return $flatImage
     }
-    
-    $flatImage = `
-        [System.Collections.Generic.SortedDictionary[String, Object]]::new(
-            $flatImage,
-            [RegistryPathComparer]::new())
-    return $flatImage
 } 
 
 
@@ -164,82 +169,85 @@ function ConvertTo-FlatRegistryImage {
 function ConvertTo-NestedRegistryImage {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         [Alias("Data","KeyValuePairs")]
         [System.Collections.IDictionary] $Image,
         
         [Parameter(Mandatory=$false)]
         [Switch] $Compress = $false
     )
-    
-    # Normalize and check registry image by converting it to a flat image first!
-    $flatImage = ConvertTo-FlatRegistryImage $Image
-    
-    # keep order of normalized flatImage => OrderedDictionary
-    $nestedImage = `
-        [System.Collections.Specialized.OrderedDictionary]::new()
+    Process {
+        # Normalize and check registry image by converting it to a flat image
+        # first!
+        $flatImage = ConvertTo-FlatRegistryImage $Image
         
-        
-    ForEach ($fullPath in $flatImage.Keys) {
-        If (-not ($fullPath -match "^(?<PROVIDER>(?:[^:]+::)?)(?<PATH>.+)$")) {
-            Write-Error "Unsupported path: $fullPath"
-        }
-        $provider = $Matches.PROVIDER
-        $path = $Matches.PATH
-    
-        If ($Compress) {
-            $nodeName = Split-Path -Parent $path
-            $leafName = Split-Path -Leaf $path
-            If ($nodeName) {
-                $path = @( $nodeName, $leafName )
-            } Else {
-                $path = @( $leafName )
-            }
-        } Else {
-            $path = $path.Split('/\')
-        }
-        
-        # Always merge the provider prefix with the first path component
-        # => We want @{ "Registry::HKEY_LOCAL_MACHINE" = ... } instead of
-        #    @{ "Registry::" = @{ "HKEY_LOCAL_MACHINE" = ...} }
-        $path[0] = $provider + $path[0]
-        
-        $node = $nestedImage
-        For ($i = 0; $i -lt $path.length; $i++) {
-            $isInnerNode = $i -lt ($path.length - 1)
-            $nodeName    = $path[$i]
+        # keep order of normalized flatImage => OrderedDictionary
+        $nestedImage = `
+            [System.Collections.Specialized.OrderedDictionary]::new()
             
-            If ($isInnerNode) {
-                $nextNode = $node[$nodeName]
-                If (-not $nextNode) {
-                    $nextNode = [System.Collections.Specialized.OrderedDictionary]::new()
-                    $node.$nodeName = $nextNode
-                } ElseIf (-not [System.Collections.IDictionary]. `
-                        IsInstanceOfType($nextNode)) {
-                    $existingPath  = [String]::Join("\", $path[0..$i])
-                    $existingValue = [PowershellExpression]::Get($nextNode)
-                    $conflictValue = $flatImage.$fullPath
-                    Write-Error (
-                        "Nested images do not support a subkey and a value " + `
-                        "with the same name side by side.`n" +
-                        "Conflicting value: $fullPath = $conflictValue`n" +
-                        "   Existing value: $existingPath = $existingValue")
-                    break
+            
+        ForEach ($fullPath in $flatImage.Keys) {
+            If (-not ($fullPath -match `
+                    "^(?<PROVIDER>(?:[^:]+::)?)(?<PATH>.+)$")) {
+                Write-Error "Unsupported path: $fullPath"
+            }
+            $provider = $Matches.PROVIDER
+            $path = $Matches.PATH
+        
+            If ($Compress) {
+                $nodeName = Split-Path -Parent $path
+                $leafName = Split-Path -Leaf $path
+                If ($nodeName) {
+                    $path = @( $nodeName, $leafName )
+                } Else {
+                    $path = @( $leafName )
                 }
-                $node = $nextNode
             } Else {
-                # No need to check for an existing entry first: The underlying
-                # flat image is sorted such that values come before subkeys.
-                # Therefore conflicts between subkeys and values with the same
-                # name can only happen when a subkey is added. This is handled
-                # above.
-                $node.$nodeName = $flatImage.$fullPath
+                $path = $path.Split('/\')
             }
             
-        }
-    }    
-    
-    return $nestedImage
+            # Always merge the provider prefix with the first path component
+            # => We want @{ "Registry::HKEY_LOCAL_MACHINE" = ... } instead of
+            #    @{ "Registry::" = @{ "HKEY_LOCAL_MACHINE" = ...} }
+            $path[0] = $provider + $path[0]
+            
+            $node = $nestedImage
+            For ($i = 0; $i -lt $path.length; $i++) {
+                $isInnerNode = $i -lt ($path.length - 1)
+                $nodeName    = $path[$i]
+                
+                If ($isInnerNode) {
+                    $nextNode = $node[$nodeName]
+                    If (-not $nextNode) {
+                        $nextNode = [System.Collections.Specialized.OrderedDictionary]::new()
+                        $node.$nodeName = $nextNode
+                    } ElseIf (-not [System.Collections.IDictionary]. `
+                            IsInstanceOfType($nextNode)) {
+                        $existingPath  = [String]::Join("\", $path[0..$i])
+                        $existingValue = [PowershellExpression]::Get($nextNode)
+                        $conflictValue = $flatImage.$fullPath
+                        Write-Error (
+                            "Nested images do not support a subkey and a " +
+                            "value with the same name side by side.`n" +
+                            "Conflicting value: $fullPath = $conflictValue`n" +
+                            "   Existing value: $existingPath = $existingValue")
+                        break
+                    }
+                    $node = $nextNode
+                } Else {
+                    # No need to check for an existing entry first: The 
+                    # underlying flat image is sorted such that values come 
+                    # before subkeys. Therefore conflicts between subkeys and 
+                    # values with the same name can only happen when a subkey 
+                    # is added. This is handled above.
+                    $node.$nodeName = $flatImage.$fullPath
+                }
+                
+            }
+        }    
+        
+        return $nestedImage
+    }
 } 
 
 
@@ -271,7 +279,7 @@ function ConvertTo-NestedRegistryImage {
 function Format-PowershellRegistryImage {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
         [Alias("Data","KeyValuePairs")]
         [System.Collections.IDictionary] $Image,
         
@@ -284,66 +292,68 @@ function Format-PowershellRegistryImage {
         [Parameter(Mandatory=$false)]
         [Int] $FirstIndent = $null
     )
-    
-    function Format-Line($str, $myIndent = $Indent, $lastLine = $false) {
-        If ($lastLine) {
-            $linesep = ""
-        } ElseIf ($OneLine -and $str.EndsWith('{')) {
-            $linesep = $linesep.Trim(";")
-        }
-    
-        $indent = ""
-        For ($i = 0; $i -lt $myIndent; $i++) {
-            $indent += " "
-        }
+    Begin {
+        function Format-Line($str, $myIndent = $Indent, $lastLine = $false) {
+            If ($lastLine) {
+                $linesep = ""
+            } ElseIf ($OneLine -and $str.EndsWith('{')) {
+                $linesep = $linesep.Trim(";")
+            }
         
-        return $indent + $str + $linesep
-    }
-    
-    $linesep = "`n"
-    If ($OneLine) {
-        $linesep = "; "
-    }
-    If (-not $FirstIndent -and $FirstIndent -ne 0) {
-        $FirstIndent = $Indent
-    }
-    
-    $outString  = Format-Line "@{" $FirstIndent
-    
-    If (-not $OneLine) {
-        $Indent    += 4     
-    }
-    
-    $expressions  = [System.Collections.Specialized.OrderedDictionary]::new()
-    $maxKeyLength = 0
-    ForEach ($entry in $Image.GetEnumerator()) {
-        $key     = [PowershellExpression]::Get($entry.Key)
-        $value   = [RegistryValue]$entry.Value
-        
-        If ($value.isKey) {
-            $expression = Format-PowershellRegistryImage `
-                -Image $value.Value -FirstIndent 0 -Indent $Indent `
-                -OneLine:$OneLine
-        } Else {
-            $expression = [PowershellExpression]::Get($value)
+            $indent = ""
+            For ($i = 0; $i -lt $myIndent; $i++) {
+                $indent += " "
+            }
+            
+            return $indent + $str + $linesep
         }
         
-        $expressions.$key = $expression
+        $linesep = "`n"
+        If ($OneLine) {
+            $linesep = "; "
+        }
+        If (-not $FirstIndent -and $FirstIndent -ne 0) {
+            $FirstIndent = $Indent
+        }
+    }
+    Process {
+        $outString  = Format-Line "@{" $FirstIndent
         
         If (-not $OneLine) {
-            $maxKeyLength     = [Math]::Max($maxKeyLength, $key.length) 
+            $Indent    += 4     
         }
+        
+        $expressions  = [System.Collections.Specialized.OrderedDictionary]::new()
+        $maxKeyLength = 0
+        ForEach ($entry in $Image.GetEnumerator()) {
+            $key     = [PowershellExpression]::Get($entry.Key)
+            $value   = [RegistryValue]$entry.Value
+            
+            If ($value.isKey) {
+                $expression = Format-PowershellRegistryImage `
+                    -Image $value.Value -FirstIndent 0 -Indent $Indent `
+                    -OneLine:$OneLine
+            } Else {
+                $expression = [PowershellExpression]::Get($value)
+            }
+            
+            $expressions.$key = $expression
+            
+            If (-not $OneLine) {
+                $maxKeyLength     = [Math]::Max($maxKeyLength, $key.length) 
+            }
+        }
+        
+        ForEach ($exp in $expressions.GetEnumerator()) {
+            $outString += Format-Line ("{0,-$maxKeyLength} = {1}" -f @(
+                $exp.Key, $exp.Value ) )
+        }
+        
+        If (-not $OneLine) {
+            $Indent -= 4     
+        }
+        $outString += Format-Line "}" -lastLine $true
+        
+        return $outString
     }
-    
-    ForEach ($exp in $expressions.GetEnumerator()) {
-        $outString += Format-Line ("{0,-$maxKeyLength} = {1}" -f @(
-            $exp.Key, $exp.Value ) )
-    }
-    
-    If (-not $OneLine) {
-        $Indent -= 4     
-    }
-    $outString += Format-Line "}" -lastLine $true
-    
-    return $outString
 }
