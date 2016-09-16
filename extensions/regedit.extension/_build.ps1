@@ -5,10 +5,11 @@
 
 # Format version info
 $versionInfo = @{
-    Version      = "2.0.0"
+    Version      = "2.1.0"
     FileUrl      = @()
     Checksum     = @()
     ReleaseNotes = @"
+v2.1.0   - Add a cmdlet for merging registry images
 v2.0.0   - Read registry image from pipeline
          - Make Test-RegistryPathValidity accept PSDrives again
 v1.2.0   - Format powershell byte arrays using hex notation

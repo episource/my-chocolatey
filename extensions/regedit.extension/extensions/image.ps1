@@ -248,7 +248,46 @@ function ConvertTo-NestedRegistryImage {
         
         return $nestedImage
     }
-} 
+}
+
+
+<#
+.SYNOPSIS
+    Merges a collection of registry images.
+    
+.DESCRIPTION
+    Merges a collection of registry images by adding all entries to a copy of
+    the first image. Definitions from images added later take precedence.
+
+.PARAMETER Images
+    The registry images (any type) to be merged.
+    
+.OUTPUT
+    A single flat registry image.
+#>
+function Merge-RegistryImages {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+        [System.Collections.IDictionary[]] $Images
+    )
+    Begin {
+        $target = `
+            [System.Collections.Generic.SortedDictionary[String, Object]]::new(
+                [RegistryPathComparer]::new())
+    }
+    Process {
+        ForEach ($img in $Images) {
+            $flat = ConvertTo-FlatRegistryImage -Image $img
+            ForEach ($entry in $flat.GetEnumerator()) {
+                $target[$entry.Key] = $entry.Value
+            }
+        }
+    }
+    End {
+        return $target
+    }
+}
 
 
 <#
