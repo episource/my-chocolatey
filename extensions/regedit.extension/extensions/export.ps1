@@ -94,6 +94,10 @@ function Export-Registry {
             [RegistryPathComparer]::new())
     
     $rootEntry = Get-Item $Path
+    If (-not $rootEntry) {
+        return $flatImage
+    }
+    
     $rootPath  = $rootEntry.PSPath
     $rootMask  = "^(?:Microsoft\.PowerShell\.Core\\)?"
     If ($Relative) {
