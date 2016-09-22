@@ -35,7 +35,21 @@ $ErrorAction = "Stop"
     
 .PARAMETER Filter
     OPTIONAL - A filter expression to select a subset of the values for export.
-    See Get-ChildItem for details.
+    
+    A pattern is matched against the end of an executable's absolute path. 
+    Wildcards *, **, ? are supported:
+        *  : matching 0 to n characters, but not path separators
+        ** : matching 0 to n characters, including path separators
+        ?  : matching a single character, but not path separators
+        
+    It is also possible to use powershell regular expressions to select values
+    for export. This feature can be enabled using the RegexFilter switch.
+    
+.PARAMETER InvertFilter
+    OPTIONAL - Only include values not matching the Filter.
+    
+.PARAMETER RegexFilter
+    OPTIONAL - Treat Filter as powershell regular expression.
     
 .PARAMETER Recurse
     OPTIONAL - Enable recursive exporting of subkeys.
@@ -59,6 +73,12 @@ function Export-Registry {
         [String] $Filter = $null,
         
         [Parameter(Mandatory=$false)]
+        [Switch] $InvertFilter = $false,
+        
+        [Parameter(Mandatory=$false)]
+        [Switch] $RegexFilter = $false,
+        
+        [Parameter(Mandatory=$false)]
         [Switch] $Recurse = $false,
         
         [Parameter(Mandatory=$false)]
@@ -72,7 +92,6 @@ function Export-Registry {
     $flatImage = `
         [System.Collections.Generic.SortedDictionary[String, Object]]::new(
             [RegistryPathComparer]::new())
-           
     
     $rootEntry = Get-Item $Path
     $rootPath  = $rootEntry.PSPath
@@ -80,6 +99,12 @@ function Export-Registry {
     If ($Relative) {
         $rootMask = "^" + [Regex]::Escape($rootPath) + "\\?"
     }    
+    
+    If ($RegexFilter) {
+        $filterRegex = $Filter
+    } Else {
+        $filterRegex = $Filter | _ConvertTo-RegexPattern
+    }
     
     $defaultValue = $null
     $noExpandVars = `
@@ -89,10 +114,22 @@ function Export-Registry {
         $basePath  = $key.PSPath -replace $rootMask
         
         ForEach ($name in $key.GetValueNames()) {
+            $poshName = $name
+            If (-not $poshName) {
+                # Posh-Style is to use (Default) to address the default value
+                # whereas .Net uses an empty string.
+                $poshName = "(Default)"
+            }
+            
             If ($basePath) {
-                $path = Join-Path $basePath $name
+                $path = Join-Path $basePath $poshName
             } Else {
-                $path = $name
+                $path = $poshName
+            }
+            
+            If ($filterRegex -and `
+                    ($path -match $filterRegex) -eq $InvertFilter) {
+                continue
             }
             
             $kind  = $key.GetValueKind($name)
@@ -101,14 +138,14 @@ function Export-Registry {
                 $value = [ExpandString]$value
             }
             
-            $flatImage.$path = $value
+            $flatImage[$path] = $value
         }
     }
     
     Add-Key $rootEntry
     
     If ($Recurse) {
-        Get-ChildItem -Path $rootPath -Filter $Filter -Recurse | % {
+        Get-ChildItem -Path $rootPath -Recurse | % {
             Add-Key $_
         }
     }

@@ -491,3 +491,22 @@ function _Update-Progress($pState, [switch]$noIncrease, [switch]$completed) {
             -PercentComplete $percent -Completed:$completed
     }
 }
+
+function _ConvertTo-RegexPattern() {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
+        [AllowEmptyString()]
+        [String] $GlobPattern
+    )
+    Process {
+        If ($GlobPattern) {
+            return ([Regex]::Escape($GlobPattern)   `
+                    -replace "(\\\\|/)" , "[/\\]"   `
+                    -replace "\\\*\\\*" , ".*"      `
+                    -replace "\\\*"     , "[^/\\]*" `
+                    -replace "\\\?"     , "[^/\\]?" `
+                ) + "$"
+        }
+    }
+}
