@@ -5,10 +5,12 @@
 
 
 New-Package @{
-    Version      = "1.0.0"
+    Version      = "2.0.0"
     FileUrl      = @()
     Checksum     = @()
     ReleaseNotes = @"
+v2.0.0 - Move ANSI logs to user profile folder (adopting ConEmu 160914's 
+         default)
 v1.0.0 - Initial version
 "@
 }
