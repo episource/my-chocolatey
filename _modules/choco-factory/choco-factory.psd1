@@ -19,7 +19,7 @@
 RootModule = 'choco-factory.psm1'
 
 # Version number of this module.
-ModuleVersion = '2016.08.01'
+ModuleVersion = '2016.09.01'
 
 # ID used to uniquely identify this module
 GUID = 'ff3deb25-4873-4bd2-9bfc-71fdddd7df14'
@@ -34,9 +34,10 @@ CompanyName = 'episource'
 Copyright = ''
 
 # Description of the functionality provided by this module
-Description = 'A collection of cmdlets that build self-contained chcolatey ' + `
-              'packages based on templates and the latest software version ' + `
-              'available.'
+Description = @"
+A collection of cmdlets that build self-contained chcolatey packages based on
+templates and the latest software version available.
+"@
 
 # Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '5.0'
@@ -119,7 +120,11 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        # ReleaseNotes = ''
+        ReleaseNotes = @"
+v2016.09.01 - Fix ConvertTo-SortedByVersion, so that input passed as argument
+              instead of via the pipeline is received properly
+v2016.08.01 - Initial version
+"@
 
     } # End of PSData hashtable
 

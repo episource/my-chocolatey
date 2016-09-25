@@ -167,8 +167,7 @@ function ConvertTo-SortedByVersion {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-        [Alias("VersionString")]
-        [Object[]] $Input,
+        [Object[]] $VersionString,
         
         [Parameter(Mandatory=$false)]
         [Object] $Property,
@@ -180,6 +179,10 @@ function ConvertTo-SortedByVersion {
         Import-CallerPreference
     }
     End {
+        If ($Input.Count -eq 0) {
+            $Input = $VersionString
+        }
+    
         $comparer = [VersionComparer]::new($Property)
         
         If ($Descending) {
