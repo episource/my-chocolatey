@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>RaMMicHaeL</authors>
+    <owners>episource</owners>
+    
+    <title>7+ Taskbar Tweaker</title>
+    <summary>7+ Taskbar Tweaker allows you to configure various aspects of the Windows taskbar.</summary>
+    <tags>admin taskbar tweaker 7+</tags>
+    
+    <iconUrl>https://chocolatey.org/content/packageimages/7-taskbar-tweaker.5.2.1.png</iconUrl>
+    <projectUrl>http://rammichael.com/7-taskbar-tweaker</projectUrl>
+    <bugTrackerUrl>http://tweaker.userecho.com/</bugTrackerUrl>
+    
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>©2016 RaMMicHaeL</copyright>
+    
+    <description>The description.</description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="regedit.extension"   version="[3.0.0,)"/>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
