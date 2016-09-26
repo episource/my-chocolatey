@@ -19,7 +19,7 @@
 RootModule = 'choco-factory.psm1'
 
 # Version number of this module.
-ModuleVersion = '2016.09.01'
+ModuleVersion = '2016.09.02'
 
 # ID used to uniquely identify this module
 GUID = 'ff3deb25-4873-4bd2-9bfc-71fdddd7df14'
@@ -121,6 +121,10 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
+v2016.09.02 - Don't fail if the checksum has been set to $null or an array with
+              fewer checksums than the number of provided file urls. A verbose
+              message is written instead if no checksum has been provided for a
+              file.
 v2016.09.01 - Fix ConvertTo-SortedByVersion, so that input passed as argument
               instead of via the pipeline is received properly
 v2016.08.01 - Initial version

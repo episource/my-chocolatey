@@ -248,7 +248,7 @@ function New-Package {
     
     # take care of lazy initialized version info items
     ForEach ($e in $VersionInfo.GetEnumerator()) {
-        If ([ScriptBlock].IsAssignableFrom($e.Value.GetType())) {
+        If ($e.Value -and [ScriptBlock].IsAssignableFrom($e.Value.GetType())) {
             $pkgData[$e.Key] = & $e.Value
         }
     }
@@ -400,7 +400,11 @@ $defaultPrepareFilesHook = {
     
     For ($i = 0; $i -lt $urlList.length; $i++) {
         $url = $urlList[$i]
-        $hash = $hashList[$i]            
+        
+        $hash = $null
+        If ($i -lt $hashList.Length) {
+            $hash = $hashList[$i]
+        }        
         
         
         # Retrieve file from web or cache
