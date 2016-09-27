@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>episource</authors>
+    <owners>episource</owners>
+    
+    <title>7+ Taskbar Tweaker Custom Configuration</title>
+    <summary>My default 7+ Taskbar Tweaker configuration.</summary>
+    <tags>admin taskbar tweaker 7+ config</tags>
+    
+    <iconUrl>https://chocolatey.org/content/packageimages/7-taskbar-tweaker.5.2.1.png</iconUrl>
+    
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>©2016 episource</copyright>
+    
+    <description>This configuration package changes the following settings:
+- Enable "Taskbar items / Thumbnails / Drag to reorder"
+- Enable "Taskbar items / Pinned items / Remove extra gap between items"
+- Enable "Taskbar items / Pinned items / Open with double click"
+- Enable "Grouping and combining / Left click on combined item: Cycle through windows"
+- Enable "Other taskbar options / Other / Display seconds on the tray clock"</description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="7plus-taskbar-tweaker" version="[5.2.1,)"/>
+        <dependency id="regedit.extension"     version="[3.0.0,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
