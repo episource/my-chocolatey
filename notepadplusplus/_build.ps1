@@ -12,8 +12,8 @@ function _Resolve-Uri($pageUri, $linkUri) {
 
 # Parameters for parsing the download page
 $downloadPageUrl = "https://notepad-plus-plus.org/download/"
-$versionRegex    = '<title>Notepad\+\+ v(?<VERSION>\d\.\d\.\d) - Current Version</title>'
-$zipPackageRegex = '>Notepad\+\+ zip package<'
+$versionRegex    = '<title>Notepad\+\+ v(?<VERSION>\d(?:\.\d){0,2}) - Current Version</title>'
+$zipPackageRegex = '>Notepad\+\+ zip package 64-bit x64<'
 $hashFileRegex   = '>SHA-1 digests for binary packages<'
 
 
@@ -24,7 +24,11 @@ If (-not ($htmlResponse.Content -match $versionRegex)) {
     Write-Error "Failed to parse notepad++ download page - version not found"
     return
 }
-$version = $Matches.VERSION
+$versionParts = @($Matches.VERSION.Split(".") | %{ [Int]$_ })
+While ($versionParts.length -lt 3) {
+    $versionParts += 0
+}
+$version = [String]::Join(".", $versionParts)
 
 $zipUrl  = $null
 $sha1Url = $null
