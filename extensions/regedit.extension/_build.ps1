@@ -5,10 +5,13 @@
 
 # Format version info
 $versionInfo = @{
-    Version      = "3.0.0"
+    Version      = "3.0.1"
     FileUrl      = @()
     Checksum     = @()
     ReleaseNotes = @"
+v3.0.1   - Make cmdlet Edit-AllLocalUserProfileHives usable outside the regedit
+           module: Until now the variable `$hkuPath has not been accessible
+           outside module scope
 v3.0.0   - Fix exporting of (Default) registry entries
          - Fix filtering registry entries to be exported
          - Add support for filtering registry entries using powershell regular

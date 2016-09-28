@@ -194,8 +194,9 @@ function Split-RegistryPath {
     hives are loaded and unloaded if necessary.
     
 .PARAMETER action
-    The callback to be invoked for each user registry hive visited. The variable
-    $hkuPath points to the root key of the current registry hive.
+    The callback to be invoked for each user registry hive visited. The
+    variables $_ and $hkuPath point to the root key of the current registry
+    hive.
     
 .OUTPUT
     None.
@@ -214,6 +215,15 @@ function Edit-AllLocalUserProfileHives {
         [Alias("AlsoHKEY_LOCAL_MACHINE")]
         [Switch] $AlsoHklm = $false
     )
+    
+    function _Invoke-Action {
+        $Action.InvokeWithContext(@{}, @(
+                [PSVariable]::new('_', $hkuPath)
+                [PSVariable]::new('hkuPath', $hkuPath)     
+            )
+        )| Out-Null
+    }
+    
     # List of profiles for which the sessions are to be imported
     $machineSidPrefix = "S-1-5-21"
     $profiles = Get-WmiObject win32_userprofile | ?{
@@ -271,9 +281,7 @@ function Edit-AllLocalUserProfileHives {
             $ProgressBarState.status = `
                 "Processing user profile hive: $hkuPath"
             _Update-Progress $ProgressBarState -noIncrease
-            
-            & $Action | Out-Null
-            
+            _Invoke-Action 
             _Update-Progress $ProgressBarState
         } Finally {
             If ($loadPath) {
@@ -318,8 +326,7 @@ function Edit-AllLocalUserProfileHives {
         $ProgressBarState.status = `
                 "Processing local machine hive: $hkuPath"
         _Update-Progress $ProgressBarState -NoIncrease
-        
-        & $Action | Out-Null
+        _Invoke-Action
     }
     
     $ProgressBarState.status = `
