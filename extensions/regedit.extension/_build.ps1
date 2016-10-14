@@ -5,7 +5,7 @@
 
 # Format version info
 $versionInfo = @{
-    Version      = "3.0.2-SNAPSHOT"
+    Version      = "3.0.2"
     FileUrl      = @()
     Checksum     = @()
     ReleaseNotes = @"
@@ -13,6 +13,14 @@ v3.0.2   - Fix New-RegistryKey to use the literal path instead of expanding
            globs
          - Fix uninstall cmdlets to use the literal key path instead of
            expanding globs
+         - Test-RegistryPathValidity now distinguishes between absolute paths
+           (Type=Absolute) including registry hives (like HKCU:\) and absolute
+           paths excluding registry hives (Type=AbsoluteNoHives)
+         - Fix several cmdlets to evaluate the return value of 
+           Test-RegistryPathValidity (instead of relying on the default
+           ErrorAction)
+         - Fix _Import-RegistryImpl and _Uninstall-RegistryImageImpl to expect
+           absolute paths when no parent key has been specified
 v3.0.1   - Make cmdlet Edit-AllLocalUserProfileHives usable outside the regedit
            module: Until now the variable `$hkuPath has not been accessible
            outside module scope

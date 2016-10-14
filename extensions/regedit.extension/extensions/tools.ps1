@@ -70,7 +70,7 @@ function Test-RegistryPathValidity {
         [String] $Path,
         
         [Parameter(Mandatory=$false)]
-        [ValidateSet("Any", "Absolute", "Relative")]
+        [ValidateSet("Any", "Absolute", "AbsoluteNoHive", "Relative")]
         [String] $Type = "Any"
     )
     Process {
@@ -85,7 +85,8 @@ function Test-RegistryPathValidity {
         $drive      = $regexResult.Groups['DRIVE']
         $pathspec   = $regexResult.Groups['PATH'].Value
         $isAbsolute = $provider.Success -or $drive.Success
-        If (-not $isAbsolute -and ($Type -eq "Absolute")) {
+        If (-not $isAbsolute -and `
+                @("Absolute", "AbsoluteNoHive") -contains $Type ) {
             Write-Error "Wanted absolute path, but is relative: $Path"
             return $false
         }
@@ -105,10 +106,10 @@ function Test-RegistryPathValidity {
             $maxParts  = 2
             $pathParts = $pathspec.Split(`
                 '/\', $maxParts, [StringSplitOptions]::RemoveEmptyEntries)
-            If ($pathParts.length -lt 2) {
+            If ($pathParts.length -lt 2 -and $Type -eq "AbsoluteNoHive") {
                 Write-Error (
-                    "The given absolute does not specify at least a registry " +
-                    "hive and the name of a value.`nPath: $Path"
+                    "The given absolute path does not specify at least a " +
+                    "registry hive and the name of a value.`nPath: $Path"
                 )
                 return $false
             }

@@ -294,9 +294,12 @@ function _Import-RegistryImpl {
         $imgPathType = 'Relative'
     
         $ParentKey = $ParentKey.TrimEnd('/\') + '\'
-        Test-RegistryPathValidity $ParentKey -Type Absolute
+        If (-not (Test-RegistryPathValidity $ParentKey -Type Absolute)) {
+            # Test-RegistryPathValidity uses Write-Error internally
+            return
+        }
     } Else {
-        $imgPathType = 'Relative'
+        $imgPathType = 'AbsoluteNoHive'
     }
     
     # Test first entry only - ConvertTo-FlatRegistryImage ensures all entries
@@ -532,7 +535,8 @@ function _Import-UserRegistryImpl {
     $Rebuild).
     
 .OUTPUT
-    An object representing the newly created registry key.
+    An object representing the newly created registry key. Null in case of an
+    error (ErrorAction=*Continue or cancelled confirmation dialog).
     
 #>
 function New-RegistryKey {
@@ -551,8 +555,10 @@ function New-RegistryKey {
         If (-not $Path.Contains(":")) {
             $Path = "Registry::$Path"
         }
-        Test-RegistryPathValidity $Path -Type Absolute -ErrorAction Stop |
-            Out-Null
+        If (-not (Test-RegistryPathValidity $Path -Type AbsoluteNoHive)) {
+            # Test-RegistryPathValidity uses Write-Error internally
+            return $null
+        }
         
         If (Test-Path $Path) {
             If ($Rebuild -and -not $Force) {

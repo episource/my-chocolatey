@@ -196,9 +196,12 @@ function _Uninstall-RegistryImageImpl {
         $imgPathType = 'Relative'
     
         $ParentKey = $ParentKey.TrimEnd('/\') + '\'
-        Test-RegistryPathValidity $ParentKey -Type Absolute
+        If (-not (Test-RegistryPathValidity $ParentKey -Type Absolute)) {
+            # Test-RegistryPathValidity uses Write-Error internally
+            return
+        }
     } Else {
-        $imgPathType = 'Relative'
+        $imgPathType = 'AbsoluteNoHive'
     }
     
     # Test first entry only - ConvertTo-FlatRegistryImage ensures all entries

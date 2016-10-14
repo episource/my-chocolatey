@@ -75,12 +75,12 @@ function ConvertTo-FlatRegistryImage {
             $ParentKey = $ParentKey.TrimEnd('/\') + '\'
         
             If ($ParentKey.Contains(':')) {
-                $imgPathType = 'Absolute'
+                $imgPathType = 'AbsoluteNoHive'
             }
         } ElseIf ($Image.Count -gt 0) {
             $firstKey = $Image.Keys | Select-Object -First 1
             If ($firstKey.Contains(':')) {
-                $imgPathType = 'Absolute'
+                $imgPathType = 'AbsoluteNoHive'
             }
         }
         
