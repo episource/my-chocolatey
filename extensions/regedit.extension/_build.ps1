@@ -5,10 +5,14 @@
 
 # Format version info
 $versionInfo = @{
-    Version      = "3.0.1"
+    Version      = "3.0.2-SNAPSHOT"
     FileUrl      = @()
     Checksum     = @()
     ReleaseNotes = @"
+v3.0.2   - Fix New-RegistryKey to use the literal path instead of expanding
+           globs
+         - Fix uninstall cmdlets to use the literal key path instead of
+           expanding globs
 v3.0.1   - Make cmdlet Edit-AllLocalUserProfileHives usable outside the regedit
            module: Until now the variable `$hkuPath has not been accessible
            outside module scope

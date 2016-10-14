@@ -570,7 +570,7 @@ function New-RegistryKey {
             }
         
             If (-not $Rebuild) {
-                return Get-Item $Path
+                return Get-Item -LiteralPath $Path
             }
         }
         

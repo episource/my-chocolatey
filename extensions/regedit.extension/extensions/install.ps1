@@ -245,7 +245,7 @@ function _Uninstall-RegistryImageImpl {
             Write-Verbose "Skipping non-existing value: $path"
         } Else {
             $skip     = $true
-            $key      = Get-Item $keyPath
+            $key      = Get-Item -LiteralPath $keyPath
             $curValue = $key.GetValue( `
                 $netValueName, $defaultValue, $noExpandVars)
             If ($curValue -eq $defaultValue) {

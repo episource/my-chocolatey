@@ -59,7 +59,8 @@ $ErrorAction = "Stop"
     default paths are absolute.
     
 .OUTPUT
-    A flat registry image (see Import-Registry cmdlet).
+    A flat registry image (see Import-Registry cmdlet) or null in case of an
+    error (when ErrorAction=*Continue).
     
 #>
 function Export-Registry {
@@ -87,7 +88,10 @@ function Export-Registry {
     If (-not $Path.Contains(":")) {
         $Path = "Registry::$Path"
     }
-    Test-RegistryPathValidity $Path -Type Absolute -ErrorAction Stop | Out-Null
+    If (-not (Test-RegistryPathValidity $Path -Type Absolute)) {
+        # Test-RegistryPathValidity uses Write-Error internally
+        return $null
+    }
     
     $flatImage = `
         [System.Collections.Generic.SortedDictionary[String, Object]]::new(
