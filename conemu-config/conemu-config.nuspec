@@ -35,12 +35,26 @@
     * Change cmd.exe output code page to unicode (/U)
     * Freeze console contents before selection
     * Select PowerShell color scheme with color 9 "40 40 255" instead of default "0 0 255"
+    
+The task configuration is also changed:
+    * Remove default task {Putty}
+    * Remove default task {Tools::Chocolatey (Admin)}
+    * Remove default task {Sheels::cmd 64/32}
+    * Ensure these default tasks do exist:
+        1. {Shells::PowerShell}         (SortKey = 010)
+        2. {Shells::PowerShell (Admin)} (SortKey = 015)
+        3. {Shells::cmd}                (SortKey = 020)
+        4. {Shells::cmd (Admin)}        (SortKey = 023)
+        5. {Shells::cmd-32}             (SortKey = 026)
+        7. {Helper::Show ANSI colors}   (SortKey = 950)
+    * Register "PowerShell here" context menu entry
     </description>
     <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
 
     <dependencies>
-      <dependency id="conemu" version="[16.9.4,)"/>
-      <dependency id="regedit.extension" version="[1.0.0,)"/>
+      <dependency id="conemu"                version="[16.9.4,)"/>
+      <dependency id="regedit.extension"     version="[3.0.0,)"/>
+      <dependency id="conemu-task.extension" version="[1.0.0,)"/>
     </dependencies>
   </metadata>
   <files>

@@ -1,3 +1,5 @@
+#
+# 1. Custom settings
 $myConfig = @{
     "SOFTWARE\ConEmu\.Vanilla" = @{
         # Main : Main console font, Alternative font -> consolas
@@ -441,3 +443,77 @@ $myConfig = @{
     }
 }
 Install-UserProfileRegistryImage -Image $myConfig -Force
+
+
+#
+# Custom task configuration
+@( "{Putty}", "{Tools::Chocolatey (Admin)}", "{Sheels::cmd 64/32}") | `
+    Remove-ConEmuTask
+
+@(
+    @{
+        "_SortKey" = "020"
+        "Active"   = 0x00000000
+        "Cmd1"     = "cmd.exe /k ""%ConEmuBaseDir%\CmdInit.cmd"""
+        "Count"    = 0x00000001
+        "Flags"    = 0x00000002
+        "GuiArgs"  = ""
+        "Hotkey"   = 0x00000000
+        "Name"     = "{Shells::cmd}"
+    }              
+    @{
+        "_SortKey" = "023"             
+        "Active"   = 0x00000000
+        "Cmd1"     = "cmd.exe /k ""%ConEmuBaseDir%\CmdInit.cmd"" -new_console:a"
+        "Count"    = 0x00000001
+        "Flags"    = 0x00000004
+        "GuiArgs"  = ""
+        "Hotkey"   = 0x00000000
+        "Name"     = "{Shells::cmd (Admin)}"
+    }              
+    @{
+        "_SortKey" = "026"             
+        "Active"   = 0x00000000
+        "Cmd1"     = """%windir%\syswow64\cmd.exe"" /k ""%ConEmuBaseDir%\CmdInit.cmd"""
+        "Count"    = 0x00000001
+        "Flags"    = 0x00000004
+        "GuiArgs"  = ""
+        "Hotkey"   = 0x00000000
+        "Name"     = "{Shells::cmd-32}"
+    }              
+    @{   
+        "_SortKey" = "010"          
+        "Active"   = 0x00000000
+        "Cmd1"     = "powershell.exe"
+        "Count"    = 0x00000001
+        "Flags"    = 0x00000004
+        "GuiArgs"  = ""
+        "Hotkey"   = 0x00000000
+        "Name"     = "{Shells::PowerShell}"
+    }              
+    @{   
+        "_SortKey" = "015"          
+        "Active"   = 0x00000000
+        "Cmd1"     = "powershell.exe -new_console:a"
+        "Count"    = 0x00000001
+        "Flags"    = 0x00000004
+        "GuiArgs"  = ""
+        "Hotkey"   = 0x00000000
+        "Name"     = "{Shells::PowerShell (Admin)}"
+    }              
+    @{   
+        "_SortKey" = "950"          
+        "Active"   = 0x00000000
+        "Cmd1"     = "cmd.exe /k type ""%ConEmuBaseDir%\Addons\AnsiColors16t.ans"" -cur_console:n"
+        "Count"    = 0x00000001
+        "Flags"    = 0x00000004
+        "GuiArgs"  = ""
+        "Hotkey"   = 0x00000000
+        "Name"     = "{Helper::Show ANSI colors}"
+    }
+) | Install-ConEmuTask
+
+@(
+    [PSCustomObject]@{
+        TaskName = "{Shells::PowerShell}"; Icon = "powershell.exe" }
+) | Install-ConEmuHere
