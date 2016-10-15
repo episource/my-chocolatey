@@ -218,11 +218,16 @@ function Edit-AllLocalUserProfileHives {
     )
     
     function _Invoke-Action {
-        $Action.InvokeWithContext(@{}, @(
-                [PSVariable]::new('_', $hkuPath)
-                [PSVariable]::new('hkuPath', $hkuPath)     
-            )
-        )| Out-Null
+        Try {
+            $Action.InvokeWithContext(@{}, @(
+                    [PSVariable]::new('_', $hkuPath)
+                    [PSVariable]::new('hkuPath', $hkuPath)     
+                )
+            )| Out-Null
+        } Catch {
+            # Propagate original exception
+            throw $_.Exception.InnerException
+        }
     }
     
     # List of profiles for which the sessions are to be imported

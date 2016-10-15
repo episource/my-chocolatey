@@ -21,6 +21,8 @@ v3.0.2   - Fix New-RegistryKey to use the literal path instead of expanding
            ErrorAction)
          - Fix _Import-RegistryImpl and _Uninstall-RegistryImageImpl to expect
            absolute paths when no parent key has been specified
+         - Make Edit-AllLocalUserProfileHives propagate exceptions that occured
+           during invocation of the action callback
 v3.0.1   - Make cmdlet Edit-AllLocalUserProfileHives usable outside the regedit
            module: Until now the variable `$hkuPath has not been accessible
            outside module scope
