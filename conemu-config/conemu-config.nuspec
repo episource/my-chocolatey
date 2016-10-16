@@ -58,7 +58,7 @@ v1.0.0 - Initial version
 
     <dependencies>
       <dependency id="conemu"                version="[16.9.4,)"/>
-      <dependency id="regedit.extension"     version="[3.0.0,)"/>
+      <dependency id="regedit.extension"     version="[3.0.2,)"/>
       <dependency id="conemu-task.extension" version="[1.0.0,)"/>
     </dependencies>
   </metadata>
