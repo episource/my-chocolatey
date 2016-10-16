@@ -24,18 +24,35 @@ $msDefenderDirScanArgs   = @(
     '-Scan',                              # Configure a scan operation
     '-DisableRemediation',                # Don't attempt to quarantine matches
     '-ScanType', '3', '-File')            # Custom Directory / File scan
+    
+$defaultPrepareFilesHook = {
+    If (-not $_.ContainsKey('FileUrl')) {
+        Write-Verbose "There are no resources to be downloaded."
+        return
+    }
+    
+    $urlList  = @() + $_['FileUrl']
+    $csumList = @() + $_['Checksum']
+    
+    For ($i = 0; $i -lt $urlList.Length; $i++) {
+        If ($i -lt $csumList.Length -and $csumList[$i]) {
+            Import-PackageResource -AutoUnzip `
+                -Url $urlList[$i] -Checksum $csumList[$i]
+        } Else {
+            Import-PackageResource -AutoUnzip -Url $urlList[$i]
+        }
+    }
+}
 
 <#
 .SYNOPSIS
-    Create a binary chocolatey package using the latest version of a software.
+    Create a binary chocolatey package using information about the latest
+    version of a software.
 
 .DESCRIPTION
-    This function determines the latest version of a software and builds a
-    chocolatey package using a nuspec template.
-   
-    A user-defined hook is used to query the latest software version. See
-    also parameter QueryReleaseHook.
-    
+    This function uses the provided version information to build builds a
+    chocolatey package from a nuspec template.
+      
     The nuspec template uses the razor language [1]. For a syntax reference
     look here: https://docs.asp.net/en/latest/mvc/views/razor.html
     
@@ -46,18 +63,25 @@ $msDefenderDirScanArgs   = @(
         @Package.Nuspec        : Full path of the final nuspec file.
         @Package.TemplateDir   : Path containing the package template.
         @Package.BuildDir      : "$BuildRoot/<id>-<version>"
-        Additional items returned by the QueryReleaseHook are also available.
+        Additional entries from the VersionInfo passed to this cmdlet are also
+        available.
         
     The build is performed in "$BuildDir/<id>-<version>". Files and directories
     from the template are copied over prior to building. The nuspec template and
     all items beginning with an underline are skipped.
         
 .PARAMETER VersionInfo
-    A hash containing information about the latest software release available.
-    The hash must at least include version information:
+    OPTIONAL - A hash containing information about the latest software release
+    available. All hash entries are made available to the nuspec template (see
+    above).
+    
+    The hash usually contains at least a version number:
         Version: The version of the latest software release. Must conform to
                  chocolatey's/nuget's versioning rules. See
                  https://docs.nuget.org/create/versioning
+                 
+    If the version might also be hard coded in the nuspec template. This can be
+    useful when building static nuspec files.
                  
     Furthermore, the following information is consumed by the default 
     $PrepareFilesHook:
@@ -72,8 +96,8 @@ $msDefenderDirScanArgs   = @(
                    available).
                
 .PARAMETER PrepareFilesHook
-    A anonymous powershell function for preparing the files required to build
-    the package. The hook is executed with the working directory being 
+    OPTIONAL - A anonymous powershell function for preparing the files required
+    to build the package. The hook is executed with the working directory being 
     "$BuildRoot/<id>-<version>". Within the working directory, the hook may
     freely create and delete files. 
     
@@ -81,30 +105,31 @@ $msDefenderDirScanArgs   = @(
     (that is the folder containing the nuspec template) have been copied to the
     hook's working directory. See DESCRIPTION for details.
     
-    The hook is passed a hash map as first argument, that contains all items
-    retrieved by the $QueryReleaseHook (see above) supplemented by the items
-    available within the nuspec template (see DESCRIPTION).
+    From within the hook, all PkgData available to the nuspec template (see
+    description above) is available via the variables $_ and $PkgData. 
+        $_, $PkgData: All PkgData also available within the nuspec template
+                      (see Description above).
     
-    The default hook implementation is passed as second argument. It can be
-    optionally be invoked within a custom hook: & $defaultHook $pkgData 
+    The behavior of the default hook (see below) is made available as cmdlet
+    Import-PackageResource.
     
-    If no hook is provided, the file at the url retrieved by
-    $QueryReleaseHook is downloaded to the package's tools folder. If the file
-    extension is '.zip', the file is extracted and deleted afterwards.
+    If no hook is provided, all files specified by the $PkgData.FileUrl array
+    are downloaded to the package's tools folder. If the file extension is
+    '.zip', the file is extracted and deleted afterwards.
     
     If the global variable $global:CFApiKey is set, the default hook queries
     VirusTotal.com prior to downloading a file.
     
 .PARAMETER TemplateDir
-    Directory containing the package template. If invoked by a script, the
-    default value is the directory containing the calling script. If invoked
-    from the command line, this parameter defaults to $(Get-Location), that is
-    the current working directory.
+    OPTIONAL - Directory containing the package template. If invoked by a
+    script, the default value is the directory containing the calling script. If
+    invoked from the command line, this parameter defaults to $(Get-Location), 
+    that is the current working directory.
     
 .PARAMETER BuildRoot
-    A working directory "$BuildRoot/<id>-<version>" for performing the build is
-    created below the $BuildRoot. The working directory is deleted after the
-    package have been build. 
+    OPTIONAL - A working directory "$BuildRoot/<id>-<version>" for performing
+    the build is created below the $BuildRoot. The working directory is deleted
+    after the package have been build. 
     
     The directory $BuildRoot is created if it does not yet exist. If so, it is
     also deleted after the package has been built.
@@ -115,8 +140,8 @@ $msDefenderDirScanArgs   = @(
     default is "$(Get-Location)/_build".
     
 .PARAMETER OutDir
-    The final package "<id>.<version>.nupkg" is copied to this directory. Any
-    existing file is silently overwritten.
+    OPTIONAL - The final package "<id>.<version>.nupkg" is copied to this 
+    directory. Any existing file is silently overwritten.
     
     The directory $OutDir is created if it does not yet exist.
     
@@ -126,29 +151,29 @@ $msDefenderDirScanArgs   = @(
     $(Get-Location).
     
 .PARAMETER IfNotInRepository
-    No new package is exported if the file 
+    OPTIONAL - No new package is exported if the file 
     "$IfNotInRepository/<id>.<version>.nupkg" exists.
     
     This parameter defaults to $global:CFRepository if defined. Otherwise no
     default is provided.
     
 .PARAMETER NoScan
-    Disable virus scan. By default the package files are scanned with windows
-    defender. If a VtApikKey (VirusTotal.com API key) is provided, the default
-    PrepareFilesHook hook also scans files to be fetched from http(s) sources
-    using VirusTotal.com prior to downloading the files.
+    OPTIONAL - Disable virus scan. By default the package files are scanned with
+    windows defender. If a VtApikKey (VirusTotal.com API key) is provided, the
+    default PrepareFilesHook hook also scans files to be fetched from http(s) 
+    sources using VirusTotal.com prior to downloading the files.
     
     This parameter defaults to $global:CFNoScan if defined. Otherwise to $false.
     
 .PARAMETER VTApiKey
-    VirusTotal.com API key: See $NoScan for details.
+    OPTIONAL - VirusTotal.com API key: See $NoScan for details.
     
     This parameter defaults to $global:CFVtApiKey if defined. Otherwise no
     default is provided.
            
 .PARAMETER Debug
-    Don't delete the working directory "$BuildRoot/<id>-<version>" on exit. Also
-    activates debug output going beyond Verbose mode.
+    OPTIONAL - Don't delete the working directory "$BuildRoot/<id>-<version>" on
+    exit. Also activates debug output going beyond Verbose mode.
            
 .OUTPUT
     The path of the exported nupkg as FileInfo object. If new new package is
@@ -156,66 +181,118 @@ $msDefenderDirScanArgs   = @(
     instead.
            
 .EXAMPLE
-    todo
+    TODO
 #>
 function New-Package {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true)]
-                                      [Hashtable]   $VersionInfo,
-        [Parameter(Mandatory=$false)] [ScriptBlock] $PrepareFilesHook
-            = $defaultPrepareFilesHook,
-        [Parameter(Mandatory=$false)] [String]      $TemplateDir 
-            = $(_Get-CallingScriptDirOrCurrentDir),
-        [Parameter(Mandatory=$false)] [String]      $BuildRoot   
-            = (_Get-Var 'global:CFBuildRoot' `
-                '$(_Get-CallingScriptDirOrCurrentDir)/_build'),
-        [Parameter(Mandatory=$false)] [String]      $OutDir      
-            = (_Get-Var 'global:CFBuildRoot' `
-                '$(_Get-CallingScriptDirOrCurrentDir)'),
-        [Parameter(Mandatory=$false)] [String]      $IfNotInRepository
-            = (_Get-Var 'global:CFRepository'           $null),
-        [Parameter(Mandatory=$false)] [Switch]      $NoScan
-            = (_Get-Var 'global:CFNoScan'               $false),
-        [Parameter(Mandatory=$false)] [String]      $VTApiKey
-            = (_Get-Var 'global:CFVtApiKey'             $null)
+        [Parameter(Mandatory=$false,ValueFromPipeline=$false)]
+        [Hashtable] $VersionInfo = @{},
+        
+        [Parameter(Mandatory=$false)]
+        [ScriptBlock] $PrepareFilesHook = $defaultPrepareFilesHook,
+        
+        [Parameter(Mandatory=$false)]
+        [String] $TemplateDir = $(_Get-CallingScriptDirOrCurrentDir),
+        
+        [Parameter(Mandatory=$false)]
+        [String] $BuildRoot = (_Get-Var 'global:CFBuildRoot' `
+            '$(_Get-CallingScriptDirOrCurrentDir)/_build'),
+                
+        [Parameter(Mandatory=$false)]
+        [String] $OutDir = (_Get-Var 'global:CFBuildRoot' `
+            '$(_Get-CallingScriptDirOrCurrentDir)'),
+            
+        [Parameter(Mandatory=$false)]
+        [String] $IfNotInRepository = (_Get-Var 'global:CFRepository' $null),
+        
+        [Parameter(Mandatory=$false)]
+        [Switch] $NoScan = (_Get-Var 'global:CFNoScan' $false),
+        
+        [Parameter(Mandatory=$false)]
+        [String] $VTApiKey = (_Get-Var 'global:CFVtApiKey' $null)
     )   
     Import-CallerPreference -AdditionalPreferences @{ ProgressBarId = 0 }
+    
+    function _Invoke-PrepareFilesHook {
+        Try {
+            $script:pkgData = $pkgData
+            $PrepareFilesHook.InvokeWithContext(@{}, @(
+                    [PSVariable]::new('_', $pkgData)
+                    [PSVariable]::new('PkgData', $pkgData)     
+                    [PSVariable]::new('DefaultHook', $defaultPrepareFilesHook)
+                )
+            )| Out-Null
+        } Catch {
+            # Propagate original exception
+            throw $_.Exception.InnerException
+        }
+    }
 
     
     # store current location to restore it later
     $location               = Get-Location
     
+    # prepare progress bar
+    $ProgressBarId          = $ProgressBarId + 1
+    $ProgressBarState       = @{
+        activity = "Building $TemplateDir"
+        status   = "Initializing..."
+        current  = 0
+        max      = 9
+    }
+    _Update-Progress $ProgressBarState -noIncrease
+    
     
     # retrieve & clone VersionInfo: items are added later on!
     $pkgData                = $VersionInfo.Clone()
-    If (-not ($pkgData.Version -match $_semverRegex)) {
-        Write-Error `
-            "$($pkgData.Version) does not comply with semver specification"
-        return
-    }
-
+    
     # collect template/package information
     $pkgData.NuspecTemplate = Get-ChildItem `
         -Path "$TemplateDir/*$_templateExtension" | Select-Object -First 1
     $pkgData.TemplateDir    = $pkgData.NuspecTemplate.Directory
     $pkgData.Id             = $pkgData.NuspecTemplate.BaseName
+        
+    If (-not $pkgData.NuspecTemplate) {
+        Write-Error "Missing nuspec template: $TemplateDir\*$_templateExtension"
+        return
+    }
+        
+    # retrieve & check version + id string
+    $nuspecInfo = _Get-NuspecIdAndVersion $pkgData.NuspecTemplate
+    
+    If (-not $pkgData.ContainsKey('Version')) {
+        $pkgData.Version = $nuspecInfo.Version
+    }
+    If ($pkgData.Version -ne $nuspecInfo.Version `
+            -and $nuspecInfo.Version -ne "@Package.Version") {
+        Write-Error (
+            "Hard coded version from nuspec template does not match the " + `
+            "calculated version: $($nuspecInfo.Version) != $($pkgData.Version)"
+        )
+    }
+    If ($pkgData.Id -ne $nuspecInfo.Id `
+            -and $nuspecInfo.Id -ne "@Package.Id") {
+        Write-Error (
+            "Hard coded id from nuspec template does not match the " + `
+            "template's name: $($nuspecInfo.Id) != $($pkgData.Id)"
+        ) 
+    }
+    If (-not ($pkgData.Version -match $_semverRegex)) {
+        Write-Error `
+            "$($pkgData.Version) does not comply with semver specification"
+        return
+    }  
+    
+    $ProgressBarState.Activity = `
+        "Building $($pkgData.Id)-$($pkgData.Version)..."
+    _Update-Progress $ProgressBarState
+    
+    # prepare other information
     $pkgData.BuildDir       = _Get-AbsolutePath `
         -Path "$BuildRoot/$($pkgData.Id)-$($pkgData.Version)"
     $pkgData.Nuspec         = Join-Path `
         $pkgData.BuildDir $pkgData.NuspecTemplate.Name
-    
-    # prepare progress bar
-    $ProgressBarId          = $ProgressBarId + 1
-    $ProgressBarState       = @{
-        activity = "Building $($pkgData.Id)-$($pkgData.Version)..."
-        status   = "Initializing..."
-        current  = 0
-        max      = 8
-    }
-    _Update-Progress $ProgressBarState -noIncrease
-    
-    # prepare other information
     $debug                  = $DebugPreference -ne 'SilentlyContinue'
     $verbose                = $VerbosePreference -ne 'SilentlyContinue' `
         -or $debug
@@ -225,13 +302,13 @@ function New-Package {
         Join-Path $pkgData.BuildDir $nupkgName )
     $nupkgOutFile           = _Get-AbsolutePath ( `
         Join-Path $OutDir $nupkgName )
-    
+        
     # Disable VirusTotal+Defender scan if NoScan has been specified
     If ($NoScan) { 
         Write-Warning "Virus scanning has been disabled!"
     
-        $VTApiKey           = $null
-        $numberOfSteps      = 7
+        $VTApiKey = $null
+        _Update-Progress $ProgressBarState # skip one step
     }
     
     If ($IfNotInRepository) {
@@ -286,10 +363,9 @@ function New-Package {
                   -Recurse
                   
         # more files need to be downloaded or prepared by other means
-        $ProgressBarState.status = "Prepare/download package content..."
+        $ProgressBarState.status = "Prepare/download package resources..."
         _Update-Progress $ProgressBarState
-        
-        & $PrepareFilesHook $pkgData $defaultPrepareFilesHook
+        _Invoke-PrepareFilesHook
              
              
         # process nuspec template
@@ -386,76 +462,134 @@ function New-Package {
     return Get-Item -Path $nupkgOutFile
 }
 
-$defaultPrepareFilesHook = {
-    param($pkgData, $defaultHook=$null)
-
-    If (-not (Test-Path -Path "tools")) {
-        New-Item -Path "tools" -ItemType Directory | Out-Null
-    }
-
-    $targetFolder = "tools"
-    $cacheFolder  = _Get-Var global:CFCacheDir $null
-    $urlList      = @() + $pkgData.FileUrl
-    $hashList     = @() + $pkgData['Checksum'] # optional property
+<#
+.SYNOPSIS
+    Downloads a package resources to the package build directory.
     
-    For ($i = 0; $i -lt $urlList.length; $i++) {
-        $url = $urlList[$i]
+.DESCRIPTION
+    This cmdlet downloads a resource file to the package build directory and
+    takes care of caching and checksum validation.
+    
+    Important: This script must be called from within a prepare files hook!
+    
+.PARAMETER Url
+    The url of a file to be downloaded.
+    
+.PARAMETER Checksum
+    OPTIONAL - Checksum for file validation. A string of the form 
+    '<md5|sha1|sha256>:<hash value>' that is interpreted as hash value to check
+    the integrity of the file pointed to by Url.
+    
+.PARAMETER TargetDirectory
+    OPTIONAL - A path relative to the package build directory. The downloaded
+    resource is copied to this directory. Defaults to "tools".
+    
+.PARAMETER TargetName
+    Optional - The name of the downloaded file. By default the name is chosen
+    based on the server response's content disposition header.
+    
+.PARAMETER AutoUnzip
+    Optional - Unzip *.zip files to the within TargetDirectory.
+    
+.OUTPUT
+    None
+    
+#>
+function Import-PackageResource() {
+    [CmdletBinding()]
+    Param (
+        [Parameter(
+            Mandatory=$true,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
+        [String] $Url,
         
-        $hash = $null
-        If ($i -lt $hashList.Length) {
-            $hash = $hashList[$i]
-        }        
+        [Parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+        [String] $Checksum = $null,
         
+        [Parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+        [AllowEmptyString()]
+        [String] $TargetDirectory = "tools",
         
+        [Parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+        [String] $TargetName = "",
+        
+        [Parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+        [Switch] $AutoUnzip = $false
+    )
+    
+    Begin {
+        Try {
+            $pkgData = Get-Variable -Scope script -Name pkgData -ErrorAction stop
+        } Catch {
+            Throw "Not called from within PrepareFilesHook!"
+        }
+    }
+    Process {
+        $cachePath    = _Get-Var global:CFCacheDir $null
+        $absTargetDir = Join-Path $script:pkgData.BuildDir $TargetDirectory
+        
+        If (-not (Test-Path -Path $absTargetDir)) {
+            New-Item -Path $absTargetDir -ItemType Directory | Out-Null
+        }
+              
+            
         # Retrieve file from web or cache
         $cacheKey = $null
         $fileFromCache = $null
-        If ($cacheFolder) {
+        If ($cachePath) {
             $cacheKey = _Get-StringHash $url
-            $fileFromCache = Get-Item "$cacheFolder/$cacheKey*" `
+            $fileFromCache = Get-Item "$cachePath/$cacheKey*" `
                 -ErrorAction SilentlyContinue | Select-Object -First 1
         }
-        
-        If ($fileFromCache) {
-            $fname = (Split-Path -Leaf $fileFromCache) -replace "^$cacheKey"
-            $file = Join-Path $targetFolder $fname
             
+        If ($fileFromCache) {
+            If ($TargetName) {
+                $fname = $TargetName
+            } Else {
+                $fname = (Split-Path -Leaf $fileFromCache) -replace "^$cacheKey"
+            }
+            
+            $file  = Join-Path $absTargetDir $fname
             Copy-Item -Path $fileFromCache -Destination $file -Force
             $file = Get-Item $file
         } Else {
-            $file = Get-WebFile -Uri $url -OutFile $targetFolder `
+            $outFileOrFolder = Join-Path $absTargetDir $TargetName
+            $file = Get-WebFile -Uri $url -OutFile $outFileOrFolder `
                 -VtApiKey $VTApiKey -Debug:$false
                 
             If ($cacheKey) {
                 $fname = Split-Path -Leaf $file
                 
-                New-Item -Type Directory $cacheFolder -Force | Out-Null
+                New-Item -Type Directory $cachePath -Force | Out-Null
                 Copy-Item -Path $file `
-                    -Destination "$cacheFolder/$cacheKey$fname" -Force
+                    -Destination "$cachePath/$cacheKey$fname" -Force
             }
         }
-        
-        
+            
+            
         # Validate checksum
-        if ($hash -and ($hash -match "^(?<algorithm>[a-zA-Z0-9]+):(?<hash>.+)$")) {
-            $algorithm = $Matches.algorithm
-            $expected  = $Matches.hash.ToLower()
+        If (-not $Checksum) {
+            Write-Verbose "No checksum provided for file: $file"
+        } ElseIf ($Checksum -match "^(?<ALGORITHM>[a-zA-Z0-9]+):(?<HASH>.+)$") {
+            $algorithm = $Matches.ALGORITHM
+            $expected  = $Matches.HASH.ToLower()
             $actual    = (Get-FileHash -Path $file -Algorithm $algorithm).Hash.ToLower()
             
             if ($actual -ine $expected) {
                 Write-Error "File hash validation failed. File: $file; Algorithm: $algorithm; Expected: $expected; Actual: $actual"
                 return
-            }
-        } ElseIf ($hash -eq $null) {
-            Write-Verbose "No checksum provided for file: $file"
+            }  
         } Else {
             Write-Error "Malformed checksum specification. File: $file; Hash: $hash"
             return
         }
         
-        If ($file.Extension -ieq '.zip') {
+        
+        # Unzip
+        If ($AutoUnzip -and $file.Extension -ieq '.zip') {
             Write-Verbose "Expanding archive: $file"
-            Expand-Archive -Path $file -DestinationPath $targetFolder
+            Expand-Archive -Path $file -DestinationPath $absTargetDir
             Remove-Item -Path $file -Force
         }
     }

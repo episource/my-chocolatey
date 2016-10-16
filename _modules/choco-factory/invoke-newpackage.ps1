@@ -62,16 +62,19 @@ function Invoke-NewPackage {
         _Update-Progress $ProgressBarState
     
         $scriptPath  = Join-Path $nuspec.DirectoryName "_build.ps1"
-        If (-not (Test-Path $scriptPath)) {
-            Write-Warning "No build script _build.ps1 found for nuspec $nuspec."
-            continue
-        }
+        $templateDir = Split-Path -Parent $scriptPath
         
-        Try {
-            $nupkg = & $scriptPath
-        } Catch {
-            $template = Split-Path -Parent $scriptPath
-            Write-Warning "Failed to build nuspec: $template`n$_"
+        If (Test-Path $scriptPath) {
+            # Invoke accompanying build script
+            Try {
+                & $scriptPath | Out-Null
+            } Catch {
+                Write-Warning "Failed to build nuspec: $templateDir`n$_"
+            }
+        } Else {
+            # Build stand-alone nuspec template
+            Write-Verbose "Building stand-alone nuspec template: $nuspec"
+            New-Package -TemplateDir $templateDir | Out-Null
         }
     }
 }

@@ -138,3 +138,28 @@ function _Get-StringHash($String, $Algorithm="MD5") {
     
     return $sb.ToString()
 }
+
+function _Get-NuspecIdAndVersion($nuspec) {
+    $nuspecNs      = @{ 
+        "ns" = "http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
+    }
+    $nuspecXml     = [Xml](Get-Content $pkgData.NuspecTemplate)
+    $nuspecId      = $nuspec | Select-Xml -Namespace $nuspecNs `
+        -Xpath "ns:package/ns:metadata/ns:id"
+    $nuspecVersion = $nuspec | Select-Xml -Namespace $nuspecNs `
+        -Xpath "ns:package/ns:metadata/ns:version"
+    
+    If (-not $nuspecId) {
+        Write-Error "Malformed nuspec template: Missing id."
+        return
+    }
+    If (-not $nuspecVersion) {
+        Write-Error "Malformed nuspec template: Missing version."
+        return
+    }
+    
+    return @{
+        "Id"      = $nuspecId.Node.InnerText.Trim()
+        "Version" = $nuspecVersion.Node.InnerText.Trim() 
+    }
+}

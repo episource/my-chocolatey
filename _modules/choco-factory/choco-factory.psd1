@@ -19,7 +19,7 @@
 RootModule = 'choco-factory.psm1'
 
 # Version number of this module.
-ModuleVersion = '2016.09.02'
+ModuleVersion = '2016.10.01'
 
 # ID used to uniquely identify this module
 GUID = 'ff3deb25-4873-4bd2-9bfc-71fdddd7df14'
@@ -121,6 +121,13 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
+v2016.10.01 - Make New-Package's VersionString parameter optional.
+            - Add support for static nuspec templates without accompanying 
+              _build.ps1 script
+            - Fix New-Package's progress bar when VirusTotal.com virus scanning
+              has been disabled
+            - Make default PrepareFilesHook behavior available via a new 
+              Import-PackageResource cmdlet
 v2016.09.02 - Don't fail if the checksum has been set to $null or an array with
               fewer checksums than the number of provided file urls. A verbose
               message is written instead if no checksum has been provided for a
