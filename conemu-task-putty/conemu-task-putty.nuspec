@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>1.0.0</version>
+    <authors>episource</authors>
+    <owners>episource</owners>
+    
+    <title>Putty task configuration for ConEmu</title>
+    <summary>Run putty ssh client from within ConEmu.</summary>
+    <tags>graphical console emulator tabs putty telnet ssh network</tags>
+    
+    <iconUrl>http://conemu.github.io/img/logo.png</iconUrl>
+    
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    
+    <description>Run putty ssh client from within ConEmu.</description>
+    <releaseNotes>
+v1.0.0 - Initial version
+    </releaseNotes>
+
+    <dependencies>
+      <dependency id="conemu"                version="[16.9.4,)"/>
+      <dependency id="conemu-config"         version="[3.0.0,)"/>
+      <dependency id="putty"                 version="[0.67.0,)"/>
+      <dependency id="conemu-task.extension" version="[1.0.0,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
