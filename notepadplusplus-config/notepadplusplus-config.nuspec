@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>@Package.id</id>
-    <version>@Package.version</version>
+    <version>1.1.0</version>
     <title>Notepad++ Custom Configuration</title>
     <authors>episource</authors>
     <owners>episource</owners>
@@ -18,9 +18,13 @@
     - Consolas font
     
 Delete "%AppData%\Notepad++" in order for notepad++ to recreate the configuration files using the new defaults.
-
-Release notes:
-@Package.ReleaseNotes</description>
+    </description>
+    <releaseNotes>
+v1.1.0 : Change shortcuts
+    - SCI_SELECTIONDUPLICATE: Ctrl+Shift+D (custom - default was Ctrl+D)
+    - SCI_LINEDELETE: Ctrl+D (custom), Ctrl+Shift+L (default)
+v1.0.0 : Initial version
+    </releaseNotes>
     <summary>My default notepad++ configuration.</summary>
     <tags>admin notepad notepadplusplus notepad-plus-plus notepad++ editor scintilla config</tags>
     <dependencies>

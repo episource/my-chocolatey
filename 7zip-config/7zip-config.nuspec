@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>@Package.Id</id>
-    <version>@Package.Version</version>
+    <version>1.0.0</version>
     <title>7-Zip Custom Configuration</title>
     <authors>episource</authors>
     <owners>episource</owners>
@@ -18,7 +18,9 @@
     <summary>My default 7-zip configuration.</summary>
     <description>This configuration package changes the following settings:
 - Disable the "CRC SHA" context menu entry </description>
-    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+    <releaseNotes>
+v1.0.0 - Initial version
+    </releaseNotes>
     <tags>7zip archiver 7z config admin</tags>
     <dependencies>
         <dependency id="7zip"                version="[1.0.0,)"/>

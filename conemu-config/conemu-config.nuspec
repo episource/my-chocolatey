@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>@Package.Id</id>
-    <version>@Package.Version</version>
+    <version>3.0.0</version>
     <authors>episource</authors>
     <owners>episource</owners>
     
@@ -49,7 +49,12 @@ The task configuration is also changed:
         7. {Helper::Show ANSI colors}   (SortKey = 950)
     * Register "PowerShell here" context menu entry
     </description>
-    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+    <releaseNotes>
+v3.0.0 - Configure tasks
+v2.0.0 - Move ANSI logs to user profile folder (adopting ConEmu 160914's 
+         default)
+v1.0.0 - Initial version
+    </releaseNotes>
 
     <dependencies>
       <dependency id="conemu"                version="[16.9.4,)"/>

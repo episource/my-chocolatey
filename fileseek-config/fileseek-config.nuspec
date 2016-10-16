@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>@Package.Id</id>
-    <version>@Package.Version</version>
+    <version>1.0.0</version>
     <title>FileSeek Custom Configuration</title>
     <authors>episource</authors>
     <owners>episource</owners>
@@ -20,7 +20,9 @@
  * Show an error when an empty PDF file is found
  * Reduce the number of characters shown for each search result from 1000 to 100
 </description>
-    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+    <releaseNotes>
+v1.0.0 - Initial version
+    </releaseNotes>
     <tags>fileseek search admin config</tags>
     <dependencies>
         <dependency id="fileseek"          version="[5.1.0,)"/>

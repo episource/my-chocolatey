@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>@Package.Id</id>
-    <version>@Package.Version</version>
+    <version>1.0.0</version>
     <title>HashCheck Shell Extension Custom Configuration</title>
     <authors>episource</authors>
     <owners>episource</owners>
@@ -19,7 +19,9 @@
     <description>This configuration package changes the following settings:
 - Only show HashCheck in the extended shortcut/context menuchoice
 - Enable calculation of MD5 checksums</description>
-    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+    <releaseNotes>
+v1.0.0 - Initial version
+    </releaseNotes>
     <tags>hashcheck admin shell extension checksum hash</tags>
     <dependencies>
         <dependency id="hashcheck"           version="[2.3.0,)"/>

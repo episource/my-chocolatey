@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>@Package.Id</id>
-    <version>@Package.Version</version>
+    <version>1.0.0</version>
     <authors>episource</authors>
     <owners>episource</owners>
     
@@ -22,7 +22,9 @@
 - Enable "Taskbar items / Pinned items / Open with double click"
 - Enable "Grouping and combining / Left click on combined item: Cycle through windows"
 - Enable "Other taskbar options / Other / Display seconds on the tray clock"</description>
-    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+    <releaseNotes>
+v1.0.0 - Initial version
+    </releaseNotes>
 
     <dependencies>
         <dependency id="7plus-taskbar-tweaker" version="[5.2.1,)"/>
