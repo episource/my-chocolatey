@@ -122,6 +122,7 @@ PrivateData = @{
         # ReleaseNotes of this module
         ReleaseNotes = @"
 v2016.10.02 - Fix reading the version info data from the pipeline
+            - Improve reading nuspec xml files with different schema versions
 v2016.10.01 - Make New-Package's VersionString parameter optional.
             - Add support for static nuspec templates without accompanying 
               _build.ps1 script
