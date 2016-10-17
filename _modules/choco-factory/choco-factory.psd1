@@ -19,7 +19,7 @@
 RootModule = 'choco-factory.psm1'
 
 # Version number of this module.
-ModuleVersion = '2016.10.01'
+ModuleVersion = '2016.10.02'
 
 # ID used to uniquely identify this module
 GUID = 'ff3deb25-4873-4bd2-9bfc-71fdddd7df14'
@@ -121,6 +121,7 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
+v2016.10.02 - Fix reading the version info data from the pipeline
 v2016.10.01 - Make New-Package's VersionString parameter optional.
             - Add support for static nuspec templates without accompanying 
               _build.ps1 script

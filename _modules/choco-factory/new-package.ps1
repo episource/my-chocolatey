@@ -186,7 +186,7 @@ $defaultPrepareFilesHook = {
 function New-Package {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$false,ValueFromPipeline=$false)]
+        [Parameter(Mandatory=$false,ValueFromPipeline=$true)]
         [Hashtable] $VersionInfo = @{},
         
         [Parameter(Mandatory=$false)]
