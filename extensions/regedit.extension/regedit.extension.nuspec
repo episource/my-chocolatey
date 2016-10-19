@@ -3,14 +3,49 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>@Package.id</id>
-    <version>@Package.version</version>
+    <version>3.0.3</version>
     <title>Regedit extension</title>
     <authors>episource</authors>
     <owners>episource</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>Install and modify registry images.</summary>
     <description>A Cmdlet to edit the windows registry. Focuses on importing prepared registry images.</description>
-    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+    <releaseNotes>
+v3.0.3   - Fix _Uninstall-RegistryImageImpl to use the literal path instead of
+           expanding globs
+         - Fix the uninstall command created by the auto-uninstall feature
+           of Install-UserProfileRegistryImage
+v3.0.2   - Fix New-RegistryKey to use the literal path instead of expanding
+           globs
+         - Fix uninstall cmdlets to use the literal key path instead of
+           expanding globs
+         - Test-RegistryPathValidity now distinguishes between absolute paths
+           (Type=Absolute) including registry hives (like HKCU:\) and absolute
+           paths excluding registry hives (Type=AbsoluteNoHives)
+         - Fix several cmdlets to evaluate the return value of 
+           Test-RegistryPathValidity (instead of relying on the default
+           ErrorAction)
+         - Fix _Import-RegistryImpl and _Uninstall-RegistryImageImpl to expect
+           absolute paths when no parent key has been specified
+         - Make Edit-AllLocalUserProfileHives propagate exceptions that occured
+           during invocation of the action callback
+v3.0.1   - Make cmdlet Edit-AllLocalUserProfileHives usable outside the regedit
+           module: Until now the variable `$hkuPath has not been accessible
+           outside module scope
+v3.0.0   - Fix exporting of (Default) registry entries
+         - Fix filtering registry entries to be exported
+         - Add support for filtering registry entries using powershell regular
+           expressions
+         - Handle non-existing paths gracefully
+v2.1.0   - Add a cmdlet for merging registry images
+v2.0.0   - Read registry image from pipeline
+         - Make Test-RegistryPathValidity accept PSDrives again
+v1.2.0   - Format powershell byte arrays using hex notation
+v1.1.1   - Stop Export-Registry to write 'true' to the pipeline as first item
+v1.1.0   - Export Edit-AllLocalUserProfileHives cmdlet
+v1.0.0.1 - Important bug fixes - no functional changes
+v1.0.0   - Initial version    
+    </releaseNotes>
     <tags>chocolatey choco extension registry regedit reg admin</tags>
   </metadata>
   <files>
