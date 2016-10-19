@@ -120,7 +120,7 @@ function Install-ConEmuTask {
         $uninstallScript = "$pkgFolder/tools/chocolateyUninstall.ps1"
         
         $newTaskNames = "@('" + [String]::Join("','", $($newTasks | %{ $_.Name })) + "')"
-        $uninstallCmd = "$newTaskNames | Remove-ConEmuTask -OnlyCurrentUser "
+        $uninstallCmd = "$newTaskNames | Remove-ConEmuTask -OnlyCurrentUser:"
         If ($OnlyCurrentUser) {
             $uninstallCmd += '$true'
         } Else {

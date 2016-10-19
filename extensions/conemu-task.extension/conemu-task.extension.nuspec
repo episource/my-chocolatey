@@ -3,14 +3,17 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>@Package.id</id>
-    <version>@Package.version</version>
+    <version>1.0.1</version>
     <title>Regedit extension</title>
     <authors>episource</authors>
     <owners>episource</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>Install and modify ConEmu tasks.</summary>
     <description>A Cmdlet to edit ConEmu task configurations.</description>
-    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+    <releaseNotes>
+v1.0.1 - Fix auto-uninstall feature creating a wrong uninstall command
+v1.0.0 - Initial version
+    </releaseNotes>
     <tags>chocolatey choco extension conemu admin</tags>
     <dependencies>
       <dependency id="conemu" version="[16.9.4,)"/>
