@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>JAM Software GmbH</authors>
+    <owners>episource</owners>
+    
+    <title>TreeSize Professional</title>
+    <summary>TreeSize Professional is a powerful and flexible hard disk space manager for all Windows versions and client/server versions currently supported by Microsoft.</summary>
+    <tags>admin system size management disk free space available harddisk harddrive windows</tags>
+    
+    <iconUrl>http://www.jam-software.de/img/eyes/TreeSize-eye.png</iconUrl>
+    <projectUrl>http://www.jam-software.de/treesize/</projectUrl>
+    <docsUrl>http://www.jam-software.de/knowledgebase/treesize/</docsUrl>
+    
+    <licenseUrl>http://www.jam-software.de/company/license_agreement.shtml</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    
+    <description>
+ * Manage and clean up disk space efficiently
+ * Visualize disk space usage
+ * Detailed analysis, right down to the lowest directory levels
+ * Archive, copy, or move files
+ * Numerous export and reporting options
+ * Versatile duplicate file search
+ * Schedule scans and perform them automatically
+ * Scan FTP and SharePoint servers
+ * Manage disk space on smartphones and mobile devices
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
