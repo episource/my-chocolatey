@@ -16,13 +16,13 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = 'choco-factory.psm1'
+RootModule = 'github-api.psm1'
 
 # Version number of this module.
-ModuleVersion = '2016.10.03'
+ModuleVersion = '2016.10.01'
 
 # ID used to uniquely identify this module
-GUID = 'ff3deb25-4873-4bd2-9bfc-71fdddd7df14'
+GUID = 'ac2595ca-456c-472e-bc22-8301da84b73c'
 
 # Author of this module
 Author = 'Philipp Serr'
@@ -35,8 +35,7 @@ Copyright = ''
 
 # Description of the functionality provided by this module
 Description = @"
-A collection of cmdlets that build self-contained chcolatey packages based on
-templates and the latest software version available.
+A collection of cmdlets for querying the github api.
 "@
 
 # Minimum version of the Windows PowerShell engine required by this module
@@ -108,7 +107,7 @@ PrivateData = @{
 
         # Tags applied to this module. These help with module discovery in
         # online galleries.
-        Tags = @('chocolatey', 'update')
+        Tags = @('githup', 'api')
 
         # A URL to the license for this module.
         LicenseUri = 'https://opensource.org/licenses/MIT'
@@ -121,25 +120,7 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
-v2016.10.03 - Move cmdlet to query the github API to an external module
-              (github-api)
-            - Invoke ExtractVersionHook with context (breaking change!)
-v2016.10.02 - Fix reading the version info data from the pipeline
-            - Improve reading nuspec xml files with different schema versions
-v2016.10.01 - Make New-Package's VersionString parameter optional.
-            - Add support for static nuspec templates without accompanying 
-              _build.ps1 script
-            - Fix New-Package's progress bar when VirusTotal.com virus scanning
-              has been disabled
-            - Make default PrepareFilesHook behavior available via a new 
-              Import-PackageResource cmdlet
-v2016.09.02 - Don't fail if the checksum has been set to $null or an array with
-              fewer checksums than the number of provided file urls. A verbose
-              message is written instead if no checksum has been provided for a
-              file.
-v2016.09.01 - Fix ConvertTo-SortedByVersion, so that input passed as argument
-              instead of via the pipeline is received properly
-v2016.08.01 - Initial version
+v2016.10.01 - Initial version
 "@
 
     } # End of PSData hashtable

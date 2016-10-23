@@ -12,8 +12,7 @@ $filename = "PortableGit-[0-9\.]+-64-bit\.7z\.exe"
 Get-VersionInfoFromGithub -Repo $repo `
     -File $filename -EnableRegex `
     -ExtractVersionHook {
-        param($name, $tag_name)
-        $tag_name -match "^v(?<MAIN_VERSION>\d+.\d+.\d+)\.windows\.(?<SUB_VERSION>\d+)" | Out-Null
+        $_.tag_name -match "^v(?<MAIN_VERSION>\d+.\d+.\d+)\.windows\.(?<SUB_VERSION>\d+)" | Out-Null
         If ($Matches.SUB_VERSION -gt 1) {
             return "$($Matches.MAIN_VERSION).$($Matches.SUB_VERSION))"
         }
