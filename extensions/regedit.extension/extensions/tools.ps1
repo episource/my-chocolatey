@@ -232,9 +232,10 @@ function Edit-AllLocalUserProfileHives {
     
     # List of profiles for which the sessions are to be imported
     $machineSidPrefix = "S-1-5-21"
-    $profiles = Get-WmiObject win32_userprofile | ?{
-        -not $_.Special -and $_.SID.StartsWith($machineSidPrefix) -and $_.LocalPath
-    } 
+    $profiles = @(
+        Get-WmiObject win32_userprofile | ?{
+            -not $_.Special -and $_.SID.StartsWith($machineSidPrefix) -and $_.LocalPath
+        }) 
     If (-not $SkipDefaultProfile) {
         $profiles +=  @{ SID=".DEFAULT" }
     }    

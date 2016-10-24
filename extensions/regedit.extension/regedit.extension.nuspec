@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>@Package.id</id>
-    <version>3.0.3</version>
+    <version>3.0.4</version>
     <title>Regedit extension</title>
     <authors>episource</authors>
     <owners>episource</owners>
@@ -11,6 +11,8 @@
     <summary>Install and modify registry images.</summary>
     <description>A Cmdlet to edit the windows registry. Focuses on importing prepared registry images.</description>
     <releaseNotes>
+v3.0.4   - Fix Edit-AllLocalUserProfileHives not to fail when there's only one
+           local user profile
 v3.0.3   - Fix _Uninstall-RegistryImageImpl to use the literal path instead of
            expanding globs
          - Fix the uninstall command created by the auto-uninstall feature
