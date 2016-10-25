@@ -84,8 +84,12 @@ function Get-VersionInfoFromSourceforge {
     }
     
     ForEach ($f in $Filter) {
-        $expandedFilter = $f -replace '\\k<VERSION>',$versionInfo.version
-        $newestItem     = $rssXml.rss.channel.item | % {
+        $expandedFilter = $f
+        If ($versionInfo.Version) {
+            $expandedFilter = $f -replace '\\k<VERSION>',$versionInfo.version
+        }
+        
+        $matchingItems = $rssXml.rss.channel.item | % {
             $item = @{
                 Title   = $_.title.InnerText
                 PubDate = [DateTime]::ParseExact(
@@ -112,12 +116,16 @@ function Get-VersionInfoFromSourceforge {
             If ($isMatch) {
                 New-Object PSObject -Property $item | Write-Output
             }
-        } | `
-        Sort-Object -Property PubDate,Title -Descending | `
-        ConvertTo-SortedByVersion -Property Version -Descending | `
-        Select-Object -First 1
+        } 
         
-        If ($newestItem) {
+        If ($matchingItems) {
+            Write-Debug "Matching items:`n`n$(_Format-Object $matchingItems)"
+        
+            $newestItem = $matchingItems | `
+                Sort-Object -Property PubDate,Title -Descending | `
+                ConvertTo-SortedByVersion -Property Version -Descending | `
+                Select-Object -First 1
+                
             $versionInfo.FileUrl  += $newestItem.FileUrl
             $versionInfo.Checksum += $newestItem.Checksum
             
