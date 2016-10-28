@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>VideoLAN Organization</authors>
+    <owners>episource</owners>
+    
+    <title>VLC Media Player</title>
+    <summary>VLC is a free and open source cross-platform multimedia player and framework that plays most multimedia files as well as DVDs, Audio CDs, VCDs, and various streaming protocols.</summary>
+    <tags>admin vlc multimedia media player</tags>
+    
+    <iconUrl>https://cdn.rawgit.com/ferventcoder/chocolatey-packages/02c21bebe5abb495a56747cbb9b4b5415c933fc0/icons/vlc.png</iconUrl>
+    <projectUrl>hhttp://www.videolan.org/vlc/</projectUrl>
+    <projectSourceUrl>http://git.videolan.org/?p=vlc.git;a=summary</projectSourceUrl>
+    <bugTrackerUrl>https://trac.videolan.org/vlc/</bugTrackerUrl>
+    <docsUrl>https://wiki.videolan.org/Documentation</docsUrl>
+    
+    <licenseUrl>http://git.videolan.org/?p=vlc.git;a=blob_plain;f=COPYING;hb=HEAD</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>the copyright</copyright>
+    
+    <description>See summary.</description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="shimgen.extension"   version="[1.0.0,)"/>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
