@@ -56,6 +56,8 @@ Turn off the progress reports.
 .NOTES 	
     Get-WebFile (aka wget for PowerShell)	
     History:
+    v2016.11.01 - Ignore URI fragments (http://my.uri/file#fragment -> use
+                  'file' as name instead of 'file#fragment')
     v2016.09.01 - Improve handling of redirects
     v2016.08.02 - Use VirusTotal to scan files prior to downloading
     v2016.08.01 - Create a powershell module for Get-WebFile
@@ -226,7 +228,7 @@ function Get-WebFile {
             }        
             
             if ($fileName -eq $null) {
-                $fileName = Split-Path -Leaf -Path $realUrl
+                $fileName = ([Uri]$realUrl).Segments[-1]
             }
             
             if (-not $fileName -eq ( Split-Path -Leaf -Path $fileName) ) {
