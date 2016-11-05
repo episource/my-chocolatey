@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Microsoft</authors>
+    <owners>episource</owners>
+    
+    <title>Windows Installer SDK "Orca" MSI Editor</title>
+    <summary>Orca is a Windows Installer package editor.</summary>
+    <tags>admin dev msi sdk orca</tags>
+    
+    <iconUrl>https://assets.onestore.ms/cdnfiles/external/uhf/long/9a49a7e9d8e881327e81b9eb43dabc01de70a9bb/images/microsoft-gray.png</iconUrl>
+    <projectUrl>https://developer.microsoft.com/en-us/windows/downloads/sdk-archive</projectUrl>
+    
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>(c) Microsoft Corporation. All rights reserved.</copyright>
+    
+    <description># Purpose
+    Orca is a Windows Installer package editor provided as part of the Windows Installer SDK and designed to provide full access to the database tables that compose a Windows Installer package. While Orca provides powerful access to all features of the Windows Installer, it is not intended to replace a full-featured package-authoring environment. 
+
+    # Where Applicable
+    Windows Installer enables the efficient installation and configuration of your products and applications. Orca can be used to create and edit Windows Installer databases. These include installation databases (.msi files), merge modules (.msm files), database patches (.msp files), database transforms (.mst files), validation modules (.cub files), and patch creation (.pcp files.) This document describes features available in Orca 3.0, provided as part of the Windows Installer SDK for the Windows Installer version 3.0. It is capable of creating and editing databases designed to use the new features of Windows Installer version 3.0. Other versions of Orca may differ in appearance, functionality, and behavior. You can use Orca 3.0 to edit packages created with earlier versions of the Windows Installer.
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+    
+    <dependencies>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
