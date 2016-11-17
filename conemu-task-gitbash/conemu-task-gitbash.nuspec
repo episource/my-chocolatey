@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>@Package.Id</id>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
     <authors>episource</authors>
     <owners>episource</owners>
     
@@ -17,6 +17,7 @@
     
     <description>Run git bash from within ConEmu.</description>
     <releaseNotes>
+v2.0.0 - Remove ConEmu from path, because it made git rebase crash
 v1.0.0 - Initial version
     </releaseNotes>
 
