@@ -4,7 +4,7 @@
 . $PSScriptRoot/../_root.ps1
 
 
-$versionRegex         = 'Latest Version:\s*<b>v(?<VERSION>\d+\.\d+)</b>'
+$versionRegex         = 'Latest Version:\s*[^v]*v(?<VERSION>\d+\.\d+)'
 $zipSha1Regex         = '<b>Without Installer \(ZIP\):</b>\s*(?<SHA1>[0-9a-fA-F]{40})'
 $downloadUrlTemplate  = 'https://binaryfortressdownloads.com/Download/BFSFiles/103/FileSeek-$rawVersion.zip'
 $downloadHtmlResponse = Invoke-WebRequest -UseBasicParsing `
