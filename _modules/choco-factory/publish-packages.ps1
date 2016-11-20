@@ -16,6 +16,10 @@ Set-StrictMode -Version latest
 $ErrorActionPreference = "Stop"
 . $PSScriptRoot/_utils.ps1
 
+
+Import-Module import-callerpreference
+Import-Module test-admin
+
 <#
 .SYNOPSIS
     Test and publish all nupkg packages found below $BuildRoot to $Repository.
@@ -93,6 +97,8 @@ function Publish-Packages {
     $pkgsPassed    = @()
     
     If (-not $NoTest -and $pkgsUntested.length -gt 0) {
+        Assert-Admin
+    
         If (-not $AssumeVm) {
             Write-Warning -WarningAction Inquire (
                 "About to test package installation. This might harm your " +

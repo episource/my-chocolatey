@@ -6,11 +6,14 @@ The package templates target a software's 64Bit version if available. Don't expe
 
 # Usage
 
-**Important:** The following commands should be run in a VM. After a package has been built, it is installed locally to ensure it's functionality. This might harm your system!
-
 ## Update all packages
+**Important:** The following command should be run in a VM. After the packages have been built, they are installed locally to ensure their functionality. This might harm your system!
 `./_build.ps1`
-This will deploy build, test and deploy package templates for which a new software version has been found.
+This will build, test and deploy package templates for which a new software version has been found. Administrative privileges are required for the test installation.
+
+## Update all packages without testing
+`./_build.ps1 -NoTest`
+This will build and deploy package templates for which a new software version has been found. Tests will be skipped, hence this command does not require administrative privileges and should it should be generally safe to run on a production system.
 
 ## Build a single package
 `./<pkgid>/_build.ps1`

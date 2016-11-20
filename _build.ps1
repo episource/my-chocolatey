@@ -1,5 +1,3 @@
-#Requires -RunAsAdministrator
-
 # Copyright 2016 Philipp Serr (episource)
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +15,17 @@
 # Enable common parameters
 [CmdletBinding()] 
 Param(
-    [Parameter(Mandatory=$false)] [Switch] $AssumeVm = $false
+    [Parameter(Mandatory=$false)] [Switch] $AssumeVm = $false,
+    [Parameter(Mandatory=$false)] [Switch] $NoTest = $false
 )
 # Import my-chocolatey config & modules
 . $PSScriptRoot/_root.ps1
+Import-Module test-admin
+
+
+if (-not $NoTest) {
+    Assert-Admin
+}
 
 Invoke-NewPackage -Path $PSScriptRoot
-Publish-Packages -AssumeVm:$AssumeVm
+Publish-Packages -AssumeVm:$AssumeVm -NoTest:$NoTest
