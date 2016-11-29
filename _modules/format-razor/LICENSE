@@ -1,0 +1,13 @@
+(the information contained herein applies to the files in the current directory,
+but not to the subdirectory "microsoft.aspnet.razor.<version>")
+
+The format-razor module is based on a blog post by Danny Tuppeny (DanTup) and
+accompanying sources.
+
+Original Author: Danny Tuppeny (DanTup)
+Url: https://blog.dantup.com/2011/04/formatting-powershell-objects-using-the-razor-engine/
+  (see "2011-04-30 Formatting PowerShell Objects using the Razor Engine.pdf")
+License: n/a
+
+The subdirectory "microsoft.aspnet.razor.3.2.3" contains binary redistributables
+by Microsoft. These are subject to a different license.

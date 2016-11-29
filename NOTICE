@@ -1,10 +1,28 @@
-my-chocolatey & choco-factory by Philipp Serr (episource)
+my-chocolatey & choco-factory by Philipp Serr (episource.de)
 
-format-razor by Danny Tuppeny (DanTup)
-https://blog.dantup.com/2011/04/formatting-powershell-objects-using-the-razor-engine/
 
-get-webfile by Joel Bennet, Bill Barry, Gwen Dallas, Mike Ling, Philipp Serr
-http://poshcode.org/3226
+See below for a list of third-party software. Modifications - if any - are
+listed within the corresponding source files.
 
-Razor template engine (Microsoft.AspNet.Razor) by Microsoft
-https://www.nuget.org/packages/Microsoft.AspNet.Razor/3.2.3
+format-razor:
+  _modules/format-razor
+The format-razor module is based on a blog post by Danny Tuppeny (DanTup) and
+accompanying sources.
+Original Author: Danny Tuppeny (DanTup)
+Url: https://blog.dantup.com/2011/04/formatting-powershell-objects-using-the-razor-engine/
+License: n/a
+
+get-webfile: 
+  _modules/get-webfile
+The get-webfile module is based on code published at poshcode.org.
+Original Authors: Joel Bennet, Bill Barry, Gwen Dallas, Mike Ling
+Url: http://poshcode.org/3226
+License: poshcode.org requires code to be published under the license 
+  Creative Commons "No Rights Reserved" - http://poshcode.org/Terms.html
+
+razor template engine (Microsoft.AspNet.Razor) binaries: 
+  _modules/format-razor/microsoft.aspnet.razor.<version>/
+The razor template engine binaries are redistributed unchanged.
+Original Author: Microsoft Corporation
+Url: https://www.nuget.org/packages/Microsoft.AspNet.Razor/3.2.3
+License: https://www.microsoft.com/web/webpi/eula/net_library_eula_enu.htm

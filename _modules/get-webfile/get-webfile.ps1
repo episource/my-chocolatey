@@ -16,6 +16,7 @@
 # Authors: Joel Bennet, Bill Barry, Gwen Dallas, Mike Ling
 # Original license: CC0 "No Rights Reserved"
 # (see http://poshcode.org/Terms.html)
+# See section "Notes" below for a list of modifications.
 
 Set-StrictMode -Version latest
 $ErrorActionPreference = "Stop"

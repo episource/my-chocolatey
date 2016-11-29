@@ -1,0 +1,9 @@
+(the information contained herein applies to the files in the current directory
+and any subdirectory)
+
+The razor template engine binaries are redistributed unchanged.
+
+Original Author: Microsoft Corporation
+Url: https://www.nuget.org/packages/Microsoft.AspNet.Razor/3.2.3
+License: https://www.microsoft.com/web/webpi/eula/net_library_eula_enu.htm
+  (see "license.htm")
