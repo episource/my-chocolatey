@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>episource</authors>
+    <owners>episource</owners>
+    
+    <title>git-merge-subtree2</title>
+    <summary>A merge strategy similiar to the built-in subtree strategy, that also supports merging from a subdirectory of the source branch.</summary>
+    <tags>git merge strategy bash shell</tags>
+    
+    <iconUrl>https://cdn.rawgit.com/ferventcoder/chocolatey-packages/02c21bebe5abb495a56747cbb9b4b5415c933fc0/icons/git.svg</iconUrl>
+    <projectUrl>https://github.com/episource/git-merge-subtree2</projectUrl>
+    <projectSourceUrl>https://github.com/episource/git-merge-subtree2</projectSourceUrl>
+    <bugTrackerUrl>https://github.com/episource/git-merge-subtree2/issues</bugTrackerUrl>
+    <docsUrl>https://github.com/episource/git-merge-subtree2/blob/master/README.md</docsUrl>
+    
+    <licenseUrl>https://github.com/episource/git-merge-subtree2/blob/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>(c) 2016 episource</copyright>
+    
+    <description>Subtree2 is a merge strategy for git similiar to the built-in subtree strategy. Additionally, subtree2 has the ability to merge subdirectories of the source branch, too. Like the default subtree strategy it can also merge to subdirectories of the target branch.
+
+The merge strategy is accompanied by a utility script called subproject, that can be used for pulling a subdirectory of a different branch or repository into a subdirectory of the target/current branch. It merges using `--squash`, so that the history does not become cluttered. Source branch and commit are remembered within the merge commit's message to simplify later updates. A subproject can also be merged back into the source branch.
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
