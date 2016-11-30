@@ -10,7 +10,8 @@ The format-razor module is based on a blog post by Danny Tuppeny (DanTup) and
 accompanying sources.
 Original Author: Danny Tuppeny (DanTup)
 Url: https://blog.dantup.com/2011/04/formatting-powershell-objects-using-the-razor-engine/
-License: n/a
+License: "use any of my code [...] freely as you wish without attributing"
+  - see author's comments for the blog post referenced above
 
 get-webfile: 
   _modules/get-webfile

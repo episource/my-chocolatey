@@ -7,7 +7,8 @@ accompanying sources.
 Original Author: Danny Tuppeny (DanTup)
 Url: https://blog.dantup.com/2011/04/formatting-powershell-objects-using-the-razor-engine/
   (see "2011-04-30 Formatting PowerShell Objects using the Razor Engine.pdf")
-License: n/a
+License: "use any of my code [...] freely as you wish without attributing"
+  - see author's comments for the blog post referenced above
 
 The subdirectory "microsoft.aspnet.razor.3.2.3" contains binary redistributables
 by Microsoft. These are subject to a different license.
