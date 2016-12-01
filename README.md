@@ -40,7 +40,22 @@ Take a look at `_config.ps1` for a list of available configuration options. The 
       <!-- ... --->
     </package>
     ```
-3. Add a `_build.ps1` script to the template and invoke the New-Package cmdlet.
+3. Add a `_build.ps1` script to the template and invoke the New-Package cmdlet. The `_build.ps1` script should invoke the New-Package passing a VersionInfo argument.
+
+    ```
+    # Enable common parameters
+    [CmdletBinding()] Param()
+    # Import my-chocolatey config & modules
+    . $PSScriptRoot/../_root.ps1
+
+    # See the documentation of the New-Package cmdlet for details.
+    $vi = @{
+        Version  = $version
+        FileUrl  = $fileUrl
+        Checksum = "$algorithm:$hash"
+    }
+    New-Package -VersionInfo $vi
+    ```
 
 Note: It's also possible to build static nuspec templates. In this case step 3 is optional. Nevertheless a minimal build script is still handy to simplify building a single package from the command prompt.
 
