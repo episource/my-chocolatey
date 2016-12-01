@@ -557,14 +557,6 @@ function Import-PackageResource() {
             $outFileOrFolder = Join-Path $absTargetDir $TargetName
             $file = Get-WebFile -Uri $url -OutFile $outFileOrFolder `
                 -VtApiKey $VTApiKey -Debug:$false
-                
-            If ($cacheKey) {
-                $fname = Split-Path -Leaf $file
-                
-                New-Item -Type Directory $cachePath -Force | Out-Null
-                Copy-Item -Path $file `
-                    -Destination "$cachePath/$cacheKey$fname" -Force
-            }
         }
             
             
@@ -577,12 +569,27 @@ function Import-PackageResource() {
             $actual    = (Get-FileHash -Path $file -Algorithm $algorithm).Hash.ToLower()
             
             if ($actual -ine $expected) {
-                Write-Error "File hash validation failed. File: $file; Algorithm: $algorithm; Expected: $expected; Actual: $actual"
+                $msg = "File hash validation failed.`nFile: $file`nAlgorithm: $algorithm`nExpected: $expected`nActual: $actual"
+                If ($fileFromCache) {
+                    $msg += "`nConsider deleting cached file: $fileFromCache"
+                }
+                Write-Error $msg
+                
                 return
             }  
         } Else {
             Write-Error "Malformed checksum specification. File: $file; Hash: $hash"
             return
+        }
+        
+        
+        # Add downloaded file to the download cache
+        If ($cacheKey -and -not $fileFromCache) {
+            $fname = Split-Path -Leaf $file
+                
+            New-Item -Type Directory $cachePath -Force | Out-Null
+            Copy-Item -Path $file `
+                -Destination "$cachePath/$cacheKey$fname" -Force
         }
         
         

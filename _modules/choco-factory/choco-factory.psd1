@@ -19,7 +19,7 @@
 RootModule = 'choco-factory.psm1'
 
 # Version number of this module.
-ModuleVersion = '2016.10.04'
+ModuleVersion = '2016.12.01'
 
 # ID used to uniquely identify this module
 GUID = 'ff3deb25-4873-4bd2-9bfc-71fdddd7df14'
@@ -121,6 +121,9 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
+v2016.12.01 - Don't cache files with incorrect checksum
+            - Improve error message shown when a cached file has an incorrect
+              checksum
 v2016.10.04 - Fix Get-VersionInfoFromSourceForge ignoring backreferences in
               first filter expression
             - Fix Get-VersionInfoFromSourceForge failing with a misleading
