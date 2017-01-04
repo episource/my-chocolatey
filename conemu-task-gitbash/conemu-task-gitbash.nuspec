@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>@Package.Id</id>
-    <version>3.0.1</version>
+    <version>3.0.2</version>
     <authors>episource</authors>
     <owners>episource</owners>
     
@@ -17,6 +17,9 @@
     
     <description>Run git bash from within ConEmu.</description>
     <releaseNotes>
+v3.0.2 - Use 'start /b' to start git-cmd.exe, so that conemu doesn't show a
+         confirmation dialog when closing a git tab without any active user
+         command (only the shell is running)
 v3.0.1 - Fix removal of ConEmu directories from the PATH
 v3.0.0 - Add git-merge-subtree2 to the PATH
        - Update dependencies:
