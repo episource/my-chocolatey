@@ -14,7 +14,7 @@ function _Resolve-Uri($pageUri, $linkUri) {
 $downloadPageUrl = "https://notepad-plus-plus.org/download/"
 $versionRegex    = '<title>Notepad\+\+ v(?<VERSION>\d(?:\.\d){0,2}) - Current Version</title>'
 $zipPackageRegex = '>Notepad\+\+ zip package 64-bit x64<'
-$hashFileRegex   = '>SHA-1 digests for binary packages<'
+$hashFileRegex   = '>SHA-1/MD5 digests for binary packages<'
 
 
 # Query download page
