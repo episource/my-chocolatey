@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Daniel Grunwald,David Srbecky,Ed Harvey,Siegfried Pammer,Artur Zgodzinski</authors>
+    <owners>episource</owners>
+    
+    <title>ILSpy</title>
+    <summary>Open-source .NET assembly browser and decompiler</summary>
+    <tags>.net dotnet decompiler reverse-engineering reversing dev win windows</tags>
+    
+    <iconUrl>https://cdn.rawgit.com/dtgm/chocolatey-packages/086a1789d89703105f9e383da6d2eafb2e90f4af/icons/ilspy.png</iconUrl>
+    <projectUrl>http://ilspy.net/</projectUrl>
+    <projectSourceUrl>https://github.com/icsharpcode/ILSpy</projectSourceUrl>
+    <bugTrackerUrl>https://github.com/icsharpcode/ILSpy/issues</bugTrackerUrl>
+    <docsUrl>http://ilspy.net/</docsUrl>
+    <mailingListUrl>http://community.sharpdevelop.net/forums/69.aspx</mailingListUrl>
+    
+    <licenseUrl>https://github.com/icsharpcode/ILSpy/blob/master/doc/license.txt</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright (c) 2011-2014 AlphaSierraPapa for the SharpDevelop team</copyright>
+    
+    <description>
+Development started after Red Gate announced that the free version of .NET Reflector would cease to exist by end of February 2011.
+
+### Features
+* Assembly browsing
+* IL Disassembly
+* Support C# 5.0 "async"
+* Decompilation to C#
+* Supports lambdas and 'yield return'
+* Shows XML documentation
+* Decompilation to VB
+* Saving of resources
+* Save decompiled assembly as .csproj
+* Search for types/methods/properties (substring)
+* Hyperlink-based type/method/property navigation
+* Base/Derived types navigation
+* Navigation history
+* BAML to XAML decompiler
+* Save Assembly as C# Project
+* Find usage of field/method
+* Extensible via plugins (MEF)
+* Assembly Lists
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies></dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
