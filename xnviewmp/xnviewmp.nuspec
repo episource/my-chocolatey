@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Gougelet Pierre-Emmanuel</authors>
+    <owners>episource</owners>
+    
+    <title>XnView MP</title>
+    <summary>XnView MP is a powerful cross-platform media browser, viewer and converter. Compatible with more than 500 formats.</summary>
+    <tags>admin xnviewmp xnview image picture photo viewer album gallery</tags>
+    
+    <iconUrl>http://www.xnview.com/assets/img/app-xnviewmp-512.png</iconUrl>
+    <projectUrl>http://www.xnview.com/en/xnviewmp/</projectUrl>
+    <bugTrackerUrl>http://newsgroup.xnview.com/viewforum.php?f=93</bugTrackerUrl>
+    <mailingListUrl>http://newsgroup.xnview.com/viewforum.php?f=68</mailingListUrl>
+    
+    <licenseUrl>http://www.xnview.com/en/xnviewmp/#downloads</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>© 2013-16 XnSoft</copyright>
+    
+    <description>
+# XnView MP
+XnView MP is the enhanced version of XnView Classic. It is a powerful cross-platform media browser, viewer and converter. Compatible with more than 500 formats.
+
+## Unrivaled Compatibility
+XnView MP supports more than 500 image formats (including Multipage and animated still formats APNG, TIFF, GIF, ICO, etc..) and export to about 70 different file formats.
+
+## Batch Conversion
+XnView MP comes with an easy to use yet powerful batch conversion module. This same module also powers XnConvert
+
+## And much more...
+Virtually all of standard XnView's much loved features have been preserved in XnView MP and many features have actually been tweaked and enhanced.
+
+## Optimized Performance
+Considerable improvements have been made in terms of performance (speed-optimized loading, improved caching, multi-core processing, 64bits version, etc...)
+
+## Multi-Platform
+Windows, Mac OS X and Linux are now supported in both 32 and 64 bit versions
+
+## World-Wide compatible
+XnView MP finally offers Unicode support. Enhanced translations for many languages as well as a brand new and convenient modular interface.
+    </description>
+    <releaseNotes><![CDATA[http://newsgroup.xnview.com/viewtopic.php?f=82&t=34581]]></releaseNotes>
+
+    <dependencies>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
