@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Jamie da Silva</authors>
+    <owners>episource</owners>
+    
+    <title>Velocity</title>
+    <summary>Velocity gives your Windows desktop offline access to over 150 API documentation sets</summary>
+    <tags>admin dash reference documentation programming sdk</tags>
+    
+    <iconUrl>http://velocity.silverlakesoftware.com/Content/VelocityIcon_48x48.png</iconUrl>
+    <projectUrl>http://velocity.silverlakesoftware.com/</projectUrl>
+    <bugTrackerUrl>https://the.url/</bugTrackerUrl>
+    <docsUrl>https://velocity.silverlakesoftware.com/contact</docsUrl>
+    
+    <licenseUrl>http://velocity.silverlakesoftware.com/licenseagreement</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright © Silverlake Software LLC</copyright>
+    
+    <description>
+Over 150+ API documentation sets are available in Velocity covering some of the most popular languages and API frameworks that you use for everyday development. If you've every seen or used Dash on the Mac then you have a good idea of what Velocity is except for Windows. The very same docsets you use in Dash are available with Velocity too.
+    </description>
+    <releaseNotes><![CDATA[http://velocity.silverlakesoftware.com/releasenotes]]></releaseNotes>
+
+    <dependencies>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
