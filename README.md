@@ -2,7 +2,10 @@
 
 This repository contains chocolatey package templates together with a bunch of scripts that build  [self-contained](https://chocolatey.org/docs/create-packages#self-contained) packages from the templates, that are based on the latest available software version available.
 
+## Prerequisites
 The package templates target a software's 64Bit version if available. Don't expect the packages to work for non x64 systems.
+
+The build scripts have been tested with Windows 10, only.
 
 # Usage
 
