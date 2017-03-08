@@ -5,7 +5,7 @@
 
 
 # Configuration
-$zipFile    = "x86/putty.zip"
+$zipFile    = "w64/putty.zip"
 $sha256File = "sha256sums"
 
 
