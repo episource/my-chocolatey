@@ -57,6 +57,7 @@ Turn off the progress reports.
 .NOTES 	
     Get-WebFile (aka wget for PowerShell)	
     History:
+    v2017.03.01 - Add support for sending cookies
     v2016.11.01 - Ignore URI fragments (http://my.uri/file#fragment -> use
                   'file' as name instead of 'file#fragment')
     v2016.09.01 - Improve handling of redirects
@@ -120,6 +121,11 @@ function Get-WebFile {
         Mandatory=$false,
         HelpMessage="Provide an VirusTotal.com API key to enable virus scanning for https.")]
         [String]$VtApiKey = $null,
+        
+        [Parameter(
+        Mandatory=$false,
+        HelpMessage="Map of cookie name-value pairs to be passed with the request.")]
+        [HashTable]$Cookies = @{},
 		
 		[Parameter(HelpMessage="Turn off the progress reports.")]
       	[switch]$Quiet
@@ -137,9 +143,22 @@ function Get-WebFile {
         
         #http://stackoverflow.com/questions/518181/too-many-automatic-redirections-were-attempted-error-message-when-using-a-httpw
         $request.CookieContainer = New-Object System.Net.CookieContainer
+        
+        
+        $Cookies.GetEnumerator() | %{
+            $topLevelDomain = [String]::Join(
+                ".", [Uri]::new($Url).Host.Split(".")[-2..-1])
+            $cookie = [System.Net.Cookie]::new(
+                $_.Key, $_.Value, "/", $topLevelDomain)
+            $request.CookieContainer.Add($cookie)
+        }
 	} elseif ($Url -match "^ftp://") {
         If ($VTApiKey -ne $null) {
             Write-Warning "VirusTotal.com does not scan ftp-urls."
+        }
+        If ($Cookies.Count -ne 0) {
+            Write-Error "FTP does not support cookies!"
+            return
         }
     
         $request = [System.Net.FtpWebRequest]::Create($Url)
