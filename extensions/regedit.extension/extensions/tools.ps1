@@ -140,7 +140,7 @@ function Test-RegistryPathValidity {
                 Write-Error (
                     "PSDrive not followed by directory separator:`n" +
                     "Should be: ${drive}:\$pathspec`n" +
-                    "Was      : $pathspec")
+                    "Was      : $Path")
                 return $false
             }
         }
@@ -170,16 +170,15 @@ function Split-RegistryPath {
         [String] $Path
     )
     Process {
-        $regexResult = $registryPathRegex.Match($Path)
-        If (-not $regexResult.Success) {
+        $splitPoint = [Math]::Max($Path.LastIndexOf('/'), $Path.LastIndexOf('\'))
+        If ($splitPoint -le 0) {
             Write-Error "Illegal path: $Path"
             return $null
         }
-        
+
         return @{
-            Key   = $regexResult.Groups['PROVIDERORDRIVE'].Value + `
-                $regexResult.Groups['KEY'].Value
-            Value = $regexResult.Groups['VALUE'].Value
+            Key   = $Path.Substring(0, $splitPoint)
+            Value = $Path.Substring($splitPoint + 1, $Path.Length - $splitPoint - 1)
         }    
     }
 }
