@@ -31,16 +31,18 @@ $defaultPrepareFilesHook = {
         return
     }
     
-    $urlList  = @() + $_['FileUrl']
-    $csumList = @() + $_['Checksum']
+    $urlList     = @() + $_['FileUrl']
+    $cookiesList = @() + $_['Cookies']
+    $csumList    = @() + $_['Checksum']
     
     For ($i = 0; $i -lt $urlList.Length; $i++) {
-        If ($i -lt $csumList.Length -and $csumList[$i]) {
-            Import-PackageResource -AutoUnzip `
-                -Url $urlList[$i] -Checksum $csumList[$i]
-        } Else {
-            Import-PackageResource -AutoUnzip -Url $urlList[$i]
+        $params = @{ Url = $urlList[$i]; AutoUnzip = $true }
+        
+        If ($i -lt $cookiesList.Length -and $cookiesList[$i]) {
+            $params.Cookies = $cookiesList[$i]
         }
+        
+        Import-PackageResource @params
     }
 }
 
@@ -89,6 +91,11 @@ $defaultPrepareFilesHook = {
                    url to the tools directory prior to building the package. If
                    the file ends with 'zip' it is extracted to the tools folder,
                    instead. If this item is an array, all urls are downloaded.
+        FileUrlCookies :
+                   [Optional] An list (hashtable of key value pairs) of cookies
+                   to be passed to the download server. If an array of urls has
+                   been provided, this must be an array of hashtables, too. The
+                   i-th file is downloaded using the i-th cookie list.
         Checksum : [Optional] A string of the form <md5|sha1|sha256>:<hash value>
                    that is interpreted as hash value to check the integrity of
                    the file pointed to by Url. If an array of urls has been
@@ -475,6 +482,10 @@ function New-Package {
 .PARAMETER Url
     The url of a file to be downloaded.
     
+.PARAMETER Cookies
+    Cookies to be passed to the download server. This is actually a hashtable
+    of key value pairs like {@ "cookie-name"="cookie-value" }.
+    
 .PARAMETER Checksum
     OPTIONAL - Checksum for file validation. A string of the form 
     '<md5|sha1|sha256>:<hash value>' that is interpreted as hash value to check
@@ -503,6 +514,9 @@ function Import-PackageResource() {
             ValueFromPipeline=$true,
             ValueFromPipelineByPropertyName=$true)]
         [String] $Url,
+        
+        [Parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
+        [HashTable] $Cookies = @{},
         
         [Parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)]
         [String] $Checksum = $null,
@@ -555,8 +569,8 @@ function Import-PackageResource() {
             $file = Get-Item $file
         } Else {
             $outFileOrFolder = Join-Path $absTargetDir $TargetName
-            $file = Get-WebFile -Uri $url -OutFile $outFileOrFolder `
-                -VtApiKey $VTApiKey -Debug:$false
+            $file = Get-WebFile -Uri $url -Cookies $cookies `
+                -OutFile $outFileOrFolder -VtApiKey $VTApiKey -Debug:$false
         }
             
             

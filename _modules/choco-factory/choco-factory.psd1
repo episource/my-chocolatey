@@ -19,7 +19,7 @@
 RootModule = 'choco-factory.psm1'
 
 # Version number of this module.
-ModuleVersion = '2016.12.01'
+ModuleVersion = '2017.03.01'
 
 # ID used to uniquely identify this module
 GUID = 'ff3deb25-4873-4bd2-9bfc-71fdddd7df14'
@@ -121,6 +121,9 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
+v2017.01.01 - Add optional property FileUrlCookies to the VersionInfo structure:
+              These cookies are used by the default prepare files hook when
+              downloading files
 v2016.12.01 - Don't cache files with incorrect checksum
             - Improve error message shown when a cached file has an incorrect
               checksum
