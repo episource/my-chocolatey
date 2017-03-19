@@ -19,7 +19,7 @@
 RootModule = 'choco-factory.psm1'
 
 # Version number of this module.
-ModuleVersion = '2017.03.02-SNAPSHOT'
+ModuleVersion = '2017.03.02'
 
 # ID used to uniquely identify this module
 GUID = 'ff3deb25-4873-4bd2-9bfc-71fdddd7df14'
@@ -121,7 +121,8 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
-v2017.03.02-SNAPSHOT
+v2017.03.02 - Add Select-BuildDependency to add build-time dependencies to
+              template build scripts
             - Add http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd to
               the list of supported nuspec namespaces
 v2017.03.01 - Add optional property FileUrlCookies to the VersionInfo structure:
