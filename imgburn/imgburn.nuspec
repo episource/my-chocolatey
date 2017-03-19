@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>LIGHTNING UK!</authors>
+    <owners>episource</owners>
+    
+    <title>Package Title</title>
+    <summary>ImgBurn is a lightweight CD / DVD / HD DVD / Blu-ray burning application that everyone should have in their toolkit!</summary>
+    <tags>admin cd dvd iso image burn</tags>
+    
+    <iconUrl>http://www.imgburn.com/images/logo_imgburn.png</iconUrl>
+    <projectUrl>http://www.imgburn.com/</projectUrl>
+    <docsUrl>http://www.imgburn.com/index.php?act=guides</docsUrl>
+    
+    <licenseUrl>http://www.imgburn.com/index.php?act=terms</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright © 2005 - 2016 LIGHTNING UK!</copyright>
+    
+    <description><![CDATA[
+IMPORTANT: Don't execute the bundled installer directly! It'll try to install mal/adware if you are not very careful! This chocolatey package does not execute the installer, but extracts its content. Still there's some risk, that one day the main executable contains malware, too.
+
+    
+ImgBurn supports a wide range of image file formats - including BIN, CCD, CDI, CUE, DI, DVD, GI, IMG, ISO, MDS, NRG and PDI.
+
+It can burn Audio CD's from any file type supported via DirectShow / ACM - including AAC, APE, FLAC, M4A, MP3, MP4, MPC, OGG, PCM, WAV, WMA and WV.
+
+You can use it to build DVD Video discs (from a VIDEO_TS folder), HD DVD Video discs (from a HVDVD_TS folder) and Blu-ray Video discs (from a BDAV / BDMV folder) with ease.
+
+It supports Unicode folder/file names, so you shouldn't run in to any problems if you're using an international character set.
+
+ImgBurn supports all the Microsoft Windows OS's - Windows 95, Windows 98, Windows Me, Windows NT4, Windows 2000, Windows XP, Windows 2003, Windows Vista, Windows 2008, Windows 7, Windows 8 and Windows 10 (including all the 64-bit versions). If you use Wine, it should also run on Linux and other x86-based Unixes.
+
+It's a very flexible application with several advanced features that are often lacking in other tools, especially when it comes to burning DVD Video discs. It supports all the latest drives without the need for updates (including booktype / bitsetting / advanced settings on many of the major ones - i.e. BenQ, LiteOn, LG, NEC, Optiarc, Pioneer, Plextor, Samsung, Sony).
+
+There is an image queue system for when you're burning several images (which you can automatically share between multiple drives if you have more than one) and an easy-to-use layer break selection screen for double layer DVD Video jobs. The Automatic Write Speed feature allows you store your favourite burn speed settings on a per 'Media ID' basis, right down to a drive by drive level. Data captured during the burn (write speed, buffer levels etc) can be displayed / analysed using DVDInfoPro.
+
+Whilst ImgBurn is designed to work perfectly straight out of the box, advanced users will appreciate just how configurable it is.
+
+Oh and let's not forget the best thing about it.... it's 100% FREE ;-)
+    ]]></description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="shimgen.extension" version="[1.0.0,)"/>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
