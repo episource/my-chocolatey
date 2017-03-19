@@ -142,11 +142,12 @@ function _Get-StringHash($String, $Algorithm="MD5") {
 function _Get-NuspecIdAndVersion($nuspec) {
     $nuspecNs      = @{ 
         "ns1" = "http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
-        "ns2" = "http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd"
+        "ns2" = "http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd"
+        "ns3" = "http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd"
     }
     $nuspecXml      = [Xml](Get-Content $nuspec)
     $nuspecRoot     = $nuspecXml | Select-Xml -Namespace $nuspecNs `
-        -Xpath "(ns1:package)|(ns2:package)"
+        -Xpath "(ns1:package)|(ns2:package)|(ns3:package)"
     $nuspecNs["ns"] = $nuspecRoot.Node.NamespaceURI
         
     $nuspecId       = $nuspecXml | Select-Xml -Namespace $nuspecNs `
