@@ -16,7 +16,7 @@ $version = $Matches.VERSION
 
 # Prepare release notes
 $releaseNotesUrl     = "https://tortoisegit.org/docs/releasenotes/"
-$releaseNotesContent = Invoke-WebRequest -UseBasicParsing -Uri $notesUrl
+$releaseNotesContent = Invoke-WebRequest -UseBasicParsing -Uri $releaseNotesUrl
 $releaseNotesContent -match `
     "(?is)<pre[^>]*>\s*(?<RELEASENOTES><strong\s*id=""?Release.+)</pre>" | Out-Null
 $releaseNotes = $Matches.RELEASENOTES -replace `
