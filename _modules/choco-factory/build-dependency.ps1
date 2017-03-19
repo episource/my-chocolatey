@@ -79,7 +79,7 @@ function Select-BuildDependency {
         switch ($PsCmdlet.ParameterSetName) {
             "MinVersion" { 
                 $versionOk = $versionComparer.Compare(
-                    $actualVersion, $MinVersion) -gt 0 
+                    $actualVersion, $MinVersion) -ge 0 
             }
             "ExactVersion" {
                 $versionOk = $versionComparer.Compare(
