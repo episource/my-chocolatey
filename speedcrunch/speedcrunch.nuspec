@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Helder Correia et. al.</authors>
+    <owners>episource</owners>
+    
+    <title>SpeedCrunch</title>
+    <summary>SpeedCrunch is a high-precision scientific calculator featuring a fast, keyboard-driven user interface. It is free and open-source software, licensed under the GPL.</summary>
+    <tags>admin?</tags>
+    
+    <iconUrl>https://raw.githubusercontent.com/dimqua/choco/master/icons/speedcrunch.png</iconUrl>
+    <projectUrl>http://speedcrunch.org/</projectUrl>
+    <projectSourceUrl>https://bitbucket.org/heldercorreia/speedcrunch</projectSourceUrl>
+    <bugTrackerUrl>https://bitbucket.org/heldercorreia/speedcrunch/issues</bugTrackerUrl>
+    <docsUrl>http://speedcrunch.org/introduction.html</docsUrl>
+    <mailingListUrl>https://groups.google.com/forum/#!forum/speedcrunch</mailingListUrl>
+    
+    <licenseUrl>https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>© The SpeedCrunch Developers</copyright>
+    
+    <description>Welcome to the SpeedCrunch manual! SpeedCrunch is a high-precision scientific desktop calculator. It features a syntax-highlighted scrollable display and is designed to be fully used via keyboard. Some distinctive features are auto-completion of functions and variables, a formula book, and quick insertion of constants from various fields of knowledge. It is available for Windows, OS X, and Linux in a number of languages. We hope you have fun with SpeedCrunch!</description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
