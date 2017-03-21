@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Nir Sofer</authors>
+    <owners>episource</owners>
+    
+    <title>RegFromApp</title>
+    <summary>RegFromApp monitors the Registry changes made by the application that you selected, and creates a standard RegEdit registration file (.reg) that contains all the Registry changes made by the application. You can use the generated .reg file to import these changes with RegEdit when it's needed. </summary>
+    <tags>admin registry regedit nirsoft</tags>
+    
+    <iconUrl>http://www.nirsoft.net/utils/regfromapp_icon.gif</iconUrl>
+    <projectUrl>http://www.nirsoft.net/utils/reg_file_from_application.html</projectUrl>
+    
+    <licenseUrl>http://www.nirsoft.net/utils/reg_file_from_application.html</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright (c) 2008 - 2014 Nir Sofer </copyright>
+    
+    <description>
+= Description =
+RegFromApp monitors the Registry changes made by the application that you selected, and creates a standard RegEdit registration file (.reg) that contains all the Registry changes made by the application. You can use the generated .reg file to import these changes with RegEdit when it's needed.
+
+= System Requirements =
+This utility works on Windows 2000, Windows XP, Windows Server 2003, Windows Vista, Windows Server 2008, Windows 7, and Windows 8. Older versions of Windows are not supported. There is a separated version for x64 applications. 
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
