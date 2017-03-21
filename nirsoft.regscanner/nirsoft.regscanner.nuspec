@@ -11,12 +11,12 @@
     <summary>RegScanner is a small utility that allows you to scan the Registry, find the desired Registry values that match to the specified search criteria, and display them in one list.</summary>
     <tags>admin shellex nirsoft shell extension explorer</tags>
     
-    <iconUrl>http://www.nirsoft.net/utils/shexview_icon.gif</iconUrl>
-    <projectUrl>http://www.nirsoft.net/utils/shexview.html</projectUrl>
+    <iconUrl>http://www.nirsoft.net/utils/regscanner_icon.gif</iconUrl>
+    <projectUrl>http://www.nirsoft.net/utils/regscanner.html</projectUrl>
     
-    <licenseUrl>http://www.nirsoft.net/utils/shexview.html</licenseUrl>
+    <licenseUrl>http://www.nirsoft.net/utils/regscanner.html</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <copyright>Copyright (c) 2003 - 2015 Nir Sofer </copyright>
+    <copyright>Copyright (c) 2004 - 2016 Nir Sofer</copyright>
     
     <description>
 RegScanner is a small utility that allows you to scan the Registry, find the desired Registry values that match to the specified search criteria, and display them in one list. After finding the Registry values, you can easily jump to the right value in RegEdit, simply by double-clicking the desired Registry item. You can also export the found Registry values into a .reg file that can be used in RegEdit.
