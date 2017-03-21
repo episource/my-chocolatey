@@ -19,7 +19,7 @@
 RootModule = 'choco-factory.psm1'
 
 # Version number of this module.
-ModuleVersion = '2017.03.02'
+ModuleVersion = '2017.03.03'
 
 # ID used to uniquely identify this module
 GUID = 'ff3deb25-4873-4bd2-9bfc-71fdddd7df14'
@@ -121,6 +121,9 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
+v2017.03.03 - Optionally retrieve the package version from the product version
+              information of a bundled file
+            - Improve cache item identification
 v2017.03.02 - Add Select-BuildDependency to add build-time dependencies to
               template build scripts
             - Add http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd to

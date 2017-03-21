@@ -81,6 +81,10 @@ $defaultPrepareFilesHook = {
         Version: The version of the latest software release. Must conform to
                  chocolatey's/nuget's versioning rules. See
                  https://docs.nuget.org/create/versioning
+                 It is also possible to use "file:tools/file.exe" as version
+                 specification. If so, the product version of file.exe is used
+                 as package version. The path must be relative to the build
+                 directory.
                  
     If the version might also be hard coded in the nuspec template. This can be
     useful when building static nuspec files.
@@ -236,9 +240,12 @@ function New-Package {
         }
     }
 
+    $debug = $DebugPreference -ne 'SilentlyContinue'
+    $verbose = $VerbosePreference -ne 'SilentlyContinue' -or $debug
+    $deleteBuildRoot = -not (Test-Path -Path $BuildRoot)
     
     # store current location to restore it later
-    $location               = Get-Location
+    $location = Get-Location
     
     # prepare progress bar
     $ProgressBarId          = $ProgressBarId + 1
@@ -246,7 +253,7 @@ function New-Package {
         activity = "Building $TemplateDir"
         status   = "Initializing..."
         current  = 0
-        max      = 9
+        max      = 10
     }
     _Update-Progress $ProgressBarState -noIncrease
     
@@ -285,46 +292,45 @@ function New-Package {
             "template's name: $($nuspecInfo.Id) != $($pkgData.Id)"
         ) 
     }
-    If (-not ($pkgData.Version -match $_semverRegex)) {
-        Write-Error `
-            "$($pkgData.Version) does not comply with semver specification"
+    
+    $versionFromFile = $false
+    If ($pkgData.Version.ToLower().StartsWith("file:")) {
+        $versionFromFile = $pkgData.Version.Split(":")[1]
+    } ElseIf (-not ($pkgData.Version -match $_semverRegex)) {
+        Write-Error "$($pkgData.Version) does not comply with semver specification"
         return
     }  
     
-    $ProgressBarState.Activity = `
-        "Building $($pkgData.Id)-$($pkgData.Version)..."
+    $ProgressBarState.Activity = "Building $($pkgData.Id)-$($pkgData.Version)..."
     _Update-Progress $ProgressBarState
     
     # prepare other information
-    $pkgData.BuildDir       = _Get-AbsolutePath `
-        -Path "$BuildRoot/$($pkgData.Id)-$($pkgData.Version)"
-    $pkgData.Nuspec         = Join-Path `
-        $pkgData.BuildDir $pkgData.NuspecTemplate.Name
-    $debug                  = $DebugPreference -ne 'SilentlyContinue'
-    $verbose                = $VerbosePreference -ne 'SilentlyContinue' `
-        -or $debug
-    $deleteBuildRoot        = -not (Test-Path -Path $BuildRoot)
-    $nupkgName              = "$($pkgData.Id).$($pkgData.Version).nupkg"
-    $nupkgTmpFile           = _Get-AbsolutePath ( `
-        Join-Path $pkgData.BuildDir $nupkgName )
-    $nupkgOutFile           = _Get-AbsolutePath ( `
-        Join-Path $OutDir $nupkgName )
-        
+    If ($versionFromFile) {
+        $pkgData.BuildDir = _Get-AbsolutePath -Path "$BuildRoot/$($pkgData.Id)"
+    } Else {
+        $pkgData.BuildDir = `
+            _Get-AbsolutePath -Path "$BuildRoot/$($pkgData.Id)-$($pkgData.Version)"
+        $nupkgName = "$($pkgData.Id).$($pkgData.Version).nupkg"
+            
+        If ($IfNotInRepository) {
+            $queryPath   = Join-Path $IfNotInRepository $nupkgName
+            $existingPkg = Get-Item -Path $queryPath -ErrorAction SilentlyContinue
+            If ($existingPkg) {
+                Write-Verbose "Existing package found: $existingPkg"
+                return $existingPkg
+            }
+        }
+    }
+    
+    $pkgData.Nuspec = Join-Path $pkgData.BuildDir $pkgData.NuspecTemplate.Name
+    
+    
     # Disable VirusTotal+Defender scan if NoScan has been specified
     If ($NoScan) { 
         Write-Warning "Virus scanning has been disabled!"
     
         $VTApiKey = $null
         _Update-Progress $ProgressBarState # skip one step
-    }
-    
-    If ($IfNotInRepository) {
-        $queryPath   = Join-Path $IfNotInRepository $nupkgName
-        $existingPkg = Get-Item -Path $queryPath -ErrorAction SilentlyContinue
-        If ($existingPkg) {
-            Write-Verbose "Existing package found: $existingPkg"
-            return $existingPkg
-        }
     }
     
     
@@ -373,17 +379,47 @@ function New-Package {
         $ProgressBarState.status = "Prepare/download package resources..."
         _Update-Progress $ProgressBarState
         _Invoke-PrepareFilesHook
+        
+        # finalize package/version information
+        If ($versionFromFile) {
+            $versionFile = Get-Item $versionFromFile
+            
+            $versionParts = $versionFile.VersionInfo.ProductVersion.Split(".")
+            while ($versionParts.Length -lt 3) {
+                $versionParts += @( "0" )
+            }
+            $pkgData.Version = [String]::Join(".", $versionParts)
+            
+            If (-not ($pkgData.Version -match $_semverRegex)) {
+                Write-Error "$($pkgData.Version) does not comply with semver specification"
+                return
+            }  
+            
+            $nupkgName = "$($pkgData.Id).$($pkgData.Version).nupkg"
+            If ($IfNotInRepository) {
+                $queryPath = Join-Path $IfNotInRepository $nupkgName
+                $existingPkg = Get-Item -Path $queryPath -ErrorAction SilentlyContinue
+                If ($existingPkg) {
+                    Write-Verbose "Existing package found: $existingPkg"
+                    return $existingPkg
+                }
+            }
+        }
+        
+        $nupkgTmpFile = _Get-AbsolutePath ( Join-Path $pkgData.BuildDir $nupkgName )
+        $nupkgOutFile = _Get-AbsolutePath (  Join-Path $OutDir $nupkgName )
+        
+        $ProgressBarState.Activity = "Building $($pkgData.Id)-$($pkgData.Version)..."
+        _Update-Progress $ProgressBarState
              
              
         # process nuspec template
         $ProgressBarState.status = "Process nuspec template."
         _Update-Progress $ProgressBarState
         
-        $templateText    = Get-Content `
-            -Encoding UTF8 -Raw -Path $pkgData.NuspecTemplate
-        $razorModel         = New-Object psobject -Property $pkgData
-        $nuspec             = Format-Razor `
-            -ModelName "Package" -Model $razorModel  -TemplateText $templateText
+        $templateText = Get-Content -Encoding UTF8 -Raw -Path $pkgData.NuspecTemplate
+        $razorModel = New-Object psobject -Property $pkgData
+        $nuspec = Format-Razor -ModelName "Package" -Model $razorModel  -TemplateText $templateText
         
         _Write-DbgNoConfirm $nuspec
         $utf8NoBomEncoding = New-Object System.Text.UTF8Encoding($False)
@@ -552,8 +588,18 @@ function Import-PackageResource() {
         $cacheKey = $null
         $fileFromCache = $null
         If ($cachePath) {
-            $cacheKey = _Get-StringHash $url
-            $fileFromCache = Get-Item "$cachePath/$cacheKey*" `
+            $httpHeaders = @{}
+            Try {
+                $headResponse = Invoke-WebRequest -Method Head $url
+                $httpHeaders = $headResponse.Headers
+            } Catch {
+                Write-Warning "Failed to get http headers: $url"
+            }
+            
+            $cacheKey = _Get-StringHash (
+                $url + $httpHeaders["Content-Length"] + $httpHeaders["ETag"] `
+                + $httpHeaders["Last-Modified"] )
+            $fileFromCache = Get-Item "$cachePath/$cacheKey-*" `
                 -ErrorAction SilentlyContinue | Select-Object -First 1
         }
             
@@ -561,7 +607,7 @@ function Import-PackageResource() {
             If ($TargetName) {
                 $fname = $TargetName
             } Else {
-                $fname = (Split-Path -Leaf $fileFromCache) -replace "^$cacheKey"
+                $fname = (Split-Path -Leaf $fileFromCache) -replace "^$cacheKey-"
             }
             
             $file  = Join-Path $absTargetDir $fname
@@ -603,7 +649,7 @@ function Import-PackageResource() {
                 
             New-Item -Type Directory $cachePath -Force | Out-Null
             Copy-Item -Path $file `
-                -Destination "$cachePath/$cacheKey$fname" -Force
+                -Destination "$cachePath/$cacheKey-$fname" -Force
         }
         
         
