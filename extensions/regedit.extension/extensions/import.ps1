@@ -352,7 +352,7 @@ function _Import-RegistryImpl {
         $curValue    = $key.GetValue( `
             $netValueName, $defaultValue, $noExpandVars)
         If (-not $Force -and $curValue -ne $defaultValue) {
-            $curKind            = $key.GetValueKind($netValueName)
+            $curKind = $key.GetValueKind($netValueName)
             If ($curKind -eq `
                     [Microsoft.Win32.RegistryValueKind]::ExpandString) {
                 $curValue = [ExpandString]$curValue
@@ -560,7 +560,7 @@ function New-RegistryKey {
             return $null
         }
         
-        If (Test-Path $Path) {
+        If (Test-Path -LiteralPath $Path) {
             If ($Rebuild -and -not $Force) {
                 $confirmation = _Read-Confirmation -ErrorAction Stop `
                     -Message `

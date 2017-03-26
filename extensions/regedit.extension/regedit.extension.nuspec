@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>@Package.id</id>
-    <version>3.0.5</version>
+    <version>3.0.6</version>
     <title>Regedit extension</title>
     <authors>episource</authors>
     <owners>episource</owners>
@@ -11,6 +11,8 @@
     <summary>Install and modify registry images.</summary>
     <description>A Cmdlet to edit the windows registry. Focuses on importing prepared registry images.</description>
     <releaseNotes>
+v3.0.6   - Properly handle paths containing wildcard (-LiteralPath option has
+           been added to Test-Path)
 v3.0.5   - Fix Split-RegistryPath: preserve path separator after drive spec
 v3.0.4   - Fix Edit-AllLocalUserProfileHives not to fail when there's only one
            local user profile
