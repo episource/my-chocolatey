@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>mrexodia, Sigma, tr4ceflow, Dreg, Nukem, Herz3h, torusrxxx, et. al.</authors>
+    <owners>episource</owners>
+    
+    <title>x64dbg</title>
+    <summary>An open-source x64/x32 debugger for windows.</summary>
+    <tags>admin x64dbg dbg debug debugger reversing</tags>
+    
+    <iconUrl>https://github.com/x64dbg/x64dbg/raw/development/src/bug.png</iconUrl>
+    <projectUrl>http://x64dbg.com</projectUrl>
+    <projectSourceUrl>https://github.com/x64dbg/x64dbg</projectSourceUrl>
+    <bugTrackerUrl>https://github.com/x64dbg/x64dbg/issues</bugTrackerUrl>
+    <docsUrl>http://help.x64dbg.com/en/latest/</docsUrl>
+    
+    <licenseUrl>https://github.com/x64dbg/x64dbg/blob/development/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>x64dbg authors</copyright>
+    
+    <description>
+= Features = 
+* Open-source
+* Intuitive and familiar, yet new user interface
+* C-like expression parser
+* Full-featured debugging of DLL and EXE files (TitanEngine)
+* IDA-like sidebar with jump arrows
+* IDA-like instruction token highlighter (highlight registers, etc.)
+* Memory map
+* Symbol view
+* Thread view
+* Source code view
+* Content-sensitive register view
+* Fully customizable color scheme
+* Dynamically recognize modules and strings
+* Import reconstructor integrated (Scylla)
+* Fast disassembler (Capstone)
+* User database (JSON) for comments, labels, bookmarks, etc.
+* Plugin support with growing API
+* Extendable, debuggable scripting language for automation
+* Multi-datatype memory dump
+* Basic debug symbol (PDB) support
+* Dynamic stack view
+* Built-in assembler (XEDParse/Keystone/asmjit)
+* Executable patching
+* Yara Pattern Matching
+* Decompiler (Snowman)
+* Analysis
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
