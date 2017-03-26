@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>VirusTotal</authors>
+    <owners>episource</owners>
+    
+    <title>VirusTotal Uploader</title>
+    <summary>To upload a file to VirusTotal, you can visit the home site and use the main file scan form. You can make this process even easier with the free VirusTotal Uploader utility.</summary>
+    <tags>admin virus virustotal scanner security</tags>
+    
+    <iconUrl>https://cdn.rawgit.com/0-F/chocolatey-package/master/icons/virustotaluploader.png</iconUrl>
+    <projectUrl>https://the.url/</projectUrl>
+    <projectSourceUrl>https://the.url/</projectSourceUrl>
+    <bugTrackerUrl>https://the.url/</bugTrackerUrl>
+    <docsUrl>https://the.url/</docsUrl>
+    <mailingListUrl>https://the.url/</mailingListUrl>
+    
+    <licenseUrl>https://www.virustotal.com/about/terms-of-service/</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>VirusTotal</copyright>
+    
+    <description>
+VirusTotal, a subsidiary of Google, is a free online service that analyzes files and URLs enabling the identification of viruses, worms, trojans and other kinds of malicious content detected by antivirus engines and website scanners. At the same time, it may be used as a means to detect false positives, i.e. innocuous resources detected as malicious by one or more scanners.
+
+VirusTotal’s mission is to help in improving the antivirus and security industry and make the internet a safer place through the development of free tools and services.
+
+= VirusTotal's main characteristics =
+ * Free unbiased service
+ * Runs multiple antivirus engines and website scanners
+ * Runs multiple file and URL characterization tools
+ * Real time updates of virus signatures and blacklists
+ * Detailed results from each scanner
+ * Real time global service operation statistics
+ * Automation API
+ * Online malware research community
+ * Desktop applications for interacting with the service
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="regedit.extension" version="[3.0.6,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
