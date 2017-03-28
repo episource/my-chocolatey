@@ -384,7 +384,16 @@ function New-Package {
         If ($versionFromFile) {
             $versionFile = Get-Item $versionFromFile
             
-            $versionParts = $versionFile.VersionInfo.ProductVersion.Split(".")
+            $versionParts = @()
+            $versionFile.VersionInfo.ProductVersion.Split(".") | %{
+                # semver does not allow 1.02.03 (leading 0)
+                $normalized = $_.TrimStart('0')
+                If ($normalized.Length -eq 0) {
+                    $normalized = "0"
+                }
+                
+                $versionParts += $normalized
+            }
             while ($versionParts.Length -lt 3) {
                 $versionParts += @( "0" )
             }
