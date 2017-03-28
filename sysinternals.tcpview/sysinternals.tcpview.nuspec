@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Mark Russinovich</authors>
+    <owners>episource</owners>
+    
+    <title>TCPView</title>
+    <summary>TCPView is a Windows program that will show you detailed listings of all TCP and UDP endpoints on your system, including the local and remote addresses and state of TCP connections.</summary>
+    <tags>admin sysinternals tcp network bind socket</tags>
+    
+    <projectUrl>https://technet.microsoft.com/en-us/sysinternals/bb897437</projectUrl>
+    <bugTrackerUrl>https://forum.sysinternals.com/</bugTrackerUrl>
+    
+    <licenseUrl>https://technet.microsoft.com/en-us/sysinternals/bb469936</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright © Mark Russinovich</copyright>
+    
+    <description>
+= Introduction =
+TCPView is a Windows program that will show you detailed listings of all TCP and UDP endpoints on your system, including the local and remote addresses and state of TCP connections. On Windows Server 2008, Vista, and XP, TCPView also reports the name of the process that owns the endpoint. TCPView provides a more informative and conveniently presented subset of the Netstat program that ships with Windows. The TCPView download includes Tcpvcon, a command-line version with the same functionality.
+
+= Using TCPView =
+When you start TCPView it will enumerate all active TCP and UDP endpoints, resolving all IP addresses to their domain name versions. You can use a toolbar button or menu item to toggle the display of resolved names. On Windows XP systems, TCPView shows the name of the process that owns each endpoint.
+
+By default, TCPView updates every second, but you can use the Options|Refresh Rate menu item to change the rate. Endpoints that change state from one update to the next are highlighted in yellow; those that are deleted are shown in red, and new endpoints are shown in green.
+
+You can close established TCP/IP connections (those labeled with a state of ESTABLISHED) by selecting File|Close Connections, or by right-clicking on a connection and choosing Close Connections from the resulting context menu.
+
+You can save TCPView's output window to a file using the Save menu item.
+
+= Using Tcpvcon =
+
+Tcpvcon usage is similar to that of the built-in Windows netstat utility:
+
+Usage: tcpvcon [-a] [-c] [-n] [process name or PID]
+-a	Show all endpoints (default is to show established TCP connections).
+-c	Print output as CSV.
+-n	Don't resolve addresses.
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
