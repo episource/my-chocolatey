@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Mark Russinovich</authors>
+    <owners>episource</owners>
+    
+    <title>DebugView</title>
+    <summary>DebugView is an application that lets you monitor debug output on your local system, or any computer on the network that you can reach via TCP/IP</summary>
+    <tags>admin sysinternals debug log</tags>
+    
+    <projectUrl>https://technet.microsoft.com/en-us/sysinternals/bb896647</projectUrl>
+    <bugTrackerUrl>https://forum.sysinternals.com/</bugTrackerUrl>
+    
+    <licenseUrl>https://technet.microsoft.com/en-us/sysinternals/bb469936</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright © Mark Russinovich</copyright>
+    
+    <description>
+= Introduction =
+DebugView is an application that lets you monitor debug output on your local system, or any computer on the network that you can reach via TCP/IP. It is capable of displaying both kernel-mode and Win32 debug output, so you don't need a debugger to catch the debug output your applications or device drivers generate, nor do you need to modify your applications or drivers to use non-standard debug output APIs.
+
+= DebugView Capture = 
+Under Windows 2000, XP, Server 2003 and Vista DebugView will capture:
+
+ * Win32 OutputDebugString
+ * Kernel-mode DbgPrint
+ * All kernel-mode variants of DbgPrint implemented in Windows XP and Server 2003
+
+DebugView also extracts kernel-mode debug output generated before a crash from Window's 2000/XP crash dump files if DebugView was capturing at the time of the crash.
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
