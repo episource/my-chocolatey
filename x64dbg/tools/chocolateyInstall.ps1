@@ -1,4 +1,7 @@
-﻿Set-StrictMode -Version latest
+﻿using namespace System.Security.AccessControl
+using namespace System.Security.Principal
+
+Set-StrictMode -Version latest
 $ErrorAction = "Stop"
 $toolsDir = "$(Split-Path -Parent $MyInvocation.MyCommand.Definition)"
 
@@ -11,7 +14,8 @@ Install-StartMenuLink -LinkName "x64dbg (x64)" -TargetPath "$toolsDir\release\x6
 $settingsDir = "$env:ProgramData/x64dbg"
 New-Item -Type Directory "$env:ProgramData/x64dbg" -ErrorAction SilentlyContinue
 $acl = Get-Acl $settingsDir
-$usersFullControlAr = [System.Security.AccessControl.FileSystemAccessRule]::new("BUILTIN\Users", "FullControl", "ContainerInherit,ObjectInherit", "None", "Allow")
+$usersSid = [SecurityIdentifier]::new([WellKnownSidType]::BuiltinUsersSid, $null)
+$usersFullControlAr = [FileSystemAccessRule]::new($usersSid, "FullControl", "ContainerInherit,ObjectInherit", "None", "Allow")
 $acl.SetAccessRule($usersFullControlAr)
 Set-Acl $settingsDir $acl
 
