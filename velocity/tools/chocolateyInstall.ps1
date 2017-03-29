@@ -18,3 +18,6 @@ Remove-Item $pkg
 # Add startmenu entry
 $exe      = Join-Path $toolsDir "Silverlake Software LLC\Velocity\Velocity.exe"
 Install-StartMenuLink -LinkName "Velocity" -TargetPath $exe
+
+# Do not create any shims
+Set-AutoShim -Pattern "**" -Mode Ignore | Out-Null

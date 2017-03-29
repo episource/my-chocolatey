@@ -26,6 +26,8 @@ Over 150+ API documentation sets are available in Velocity covering some of the 
     <releaseNotes><![CDATA[http://velocity.silverlakesoftware.com/releasenotes]]></releaseNotes>
 
     <dependencies>
+        <dependency id="shimgen.extension" version="[1.0.0,)"/>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
     </dependencies>
   </metadata>
   <files>
