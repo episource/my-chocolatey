@@ -8,7 +8,24 @@ $ErrorAction = "Stop"
 . $PSScriptRoot/../_root.ps1
 
 
+$startTitle = "ShellExView"
+$exeName = "shexview.exe"
+$zipUrl = "http://www.nirsoft.net/utils/shexview-x64.zip"
+$changes = ""
+
+
 New-Package -VersionInfo @{
-    Version = "file:tools/shexview.exe"
-    FileUrl = "http://www.nirsoft.net/utils/shexview-x64.zip"
-}
+    Version = "file:tools/$exeName"
+    ReleaseNotes = $changes
+} -PrepareFilesHook {
+    Import-PackageResource -Url $zipUrl -AutoUnzip
+    
+    Add-Content "$($_.BuildDir)/tools/chocolateyInstall.ps1" @"
+Set-StrictMode -Version latest
+`$ErrorAction = "Stop"
+
+
+`$toolsDir = "`$(Split-Path -Parent `$MyInvocation.MyCommand.Definition)"
+Install-StartMenuLink -LinkName "Nirsoft\Nirsoft $startTitle" -TargetPath "`$toolsDir/$exeName"  
+"@
+} 

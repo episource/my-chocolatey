@@ -8,6 +8,10 @@ $ErrorAction = "Stop"
 . $PSScriptRoot/../_root.ps1
 
 
+$startTitle = "RegScanner"
+$exeName = "RegScanner.exe"
+$zipUrl = "http://www.nirsoft.net/utils/regscanner-x64.zip"
+
 $changelogUrl = "http://www.nirsoft.net/utils/regscanner.html"
 $changelogRaw = Invoke-WebRequest -UseBasicParsing $changelogUrl
 $changelogItems = $changelogRaw -split '(?=<li>Version)'
@@ -18,8 +22,19 @@ $changes = $changelogItems[1..($changelogItems.Length-2)] | %{ $_ `
     -replace '</ul>' 
 } | Out-String
 
+
 New-Package -VersionInfo @{
-    Version = "file:tools/RegScanner.exe"
-    FileUrl = "http://www.nirsoft.net/utils/regscanner-x64.zip"
+    Version = "file:tools/$exeName"
     ReleaseNotes = $changes
-}
+} -PrepareFilesHook {
+    Import-PackageResource -Url $zipUrl -AutoUnzip
+    
+    Add-Content "$($_.BuildDir)/tools/chocolateyInstall.ps1" @"
+Set-StrictMode -Version latest
+`$ErrorAction = "Stop"
+
+
+`$toolsDir = "`$(Split-Path -Parent `$MyInvocation.MyCommand.Definition)"
+Install-StartMenuLink -LinkName "Nirsoft\Nirsoft $startTitle" -TargetPath "`$toolsDir/$exeName"  
+"@
+} 
