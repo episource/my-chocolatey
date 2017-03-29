@@ -8,9 +8,9 @@ $ErrorAction = "Stop"
 . $PSScriptRoot/../_root.ps1
 
 
-$startTitle = "RegFromApp (x64)"
+$startTitle = "RegFromApp (x86)"
 $exeName = "RegFromApp.exe"
-$zipUrl = "http://www.nirsoft.net/utils/regfromapp-x64.zip"
+$zipUrl = "http://www.nirsoft.net/utils/regfromapp.zip"
 
 $changelogUrl = "http://www.nirsoft.net/utils/reg_file_from_application.html"
 $changelogRaw = Invoke-WebRequest -UseBasicParsing $changelogUrl
