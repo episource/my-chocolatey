@@ -22,14 +22,48 @@ Set-Acl $settingsDir $acl
 @( "x64", "x32" ) | % {
     $platform = $_
     
-    New-Item -Type Directory "$settingsDir/symbols" -ErrorAction SilentlyContinue
-    New-Item -Path "$toolsDir/release/$platform/symbols" -ItemType SymbolicLink -Value "$settingsDir/symbols"
-
+    $symSrc = "$toolsDir/release/$platform/symbols"
+    $symSrcItem = Get-Item $symSrc -ErrorAction SilentlyContinue
+    $symTgt = "$settingsDir/symbols"
+    
+    If ($symSrcItem -and $symSrcItem.Attributes -match "ReparsePoint") {
+        # link already exists - nothing to do
+    } Else {
+        If ($symSrcItem) {
+            $symBak = "$symSrc.bak"
+            Remove-Item -R $symBak -ErrorAction SilentlyContinue
+            Move-Item $symSrc $symSrcBak
+        }
+        
+        New-Item -Type Directory $symTgt -ErrorAction SilentlyContinue
+        New-Item -Path $symSrc -ItemType SymbolicLink -Value $symTgt
+    }
+        
     @( "x64dbg.ini", "snowman.ini" ) | %{
         $iniSrc = "$toolsDir/release/$platform/$_"
+        $iniSrcItem = Get-Item $iniSrc -ErrorAction SilentlyContinue
         $iniTgt = "$settingsDir/$(Split-Path -Leaf $iniSrc)"
         
-        "" >> $iniTgt
-        New-Item -Path $iniSrc -ItemType SymbolicLink -Value $iniTgt
+        If ($iniSrcItem -and $iniSrcItem.Attributes -match "ReparsePoint" ) {
+            # link already exists - nothing to do
+        } Else {
+            If ($iniSrcItem) {
+                $iniBak = "$iniSrc.bak"
+                Remove-Item $iniBak -ErrorAction SilentlyContinue
+                Move-Item $iniSrc $iniBak
+            }
+            
+            "" >> $iniTgt
+            New-Item -Path $iniSrc -ItemType SymbolicLink -Value $iniTgt
+        }
     }
+}
+
+# re-install active plugins
+choco list | Select-String x64dbg- | %{
+    $pluginInfo = "$_".Split(" ")
+    $pName = $pluginInfo[0]
+    $pVersion = $pluginInfo[1]
+    
+    choco install $pName --version=$pVersion --force
 }
