@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Nir Sofer</authors>
+    <owners>episource</owners>
+    
+    <title>BlueScreenView</title>
+    <summary>View the Blue screen of death (STOP error) information stored in dump files.</summary>
+    <tags>admin crash debug bsod nirsoft</tags>
+    
+    <iconUrl>http://www.nirsoft.net/utils/bluescreenview_icon.gif</iconUrl>
+    <projectUrl>http://www.nirsoft.net/utils/blue_screen_view.htmly</projectUrl>
+    
+    <licenseUrl>http://www.nirsoft.net/utils/blue_screen_view.html</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright (c) 2008 - 2015 Nir Sofer </copyright>
+    
+    <description>
+= Description =
+BlueScreenView scans all your minidump files created during 'blue screen of death' crashes, and displays the information about all crashes in one table. For each crash, BlueScreenView displays the minidump filename, the date/time of the crash, the basic crash information displayed in the blue screen (Bug Check Code and 4 parameters), and the details of the driver or module that possibly caused the crash (filename, product name, file description, and file version).
+For each crash displayed in the upper pane, you can view the details of the device drivers loaded during the crash in the lower pane. BlueScreenView also mark the drivers that their addresses found in the crash stack, so you can easily locate the suspected drivers that possibly caused the crash.
+
+= System Requirements =
+ * BlueScreenView works with Windows XP, Windows Server 2003, Windows Server 2008, Windows Vista, Windows 7, Windows 8, Windows 10, as long as Windows is configured to save minidump files during BSOD crashes. If your system doesn't create MiniDump files on a blue screen crash, try to configure it according to the following article: How to configure Windows to create MiniDump files on BSOD
+ * BlueScreenView can read the MiniDump files of both 32-bit and x64 systems.
+ * Be aware that on Windows 10, some of the created MiniDump files might be empty and BlueScreenView will not display them. 
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+        <dependency id="shimgen.extension" version="[1.0.0,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
