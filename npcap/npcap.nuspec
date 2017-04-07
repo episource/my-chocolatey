@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Yang Luo</authors>
+    <owners>episource</owners>
+    
+    <title>Npcap</title>
+    <summary>Npcap is an update of WinPcap to NDIS 6 Light-Weight Filter (LWF) technique. It supports Windows Vista, 7, 8 and 10.</summary>
+    <tags>admin install network net capture packet wireshark</tags>
+    
+    <iconUrl>https://nmap.org/npcap/images/dan-npcap-whitebg-480x167.png</iconUrl>
+    <projectUrl>https://nmap.org/npcap/</projectUrl>
+    <projectSourceUrl>https://github.com/nmap/npcap</projectSourceUrl>
+    <bugTrackerUrl>https://github.com/nmap/nmap/issues/</bugTrackerUrl>
+    
+    <licenseUrl>https://github.com/nmap/npcap/blob/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    
+    <description>Npcap is the Nmap Project's packet sniffing library for Windows. It is based on the wonderful WinPcap / Libpcap libraries, but with improved improved speed, portability, security, and efficiency. In particular, Npcap offers:
+ * WinPcap for Windows 10: Npcap works on Windows 7 and later by making use of the new NDIS 6 Light-Weight Filter (LWF) API. It's faster than the deprecated NDIS 5 API, which Microsoft could remove at any time. Also, the driver is signed with our EV certificate and countersigned by Microsoft, so it works even with the stricter driver signing requirements in Windows 10 1607.
+ * Extra Security: Npcap can be restricted so that only Administrators can sniff packets. If a non-Admin user tries to utilize Npcap through software such as Nmap or Wireshark, the user will have to pass a User Account Control (UAC) dialog to utilize the driver. This is conceptually similar to UNIX, where root access is generally required to capture packets. We've also enabled the Windows ASLR and DEP security features and signed the driver, DLLs, and executables to prevent tampering.
+ * Loopback Packet Capture: Npcap is able to sniff loopback packets (transmissions between services on the same machine) by using the Windows Filtering Platform (WFP). After installation, Npcap will create an adapter named Npcap Loopback Adapter for you. If you are a Wireshark user, choose this adapter to capture, you will see all loopback traffic the same way as other non-loopback adapters. Try it by typing in commands like “ping 127.0.0.1” (IPv4) or “ping ::1” (IPv6).
+ * Loopback Packet Injection: Npcap is also able to send loopback packets using the Winsock Kernel (WSK) technique. User-level software such as Nping can just send the packets out using Npcap Loopback Adapter just like any other adapter. Npcap then does the magic of removing the packet's Ethernet header and injecting the payload into the Windows TCP/IP stack.
+ * WinPcap compatibility: For applications that don't yet make use of Npcap's advanced features, Npcap can be installed in “WinPcap Compatible Mode.” This will replace any existing WinPcap installation. If compatibility mode is not selected, Npcap can coexist alongside WinPcap; applications which only know about WinPcap will continue using that, while other applications can choose to use the newer and faster Npcap driver instead. </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
