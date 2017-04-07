@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Nir Sofer</authors>
+    <owners>episource</owners>
+    
+    <title>WhatIsHang (x86)</title>
+    <summary>Get information about Windows x86 software that stopped responding (hang).</summary>
+    <tags>admin crash debug nirsoft</tags>
+    
+    <iconUrl>http://www.nirsoft.net/utils/whatishang_icon.gif</iconUrl>
+    <projectUrl>http://www.nirsoft.net/utils/what_is_hang.html</projectUrl>
+    
+    <licenseUrl>http://www.nirsoft.net/utils/what_is_hang.html</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright (c) 2011 - 2015 Nir Sofer </copyright>
+    
+    <description>
+= Description =
+Sometimes, Windows or a running application hangs, the user interface abruptly stops responding, and you cannot determine what has caused the problem or how to troubleshoot the issue. This utility tries to detect the software or process that is currently hung, and displays some information that may allow you to sort out and understand what exactly is at the root of such unexpected behavior. Most of the information displayed in WhatIsHang's report, like Call Stack, Stack Data, Processor Registers, and Memory Data is designed for users with Windows programming knowledge. However, WhatIsHang also presents a list of strings and dll files related to the hang issue that can help users without programming skills understand and overcome the causes of the problem and restore normal operation.
+
+= System Requirements =
+ * This utility works on any version of Windows, starting from Windows 2000 and up to Windows 10. Both 32-bit and 64-bit systems are supported.
+ * In order to detect hang problems of 32-bit applications, you must use the 32-bit version of WhatIsHang, even if your operating system is 64-bit.
+ * In order to detect hang problems of 64-bit applications, you must use the 64-bit version of WhatIsHang.
+ * On Windows 7/8/2008/Vista with UAC turned on: WhatIsHang cannot detect hanging application if it's running with SYSTEM or Administrator privilege. In order to solve this problem, you have to right-click on WhatIsHang.exe and choose 'Run As Administrator'.
+ * Some hang problems cannot be detected properly by WhatIsHang, for example:
+    - Programs without any user interface.
+    - When the program hangs because one thread waits for the other one. (In this case, WhatIsHang will show the details of the waiting thread, but the problem might be in the other thread)
+    - But... Starting from version 1.05, you can use the experimental 'All Threads' report to display the information about all running threads.
+    - When the entire system hangs - In this case WhatIsHang won't be able to run... 
+
+
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+        <dependency id="shimgen.extension" version="[1.0.0,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
