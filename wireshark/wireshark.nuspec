@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Gerald Combs, Wireshark team</authors>
+    <owners>episource</owners>
+    
+    <title>Wireshark</title>
+    <summary>Wireshark is the world’s foremost and widely-used network protocol analyzer.</summary>
+    <tags>admin network net capture packet wireshark</tags>
+    
+    <iconUrl>https://www.wireshark.org/assets/theme-2015/images/wireshark_logo.png</iconUrl>
+    <projectUrl>https://www.wireshark.org/</projectUrl>
+    <projectSourceUrl>https://code.wireshark.org/review/gitweb?p=wireshark.git;a=tree</projectSourceUrl>
+    <bugTrackerUrl>https://bugs.wireshark.org/bugzilla/</bugTrackerUrl>
+    <docsUrl>https://www.wireshark.org/docs/</docsUrl>
+    <mailingListUrl>https://www.wireshark.org/lists/</mailingListUrl>
+    
+    <licenseUrl>https://www.gnu.org/licenses/gpl-2.0.html</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright Gerald Combs</copyright>
+    
+    <description>
+Wireshark is the world’s foremost and widely-used network protocol analyzer. It lets you see what’s happening on your network at a microscopic level and is the de facto (and often de jure) standard across many commercial and non-profit enterprises, government agencies, and educational institutions. Wireshark development thrives thanks to the volunteer contributions of networking experts around the globe and is the continuation of a project started by Gerald Combs in 1998. 
+
+= Features =
+Wireshark has a rich feature set which includes the following:
+
+ * Deep inspection of hundreds of protocols, with more being added all the time
+ * Live capture and offline analysis
+ * Standard three-pane packet browser
+ * Multi-platform: Runs on Windows, Linux, macOS, Solaris, FreeBSD, NetBSD, and many others
+ * Captured network data can be browsed via a GUI, or via the TTY-mode TShark utility
+ * The most powerful display filters in the industry
+ * Rich VoIP analysis
+ * Read/write many different capture file formats: tcpdump (libpcap), Pcap NG, Catapult DCT2000, Cisco Secure IDS iplog, Microsoft Network Monitor, Network General Sniffer® (compressed and uncompressed), Sniffer® Pro, and NetXray®, Network Instruments Observer, NetScreen snoop, Novell LANalyzer, RADCOM WAN/LAN Analyzer, Shomiti/Finisar Surveyor, Tektronix K12xx, Visual Networks Visual UpTime, WildPackets EtherPeek/TokenPeek/AiroPeek, and many others
+ * Capture files compressed with gzip can be decompressed on the fly
+ * Live data can be read from Ethernet, IEEE 802.11, PPP/HDLC, ATM, Bluetooth, USB, Token Ring, Frame Relay, FDDI, and others (depending on your platform)
+ * Decryption support for many protocols, including IPsec, ISAKMP, Kerberos, SNMPv3, SSL/TLS, WEP, and WPA/WPA2
+ * Coloring rules can be applied to the packet list for quick, intuitive analysis
+ * Output can be exported to XML, PostScript®, CSV, or plain text
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="shimgen.extension" version="[1.0.0,)"/>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
