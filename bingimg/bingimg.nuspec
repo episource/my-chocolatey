@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>episource</authors>
+    <owners>episource</owners>
+    
+    <title>Automatic Bing Image of the Day Downloader</title>
+    <summary>Downloads recent bing images of the day.</summary>
+    <tags>admin bing wallpaper</tags>
+    
+    <projectUrl>https://github.com/episource/bingimg</projectUrl>
+    <projectSourceUrl>https://github.com/episource/bingimg</projectSourceUrl>
+    <bugTrackerUrl>https://github.com/episource/bingimg/issues</bugTrackerUrl>
+    <docsUrl>https://github.com/episource/bingimg/blob/master/README.md</docsUrl>
+    
+    <licenseUrl>https://github.com/episource/bingimg/blob/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>public domain</copyright>
+    
+    <description>
+Once installed, the recent bing image of the day is downloaded automatically to %ProgramData%\bingimg. A watermark with the image's title is added to the downloaded image files.
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
