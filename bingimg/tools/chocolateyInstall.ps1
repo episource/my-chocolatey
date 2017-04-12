@@ -13,7 +13,7 @@ $scriptPath = Join-Path $toolsDir "get-bingimg.ps1"
 
 @"
 Dim shell,command
-command = "powershell.exe -NoProfile -NoLogo -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File ""$scriptPath"" -TargetDir ""$imgDir"" -Max 8 -AddTitle -TitleSize 12 -TitleHPos Center -TitleVPos Bottom -TitleMargin 30"
+command = "powershell.exe -NoProfile -NoLogo -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File ""$scriptPath"" -TargetDir ""$imgDir"" -Max 8 -AddTitle -TitleSize 12 -TitleHPos Center -TitleVPos Bottom -TitleMargin 35"
 set shell = CreateObject("WScript.Shell")
 shell.Run command,0,True
 "@ | Out-File $launcherPath
