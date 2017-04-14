@@ -47,7 +47,8 @@ Import-Module github-api
     
 .PARAMETER ExtractVersionHook
     A use defined script block to extract the version string from the release
-    data: 1) release name and 2) tag_name.
+    information. The hook is passed the raw github response object as variables
+    `$_` and `$GithubResponse`.
     
     The resulting version string is checked to comply with the semver
     specification.
@@ -125,13 +126,20 @@ function Get-VersionInfoFromGithub {
     data information provided by the github api:
     https://developer.github.com/v3/repos/releases/#get-the-latest-release
     
-    A custom hook can access the github response via the variables $_ and
-    $GithubResponse.
+    A custom hook can access the github response via the variables `$_` and
+    `$GithubResponse`. The variable `$FileUrl` gives access to the urls of
+    any asset matching the `File` argument or pattern. If option `EnableRegex`
+    is being used, the variable `$Matches` provides the regular expression
+    pattern matching results for each of the file patterns.
     
     The resulting version string is checked to comply with the semver
     specification.
     
-    The default is to return the tag name with any leading 'v' removed.
+    The default is to return the tag name with any leading 'v' removed. If 
+    option `EnableRegex` is enabled and any of the file patterns returned a
+    value for the named capturing group 'VERSION', that value is returned
+    instead. The default hook adds '.0' to the version string until the string
+    has a length of three version parts (major, minor, patch).
     
 .OUTPUT
     A VersionInfo structure according to the description of the Export-Package
@@ -156,7 +164,18 @@ function Get-VersionInfoFromGithubResponse {
         
         [Parameter(Mandatory=$false)] 
         [ScriptBlock] $ExtractVersionHook = { 
-                $version = $_.tag_name -replace "^v"
+                $version = $null
+                ForEach ($m in $Matches) {
+                    $version = $m['VERSION']
+                    If ($version) {
+                        break
+                    }
+                }
+                
+                If (-not $version) {
+                    $version = $_.tag_name -replace "^v"
+                }
+                
                 While ($version.Split('.').length -lt 3) {
                     $version += '.0'
                 }
@@ -167,20 +186,24 @@ function Get-VersionInfoFromGithubResponse {
         Import-CallerPreference -AdditionalPreferences @{ ProgressBarId = 0 }
         
         function Filter-Assets($assets, $filter) {
-            $urls = @()
+            $result = @{ urls=@(); matches=@() }
         
             ForEach ($f in $filter) {
-                $matchingUrls = $assets | ?{ $_.name -match $f } |
-                    Select-Object -First 1 -ExpandProperty browser_download_url
-                If (-not $matchingUrls) {
+                $Matches = $null
+                ForEach ($a in $assets) {
+                    If ($a.name -match $f) {
+                        $result.urls += $a.browser_download_url
+                        $result.matches += $Matches
+                        break
+                    }
+                }
+                If (-not $Matches) {
                     Write-Error "Asset $f has not been found. Available assets:`n $($assets | Format-List | Out-String)"
                     return
                 }
-            
-                $urls += $matchingUrls
             }
             
-            return $urls
+            return $result
         }
         
         # Build asset filter
@@ -191,11 +214,15 @@ function Get-VersionInfoFromGithubResponse {
         }
     }
     Process {
+        $assets   = $GithubResponse.assets
+        $filtered = Filter-Assets $assets $normalizedFile
+    
         function Invoke-ExtractVersionHook {
             Try {
                 $ExtractVersionHook.InvokeWithContext(@{}, @(
                         [PSVariable]::new('_', $GithubResponse)
-                        [PSVariable]::new('GithubResponse', $GithubResponse)     
+                        [PSVariable]::new('GithubResponse', $GithubResponse)
+                        [PSVariable]::new('Matches', $filtered.matches)                          
                     )
                 )
             } Catch {
@@ -203,10 +230,6 @@ function Get-VersionInfoFromGithubResponse {
                 throw $_.Exception.InnerException
             }
         }
-    
-        $assets   = $GithubResponse.assets
-        $fileUrls = Filter-Assets $assets $normalizedFile
-
     
         # Extract and validate version
         $version = Invoke-ExtractVersionHook
@@ -219,7 +242,7 @@ function Get-VersionInfoFromGithubResponse {
         # Format all version info
         $versionInfo = @{
             Version       = $version
-            FileUrl       = $fileUrls
+            FileUrl       = $filtered.urls
             GithubRelease = $GithubResponse
         }
         Write-Verbose (

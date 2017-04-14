@@ -19,7 +19,7 @@
 RootModule = 'choco-factory.psm1'
 
 # Version number of this module.
-ModuleVersion = '2017.03.04'
+ModuleVersion = '2017.04.01'
 
 # ID used to uniquely identify this module
 GUID = 'ff3deb25-4873-4bd2-9bfc-71fdddd7df14'
@@ -121,6 +121,8 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
+v2017.04.01 - `Get-VersionInfoFromGithub` optionally retrieves the package
+              using a regular expression file pattern
 v2017.03.04 - Normalize version (remove leading zeros) when retrieving the
               package version from a bundled executable
 v2017.03.03 - Optionally retrieve the package version from the product version
