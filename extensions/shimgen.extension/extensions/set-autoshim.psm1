@@ -81,7 +81,7 @@ function Set-AutoShim {
             -replace "(\\\\|/)" , "[/\\]" `
             -replace "\\\*\\\*" , ".*" `
             -replace "\\\*"     , "[^/\\]*" `
-            -replace "\\\?"     , "[^/\\]?"
+            -replace "\\\?"     , "[^/\\]"
         return $r + "$"
     }
     
