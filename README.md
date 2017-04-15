@@ -5,7 +5,7 @@ This repository contains chocolatey package templates together with a bunch of s
 ## Prerequisites
 The package templates target a software's 64Bit version if available. Don't expect the packages to work for non x64 systems.
 
-The build scripts have been tested with Windows 10, only.
+The build scripts have been tested with Windows 10, only. It might work with older windows versions if powershell 5 is available.
 
 # Usage
 
@@ -64,3 +64,7 @@ Note: It's also possible to build static nuspec templates. In this case step 3 i
 
 # More information
 See the documentation of the cmdlets provided by the powershell module `choco-factory` for further details. Additionally, the package templates contained in this repository are a good starting point!
+
+# Tips
+
+* Since v0.10.5 chocolatey asks for elevation when executed in the context of an unelevated admin account. It does so, whether administrative permissions are required or not. This behavior can be configured by tweaking `C:\ProgramData\chocolatey\choco.exe.manifest`. See comments within that file for further information.
