@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>.NET Foundation</authors>
+    <owners>episource</owners>
+    
+    <title>Wix Toolset</title>
+    <summary>The most powerful set of tools available to create your Windows installation experience.</summary>
+    <tags>admin installer msi wix</tags>
+    
+    <iconUrl>http://wixtoolset.org/content/logo-black-hollow-xs.png</iconUrl>
+    <projectUrl>http://wixtoolset.org/</projectUrl>
+    <projectSourceUrl>https://github.com/wixtoolset</projectSourceUrl>
+    <bugTrackerUrl>https://github.com/wixtoolset/issues/issues</bugTrackerUrl>
+    <docsUrl>http://wixtoolset.org/documentation/manual/</docsUrl>
+    
+    <licenseUrl>https://github.com/wixtoolset/wix3/blob/develop/LICENSE.TXT</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright (c) .NET Foundation and contributors</copyright>
+    
+    <description>
+The WiX toolset lets developers create installers for Windows Installer, the Windows installation engine.
+ * The core of WiX is a set of build tools that build Windows Installer packages using the same build concepts as the rest of your product: source code is compiled and then linked to create executables; in this case .exe setup bundles, .msi installation packages, .msm merge modules, and .msp patches. The WiX command-line build tools work with any automated build system. Also, MSBuild is supported from the command line, Visual Studio, and Team Build.
+ * WiX includes several extensions that offer functionality beyond that of Windows Installer. For example, WiX can install IIS web sites, create SQL Server databases, and register exceptions in the Windows Firewall, among others.
+ * With Burn, the WiX bootstrapper, you can create setup bundles that install prerequisites like the .NET Framework and other runtimes along with your own product. Burn lets you download packages or combine them into a single downloadable .exe.
+ * The WiX SDK includes managed and native libraries that make it easier to write code that works with Windows Installer, including custom actions in both C# and C++.
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="shimgen.extension" version="[2.0.0,)"/>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
