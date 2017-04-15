@@ -32,7 +32,10 @@ $ErrorAction = "Stop"
 .PARAMETER Pattern
     Pattern identifiying executables to be configured. Can be an array, too.
     
-    A pattern is matched against the end of an executable's absolute path. 
+    A pattern is matched against the end of an executable's path relative to the
+    target directory of the package being installed (e.g.
+    C:\ProgramData\chocolatey\lib\shimgen.extension - this does not include the
+    tools subdirectory!).
     Wildcards *, **, ? are supported:
         *  : matching 0 to n characters, but not path separators
         ** : matching 0 to n characters, including path separators
@@ -86,11 +89,20 @@ function Set-AutoShim {
     }
     
     ForEach ($exe in $executables) {
-        $path = $exe.FullName
+        $absPath = $exe.FullName
+        
+        Try {
+            Push-Location
+            Set-Location $pkgFolder
+            
+            $relPath = $absPath | Resolve-Path -Relative
+        } Finally {
+            Pop-Location
+        }
         
         $isMatch = $Invert
         ForEach ($r in $regexPattern) {
-            If ($path -match $r) {
+            If ($relPath -match $r) {
                 $isMatch = -not $Invert
                 break
             }
@@ -98,18 +110,18 @@ function Set-AutoShim {
         
         If ($isMatch) {
             If ($Mode -eq "Ignore") {
-                New-Item -Force "$path.ignore" | Out-Null
+                New-Item -Force "$absPath.ignore" | Out-Null
             } Else {
-                Remove-Item -Force "$path.ignore" -ErrorAction SilentlyContinue
+                Remove-Item -Force "$absPath.ignore" -ErrorAction SilentlyContinue
             }
             
             If ($Mode -eq "Gui") {
-                New-Item -Force "$path.gui" | Out-Null
+                New-Item -Force "$absPath.gui" | Out-Null
             } Else {
-                Remove-Item -Force "$path.gui" -ErrorAction SilentlyContinue
+                Remove-Item -Force "$absPath.gui" -ErrorAction SilentlyContinue
             }
             
-            $processed += $path
+            $processed += $absPath
         }
     }
     

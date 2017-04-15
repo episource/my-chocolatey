@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>@Package.id</id>
-    <version>@Package.version</version>
+    <version>2.0.0</version>
     <title>Shimgen extension.</title>
     <authors>episource</authors>
     <owners>episource</owners>
@@ -11,6 +11,15 @@
     <summary>Manage shims created by chocolatey's shimgen utility.</summary>
     <description>Cmdlet to manage shims created by chocolatey's shimgen utility. Contains wrappers around the built-in Install-BinFile cmdlet and generates "*.ignore" files.</description>
     <tags>chocolatey choco extension shim shimgen</tags>
+    
+    <releaseNotes>
+- v2.0.0 - breaking change: file patterns are matched against an executable's
+           path relative to the current package directory (e. g.
+           C:\ProgramData\chocolatey\lib\shimgen.extension); the previous
+           behavior was to match against the absolute path
+- v1.0.1 - Fix ?-wildcard which did not match the documentation
+- v1.0.0 - Initial version
+    </releaseNotes>
   </metadata>
   <files>
     <file src="extensions\**" target="extensions" />
