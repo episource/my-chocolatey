@@ -71,7 +71,8 @@ function Install-Shim {
         [Switch] $UseStart = $false,
         
         [Parameter(Mandatory=$false)]
-        [String] $Arguments = $null,
+        [Alias("Arguments")]
+        [String] $Command = $null,
         
         [Parameter(Mandatory=$false)]
         [Switch] $NoAutoUninstall=$false
@@ -82,11 +83,21 @@ function Install-Shim {
     $uninstallLog = Join-Path $pkgFolder $uninstallLogName
     $shimPath     = Join-Path $binFolder "$Name.exe"
     
+    If ($command) {
+        # Current version of Install-BinFile passes the command to shimgen
+        # like `shimgen ... -c $command` without any quotes. This causes
+        # issues if the command contains whitespace
+        # IMPORTANT: this might be incompatible with futrue versions of
+        # Install-BinFile / chocolatey
+        $command = $command.Replace("""", "\""")
+        $command = """$command"""
+    }
+    
     Install-BinFile `
         -Name      $Name `
         -Path      $Path `
         -UseStart  $UseStart `
-        -Arguments $Arguments
+        -Command   $Command
 
         
     If (Test-Path $shimPath) {
