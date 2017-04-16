@@ -19,7 +19,26 @@ Start-Process -Wait -WindowStyle Hidden "$toolsDir\python.exe" `
 # 4. Cleanup
 Remove-Item -Recurse $tmpDir | Out-Null
 
-# 5. Add startmenu entry & Configure shimgen
+# 5. Register python environment
+$version = $env:ChocolateyPackageVersion 
+$versionShort = [String]::Join(".", $version.Split(".")[0..1])
+$pyreg = @{
+    "HKLM:\SOFTWARE\Python\PythonCore\$versionShort" = @{
+        "DisplayName" = "Python $versionShort (64-bit, chocolatey)"
+        "Version" = $version
+        "SysVersion" = $versionShort
+        "SysArchitecture" = "64bit"
+        "SupportUrl" = "https://github.com/episource/my-chocolatey"
+        "InstallPath" = @{
+            "(default)" = $toolsDir
+            "ExecutablePath" = "$toolsDir\python.exe"
+            "WindowedExecutablePath" = "$toolsDir\pythonw.exe"
+        }
+    }
+}
+Install-RegistryImage $pyreg
+
+# 6. Add startmenu entry & Configure shimgen
 Install-StartMenuLink -LinkName "Python2" -TargetPath "$toolsDir\python.exe"
 Set-AutoShim -Pattern "**" -Mode Ignore | Out-Null
 Install-Shim -Name "python2" -Path "$toolsDir\python.exe"
