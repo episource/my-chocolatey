@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Python Software Foundation</authors>
+    <owners>episource</owners>
+    
+    <title>Python Launcher</title>
+    <summary>The Python launcher for Windows is a utility which aids in locating and executing of different Python versions.</summary>
+    <tags>admin python programming development dev cross-platform script language runtime</tags>
+    
+    <iconUrl>https://cdn.rawgit.com/chocolatey/chocolatey-coreteampackages/edba4a5849ff756e767cba86641bea97ff5721fe/icons/python.svg</iconUrl>
+    <projectUrl>https://www.python.org/</projectUrl>
+    <projectSourceUrl>https://www.python.org/downloads/source/</projectSourceUrl>
+    <bugTrackerUrl>http://bugs.python.org/</bugTrackerUrl>
+    <docsUrl>https://www.python.org/doc/</docsUrl>
+    <mailingListUrl>https://mail.python.org/pipermail/python-dev/</mailingListUrl>
+    
+    <licenseUrl>https://docs.python.org/3/license.html</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Python Software Foundation</copyright>
+    
+    <description>
+The Python launcher for Windows is a utility which aids in locating and executing of different Python versions. It allows scripts (or the command-line) to indicate a preference for a specific Python version, and will locate and execute that version.
+
+Unlike the PATH variable, the launcher will correctly select the most appropriate version of Python. It will prefer per-user installations over system-wide ones, and orders by language version rather than using the most recently installed version.</description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="shimgen.extension" version="[2.0.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
