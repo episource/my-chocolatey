@@ -169,3 +169,30 @@ function _Get-NuspecIdAndVersion($nuspec) {
         "Version" = $nuspecVersion.Node.InnerText.Trim() 
     }
 }
+
+function _Parse-NugetVersionSpec($spec) {
+    # See https://docs.microsoft.com/de-de/nuget/create-packages/dependency-versions
+    If ($spec -match "^\[?(?<MINVER>(?:\d+\.){1,3}\d+)(?:,\]|\))?$") {
+        return @{ MinVersionExclusive = $null; MinVersionInclusive = $Matches['MINVER']; MaxVersionExclusive = $null; MaxVersionInclusive = $null }
+    }
+    If ($spec -match "^\((?<MINVER>(?:\d+\.){1,3}\d+),\]|\)$") {
+        return @{ MinVersionExclusive = $Matches['MINVER']; MinVersionInclusive = $null; MaxVersionExclusive = $null; MaxVersionInclusive = $null }
+    }
+    If ($spec -match "^\[(?<VER>(?:\d+\.){1,3}\d+)\]$") {
+        return @{ MinVersionExclusive = $null; MinVersionInclusive = $Matches['VER']; MaxVersionExclusive = $null; MaxVersionInclusive = $Matches['VER'] }
+    }
+    If ($spec -match "^\[(?<MINVER>(?:\d+\.){1,3}\d+)|\s*,(?<MAXVER>(?:\d+\.){1,3}\d+)|\s*\]$") {
+        return @{ MinVersionExclusive = $null; MinVersionInclusive = $Matches['MINVER']; MaxVersionExclusive = $null; MaxVersionInclusive = $Matches['MAXVER'] }
+    }
+    If ($spec -match "^\((?<MINVER>(?:\d+\.){1,3}\d+)|\s*,(?<MAXVER>(?:\d+\.){1,3}\d+)|\s*\)$") {
+        return @{ MinVersionExclusive = $Matches['MINVER']; MinVersionInclusive = $null; MaxVersionExclusive = $Matches['MAXVER']; MaxVersionInclusive = $null }
+    }
+    If ($spec -match "^\[(?<MINVER>(?:\d+\.){1,3}\d+)|\s*,(?<MAXVER>(?:\d+\.){1,3}\d+)|\s*\)$") {
+        return @{ MinVersionExclusive = $null; MinVersionInclusive = $Matches['MINVER']; MaxVersionExclusive = $Matches['MAXVER']; MaxVersionInclusive = $null }
+    }
+    If ($spec -match "^\((?<MINVER>(?:\d+\.){1,3}\d+)|\s*,(?<MAXVER>(?:\d+\.){1,3}\d+)|\s*\]$") {
+        return @{ MinVersionExclusive = $Matches['MINVER']; MinVersionInclusive = $null; MaxVersionExclusive = $null; MaxVersionInclusive = $Matches['MAXVER'] }
+    }    
+    
+    Write-Error "Failed to parse version specification: $spec"
+}

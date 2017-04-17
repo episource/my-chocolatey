@@ -27,8 +27,9 @@ $ErrorActionPreference = "Stop"
     
     An error is raised if the package isn't found.
         
-.PARAMETER Name
-    The name of the chocolatey package the calling build script depends on.
+.PARAMETER Version
+    The version requirement following nuspec syntax:
+    https://docs.microsoft.com/de-de/nuget/create-packages/dependency-versions
            
 .OUTPUT
     The package directory as FileSystemInfo object.
@@ -39,21 +40,13 @@ $ErrorActionPreference = "Stop"
 function Select-BuildDependency {
     [CmdletBinding()]
     Param(
-        [Parameter(ParameterSetName="MinVersion", Mandatory=$true,
-                   ValueFromPipeline=$true
-                   ,ValueFromPipelineByPropertyName=$true)]
-        [Parameter(ParameterSetName="ExactVersion", Mandatory=$true,
-                   ValueFromPipeline=$true,
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,
                    ValueFromPipelineByPropertyName=$true)]
         [String] $Name,
         
-        [Parameter(ParameterSetName="MinVersion", Mandatory=$true,
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,
                    ValueFromPipelineByPropertyName=$true)]
-        [String] $MinVersion = $null,
-        
-        [Parameter(ParameterSetName="ExactVersion", Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true)]
-        [String] $ExactVersion = $null
+        [String] $Version
     ) 
     
     Begin {
@@ -65,28 +58,31 @@ function Select-BuildDependency {
     Process {
         $pkgDir = "$chocoDir/lib/$Name"
         $pkgNuspec = "$pkgdir/$Name.nuspec"
-        switch ($PsCmdlet.ParameterSetName) {
-            "MinVersion" { $dependencyDesc = "$Name>=$MinVersion" }
-            "ExactVersion" { $dependencyDesc = "$Name=$ExactVersion" }
-        }
+        $versionRequirement = _Parse-NugetVersionSpec $Version
                 
         If (-not (Test-Path -Type Leaf $pkgNuspec)) {
             Write-Error "Dependency $dependencyDesc not installed!"
             return
         }
-        
+    
+        $versionOk = $true
         $actualVersion = $(_Get-NuspecIdAndVersion($pkgNuspec)).Version
-        switch ($PsCmdlet.ParameterSetName) {
-            "MinVersion" { 
-                $versionOk = $versionComparer.Compare(
-                    $actualVersion, $MinVersion) -ge 0 
-            }
-            "ExactVersion" {
-                $versionOk = $versionComparer.Compare(
-                    $actualVersion, $ExactVersion) -eq 0 
-            }
+        If ($versionRequirement.MinVersionInclusive) {
+            $versionOk = $versionOk -and $versionComparer.Compare(
+                $actualVersion, $versionRequirement.MinVersionInclusive) -ge 0 
         }
-        
+        If ($versionRequirement.MinVersionExclusive) {
+            $versionOk = $versionOk -and $versionComparer.Compare(
+                $actualVersion, $versionRequirement.MinVersionExclusive) -gt 0 
+        }
+        If ($versionRequirement.MaxVersionInclusive) {
+            $versionOk = $versionOk -and $versionComparer.Compare(
+                $actualVersion, $versionRequirement.MaxVersionInclusive) -le 0 
+        }
+        If ($versionRequirement.MaxVersionExclusive) {
+            $versionOk = $versionOk -and $versionComparer.Compare(
+                $actualVersion, $versionRequirement.MaxVersionExclusive) -lt 0 
+        }
         
         If (-not $versionOk) {
             Write-Error "Found $Name=$actualVersion, but wanted $dependencyDesc!"

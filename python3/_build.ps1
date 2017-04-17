@@ -7,7 +7,7 @@ $ErrorAction = "Stop"
 # Import my-chocolatey config & modules
 . $PSScriptRoot/../_root.ps1
 
-Select-BuildDependency -Name "wix" -MinVersion "3.11" | Out-Null
+Select-BuildDependency -Name "wix" -Version "3.11" | Out-Null
 
 
 $dlIndexUrl = "https://www.python.org/downloads/windows/"

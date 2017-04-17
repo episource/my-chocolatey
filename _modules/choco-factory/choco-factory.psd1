@@ -111,7 +111,7 @@ PrivateData = @{
         Tags = @('chocolatey', 'update')
 
         # A URL to the license for this module.
-        LicenseUri = 'https://opensource.org/licenses/MIT'
+        LicenseUri = 'http://www.apache.org/licenses/LICENSE-2.0'
 
         # A URL to the main website for this project.
         # ProjectUri = ''
@@ -121,6 +121,7 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
+v2017.04.02 - Make `Select-BuildDependency` use nuget version strings
 v2017.04.01 - `Get-VersionInfoFromGithub` optionally retrieves the package
               using a regular expression file pattern
 v2017.03.04 - Normalize version (remove leading zeros) when retrieving the

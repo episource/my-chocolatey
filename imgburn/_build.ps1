@@ -8,7 +8,7 @@ $ErrorAction = "Stop"
 . $PSScriptRoot/../_root.ps1
 
 
-Select-BuildDependency -Name "7zip" -MinVersion "16.4.0" | Out-Null
+Select-BuildDependency -Name "7zip" -Version "16.4.0" | Out-Null
 $dlIndexUrl = "http://www.imgburn.com/index.php?act=download"
 $dlIndexRaw = Invoke-WebRequest -UseBasicParsing $dlIndexUrl
 
