@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Python Software Foundation</authors>
+    <owners>episource</owners>
+    
+    <title>Python 2 (x86)</title>
+    <summary>Python 2.x is a programming language that lets you work more quickly and integrate your systems more effectively. You can learn to use Python and see almost immediate gains in productivity and lower maintenance costs.</summary>
+    <tags>admin python programming development dev cross-platform script language runtime</tags>
+    
+    <iconUrl>https://cdn.rawgit.com/chocolatey/chocolatey-coreteampackages/edba4a5849ff756e767cba86641bea97ff5721fe/icons/python.svg</iconUrl>
+    <projectUrl>https://www.python.org/</projectUrl>
+    <projectSourceUrl>https://www.python.org/downloads/source/</projectSourceUrl>
+    <bugTrackerUrl>http://bugs.python.org/</bugTrackerUrl>
+    <docsUrl>https://www.python.org/doc/</docsUrl>
+    <mailingListUrl>https://mail.python.org/pipermail/python-dev/</mailingListUrl>
+    
+    <licenseUrl>https://docs.python.org/3/license.html</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Python Software Foundation</copyright>
+    
+    <description>Python is an interpreted, interactive, object-oriented programming language. It incorporates modules, exceptions, dynamic typing, very high level dynamic data types, and classes. Python combines remarkable power with very clear syntax. It has interfaces to many system calls and libraries, as well as to various window systems, and is extensible in C or C++. It is also usable as an extension language for applications that need a programmable interface. Finally, Python is portable: it runs on many Unix variants, on the Mac, and on Windows 2000 and later.</description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="shimgen.extension" version="[2.0.1,)"/>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
