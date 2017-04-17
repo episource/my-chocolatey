@@ -42,5 +42,5 @@ Install-RegistryImage $pyreg
 Install-StartMenuLink -LinkName "Python2" -TargetPath "$toolsDir\python.exe"
 Set-AutoShim -Pattern "**" -Mode Ignore | Out-Null
 Install-Shim -Name "python2" -Path "$toolsDir\python.exe"
-Install-Shim -Name "pythonw2" -Path "$toolsDir\pythonw.exe"
+Install-Shim -Name "pythonw2" -Path "$toolsDir\pythonw.exe" -Gui
 Install-Shim -Name "pip2" -Path "$toolsDir\python.exe" -Arguments "-m pip"

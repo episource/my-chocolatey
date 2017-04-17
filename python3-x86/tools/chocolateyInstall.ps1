@@ -49,5 +49,5 @@ Install-RegistryImage $pyreg
 Install-StartMenuLink -LinkName "Python3 (x86)" -TargetPath "$toolsDir\python.exe"
 Set-AutoShim -Pattern "**" -Mode Ignore | Out-Null
 Install-Shim -Name "python3_x86" -Path "$toolsDir\python.exe"
-Install-Shim -Name "pythonw3_x86" -Path "$toolsDir\pythonw.exe"
+Install-Shim -Name "pythonw3_x86" -Path "$toolsDir\pythonw.exe" -Gui
 Install-Shim -Name "pip3_x86" -Path "$toolsDir\python.exe" -Arguments "-m pip"

@@ -3,7 +3,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>@Package.id</id>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
     <title>Shimgen extension.</title>
     <authors>episource</authors>
     <owners>episource</owners>
@@ -13,6 +13,7 @@
     <tags>chocolatey choco extension shim shimgen</tags>
     
     <releaseNotes>
+- v2.0.2 - Correctly pass `-UseStart` (gui mode flag) to Install-BinFile/shimgen
 - v2.0.1 - Fix forwarding of commands/arguments to Install-BinFile/shimgen
            (this includes a workaround for Install-BinFile quirks, that might
            not be compatible with future versions of Install-BinFile/chocolatey)

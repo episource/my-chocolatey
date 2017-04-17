@@ -94,10 +94,10 @@ function Install-Shim {
     }
     
     Install-BinFile `
-        -Name      $Name `
-        -Path      $Path `
-        -UseStart  $UseStart `
-        -Command   $Command
+        -Name     $Name `
+        -Path     $Path `
+        -UseStart:$UseStart `
+        -Command  $Command
 
         
     If (Test-Path $shimPath) {
