@@ -30,9 +30,16 @@ $ErrorActionPreference = "Stop"
 .PARAMETER Version
     The version requirement following nuspec syntax:
     https://docs.microsoft.com/de-de/nuget/create-packages/dependency-versions
+    
+    Defaults to "[0.0.0,)"
+    
+    
            
 .OUTPUT
-    The package directory as FileSystemInfo object.
+    Without `-Detailed` switch: The package directory as FileSystemInfo object.
+    With `-Detailed` switch: A map with the following properties
+        Path - The package directory as FileSystemInfo object.
+        Version - The installed version
            
 .EXAMPLE
     TODO
@@ -44,9 +51,13 @@ function Select-BuildDependency {
                    ValueFromPipelineByPropertyName=$true)]
         [String] $Name,
         
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true,
+        [Parameter(Mandatory=$false,ValueFromPipeline=$false,
                    ValueFromPipelineByPropertyName=$true)]
-        [String] $Version
+        [String] $Version = "[0.0.0,)",
+        
+        [Parameter(Mandatory=$false,ValueFromPipeline=$false,
+                   ValueFromPipelineByPropertyName=$true)]
+        [Switch] $Detailed = $false
     ) 
     
     Begin {
@@ -89,6 +100,13 @@ function Select-BuildDependency {
             return
         }        
         
-        Write-Output $(Get-Item $pkgDir)
+        If ($Detailed) {
+            Write-Output @{
+                Path = $pkgDir
+                Version = $actualVersion
+            }
+        } Else {
+            Write-Output $(Get-Item $pkgDir)
+        }
     }
 }
