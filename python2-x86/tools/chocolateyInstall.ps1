@@ -38,7 +38,18 @@ $pyreg = @{
 }
 Install-RegistryImage $pyreg
 
-# 6. Add startmenu entry & Configure shimgen
+# 6. Re-install active plugins
+choco list -l | Select-String "$env:ChocolateyPackageName-pip-" | %{
+    $pipInfo = "$_".Split(" ")
+    $pipName = $pipInfo[0]
+    $pipVersion = $pipInfo[1]
+    
+    choco install $pipName --version=$pipVersion --force
+}
+
+# 7. Add startmenu entry & Configure shimgen
+# Note: After reinstalling plugins! Executables created by plugins should
+# be covered by Set-AutoShim!
 Install-StartMenuLink -LinkName "Python2 (x86)" -TargetPath "$toolsDir\python.exe"
 Set-AutoShim -Pattern "**" -Mode Ignore | Out-Null
 Install-Shim -Name "python2_x86" -Path "$toolsDir\python.exe"
