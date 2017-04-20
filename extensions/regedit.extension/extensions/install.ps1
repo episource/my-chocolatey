@@ -231,7 +231,7 @@ function _Uninstall-RegistryImageImpl {
             continue
         } Else {
             $keyPath = $splitPathResult.Key
-            $processedKeys.Add($keyPath)
+            $processedKeys.Add($keyPath) | Out-Null
             
             # Both PowerShell and .Net API are used below: Both expect different
             # names for the default value.

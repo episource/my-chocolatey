@@ -26,7 +26,8 @@
     <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
 
     <dependencies>
-        <dependency id="shimgen.extension" version="[2.0.2,)"/>
+        <dependency id="regedit.extension"   version="[3.0.7,)"/>
+        <dependency id="shimgen.extension"   version="[2.0.2,)"/>
         <dependency id="startmenu.extension" version="[1.1.1,)"/>
     </dependencies>
   </metadata>
