@@ -60,7 +60,7 @@ Set-Acl $settingsDir $acl
 }
 
 # re-install active plugins
-choco list | Select-String x64dbg- | %{
+choco list -l | Select-String "x64dbg-" | %{
     $pluginInfo = "$_".Split(" ")
     $pName = $pluginInfo[0]
     $pVersion = $pluginInfo[1]
