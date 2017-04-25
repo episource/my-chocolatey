@@ -39,7 +39,7 @@ $ErrorActionPreference = "Stop"
     
 .PARAMETER ChocoPackageMaintainer
     The package maintainer
-    
+       
 .PARAMETER PostInstallScript
     OPTIONAL - Powershell code to be executed after successful installation.
     
@@ -314,6 +314,14 @@ Set-StrictMode -Version latest
 `$pythonName = "$PythonName"
 `$pythonToolsDir = "`$toolsDir/../../$PythonName/tools/"
 `$pythonExe = "`$pythonToolsDir/python.exe"
+
+@( @{ VAR="VS90COMNTOOLS"; PATH="`$toolsDir/../../vcpython27/tools/common/tools" } ) | %{
+    If (Test-Path -Type Container `$_.PATH) {
+        `$absPath = [IO.Path]::GetFullPath(`$_.Path)
+        [Environment]::SetEnvironmentVariable(`$_.VAR, `$absPath, [EnvironmentVariableTarget]::Process)
+    }
+}
+
 & `$pythonExe -m pip install $PypiPackage -f `$toolsDir -U --force-reinstall --no-index --no-deps
 If ($LastExitCode -ne 0) {
     Write-Error "pip did not succeed!"
