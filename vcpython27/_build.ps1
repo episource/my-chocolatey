@@ -20,7 +20,7 @@ $dlStartUrl = "https://www.microsoft.com/en-us/download/confirmation.aspx?id=$dl
 $dlStartRaw = Invoke-WebRequest -UseBasicParsing $dlStartUrl
 $dlStartRaw -match "meta http-equiv=""refresh"" content=""0;url=(?<FILEURL>.+\.msi)" | Out-Null
 
-New-Package -NoScan -VersionInfo @{
+New-Package -VersionInfo @{
     Version = $version
     FileUrl = $Matches.FileUrl
 }
