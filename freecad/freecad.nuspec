@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Jürgen Riegel, Werner Mayer, Yorik van Havre et. al</authors>
+    <owners>episource</owners>
+    
+    <title>FreeCAD</title>
+    <summary>FreeCAD is a parametric 3D modeler made primarily to design real-life objects of any size.</summary>
+    <tags>admin cad os free mechanics design 3d</tags>
+    
+    <iconUrl>http://www.freecadweb.org/images/logo.png</iconUrl>
+    <projectUrl>http://www.freecadweb.org/</projectUrl>
+    <projectSourceUrl>https://github.com/FreeCAD/FreeCAD</projectSourceUrl>
+    <bugTrackerUrl>http://www.freecadweb.org/tracker/my_view_page.php</bugTrackerUrl>
+    <docsUrl>http://www.freecadweb.org/wiki/Main_Page</docsUrl>
+    
+    <licenseUrl>https://github.com/FreeCAD/FreeCAD/blob/master/COPYING</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>(C) FreeCAD authors</copyright>
+    
+    <description>
+FreeCAD is a parametric 3D modeler made primarily to design real-life objects of any size. Parametric modeling allows you to easily modify your design by going back into your model history and changing its parameters. FreeCAD is open-source and highly customizable, scriptable and extensible.
+
+FreeCAD is multiplatfom (Windows, Mac and Linux), and reads and writes many open file formats such as STEP, IGES, STL, SVG, DXF, OBJ, IFC, DAE and many others.
+
+# Who is FreeCAD for? A couple of user cases:
+ * The home user/hobbyist. Got yourself a project you want to build, have built, or 3D printed? Model it in FreeCAD. No previous CAD experience required. Our community will help you get the hang of it quickly!
+ * The experienced CAD user. If you use commercial CAD or BIM modeling software at work, you will find similar tools and workflow among the many workbenches of FreeCAD.
+ * The programmer. Almost all of FreeCAD's functionality is accessible to Python. You can easily extend FreeCAD's functionality, automatize it with scripts, build your own modules or even embed FreeCAD in your own application.
+ * The educator. Teach your students a free software with no worry about license purchase. They can install the same version at home and continue using it after leaving school. 
+    </description>
+    <releaseNotes>http://www.freecadweb.org/wiki/Feature_list</releaseNotes>
+
+    <dependencies>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
