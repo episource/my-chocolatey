@@ -7,7 +7,7 @@ $installerExe = Get-Item "$toolsDir/*.exe"
 Get-ChocolateyUnzip -FileFullPath $installerExe.FullName -Destination $toolsDir
 Remove-Item $installerExe
 Remove-Item "$toolsDir/uninstall.exe"
-Remove-Item "$toolsDir/`$PLUGINSDIR"
+Remove-Item -Recurse "$toolsDir/`$PLUGINSDIR"
 
 $exePath = "$toolsDir/bin/FreeCAD.exe"
 Install-StartMenuLink -LinkName "FreeCAD" -TargetPath $exePath
