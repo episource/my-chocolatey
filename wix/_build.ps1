@@ -8,20 +8,15 @@ $ErrorAction = "Stop"
 . $PSScriptRoot/../_root.ps1
 
 
-$rootUrl = "http://wixtoolset.org"
-$dlMainIndexUrl = "$rootUrl/releases/"
-$dlMainIndex = Invoke-WebRequest -UseBasicParsing $dlMainIndexUrl
-$dlMainIndex -match "(?s)<h2>Archived Builds</h2>.*<ul>.*?<a href=""(?<INDEX_URL>[^""]+)""" | Out-Null
+$cache = @{ changes = "" }
+$vi = Get-VersionInfoFromGithub `
+    -Repo "wixtoolset/wix3" -File "wix\d+-binaries.zip" -EnableRegex `
+    -ExtractVersionHook {
+        $changes = Invoke-WebRequest -UseBasicParsing "https://raw.githubusercontent.com/wixtoolset/wix3/$($_.tag_name)/History.md"
+        $changes -match "#.*Version (?<VERSION>(?:\d+\.){2,3}\d+)" | Out-Null
+        $cache["changes"] = $changes
+        return $Matches.VERSION
+    }
+$vi["ReleaseNotes"] = $cache["changes"]
 
-$dlIndexUrl = "$rootUrl$($Matches.INDEX_URL)"
-$dlIndex = Invoke-WebRequest -UseBasicParsing $dlIndexUrl
-
-$dlIndex -match "<title>(?<VERSION>.*)</title>" | Out-Null
-$version = $Matches.VERSION.TrimStart("v")
-$dlIndex -match "href=""(?<FILE_URL>.*-binaries.zip)""" | Out-Null
-$fileUrl = "$rootUrl$($Matches.FILE_URL)"
-
-New-Package -VersionInfo @{
-    Version = $version
-    FileUrl = $fileUrl
-}
+New-Package -VersionInfo $vi
