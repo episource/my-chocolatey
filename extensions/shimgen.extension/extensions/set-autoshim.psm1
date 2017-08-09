@@ -95,7 +95,7 @@ function Set-AutoShim {
             Push-Location
             Set-Location $pkgFolder
             
-            $relPath = $absPath | Resolve-Path -Relative
+            $relPath = Resolve-Path -LiteralPath $absPath -Relative
         } Finally {
             Pop-Location
         }
@@ -112,13 +112,13 @@ function Set-AutoShim {
             If ($Mode -eq "Ignore") {
                 New-Item -Force "$absPath.ignore" | Out-Null
             } Else {
-                Remove-Item -Force "$absPath.ignore" -ErrorAction SilentlyContinue
+                Remove-Item -Force -LiteralPath "$absPath.ignore" -ErrorAction SilentlyContinue
             }
             
             If ($Mode -eq "Gui") {
                 New-Item -Force "$absPath.gui" | Out-Null
             } Else {
-                Remove-Item -Force "$absPath.gui" -ErrorAction SilentlyContinue
+                Remove-Item -Force -LiteralPath "$absPath.gui" -ErrorAction SilentlyContinue
             }
             
             $processed += $absPath
