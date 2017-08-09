@@ -43,7 +43,7 @@ $pyreg = @{
         }
     }
 }
-Install-RegistryImage $pyreg
+Install-RegistryImage -Force $pyreg
 
 # 5. Re-install active plugins
 choco list -l | Select-String "$env:ChocolateyPackageName-pip-" | %{

@@ -64,7 +64,7 @@ $jdk = @{
         }
     }
 }
-Install-RegistryImage $jdk
+Install-RegistryImage -Force $jdk
 
 # Associate *.jar with javaw.exe 
 # (global HKCR associaton, might be overwritten by HKCU:SOFTWARE\Classes\.jar)
