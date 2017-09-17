@@ -4,22 +4,14 @@
 . $PSScriptRoot/../_root.ps1
 
 
-$versionInfo = Get-VersionInfoFromSourceforge `
-    -Project "conemu" `
-    -Filter  "/Stable/ConEmuPack\.(?<VERSION>\d+)\.7z"
-
-# Expand version string: e.g. 160904 -> 16.09.04
-$version             = $versionInfo.Version
-$versionInfo.Version = ""
-If ($version.length -ne 6) {
-    Throw "Unsupported ConEmu version string: $version"
-}
-For ($i = 0; $i -lt 3; $i++) {
-    If ($i -gt 0) {
-        $versionInfo.Version += "."
+$versionInfo = Get-VersionInfoFromGithub `
+    -Repo "Maximus5/ConEmu" `
+    -EnableRegex `
+    -File  "ConEmuPack\.\d+\.7z" `
+    -ExtractVersionHook { 
+        $version = $versionRaw = $_.tag_name -replace "^v"
+        [String]::Join(".", @( $version.Split(".") | %{ [Int]$_ }))
     }
-    $versionInfo.Version     += $version.Substring(2 * $i, 2).TrimStart("0")
-}
 
 # lazy initialize release notes
 $versionInfo.ReleaseNotes = {
