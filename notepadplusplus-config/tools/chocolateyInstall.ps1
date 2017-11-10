@@ -12,6 +12,10 @@ function Update-Config($xml, $xpath, $config) {
 # Revert previous modifications first
 & $PSScriptRoot/chocolateyUninstall.ps1
 
+# Newer notepad++ installation no longer include a default config.model.xml
+If (-not (Test-Path -Path $configModel)) {
+    Copy-Item "$destdir/config.model.xml" $configModel
+}
 
 # Update configuration (config.model.xml)
 Copy-Item -Path $configModel -Destination $configModelBackup
@@ -39,10 +43,10 @@ Update-Config $xml $xpath $newDocDefaults
 
 $xml.Save($configModel)
 
-
 # Update configuration (stylers.model.xml)
 Copy-Item -Path $stylersModel -Destination $stylersModelBackup
-$xml = [xml](Get-Content $stylersModel)
+$xml = [xml](Get-Content $stylersModel | %{ 
+    $_ -replace 'name="TAG { <TITLE HEIGHT=100> }"','name="TAG { &lt;TITLE HEIGHT=100&gt; }"'} )
 
 $fontConfig = @{ 
     fontName = "Consolas"
