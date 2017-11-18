@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Botkind, Inc.</authors>
+    <owners>episource</owners>
+    
+    <title>Allway Sync</title>
+    <summary>Allway Sync - File synchronization that works.</summary>
+    <tags>admin file sync backup synchronization</tags>
+    
+    <iconUrl>http://allwaysync.com/themes/allwaysync/img/logo.png</iconUrl>
+    <projectUrl>http://allwaysync.com/</projectUrl>
+    <bugTrackerUrl>https://syncapp.com/php/stss/main</bugTrackerUrl>
+    <docsUrl>http://allwaysync.com/support/faq</docsUrl>
+    
+    <licenseUrl>http://allwaysync.com/license</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>© Usov Lab, Botkind, Inc. All rights reserved.</copyright>
+    
+    <description>
+![Screenshot of Allway Sync](http://allwaysync.com/content/img/screenshots/sync.png)
+
+Allway Sync uses innovative synchronization algorithms to synchronize your data between desktop PCs, laptops, USB drives, remote FTP/SFTP and WebDAV servers, various online data storages and more. Data compression and encryption are supported. It combines bulletproof reliability with extremely easy-to-use interface. Allway Sync also can synchronize your PC data with a Mac via Sync Gateway.
+    </description>
+    <releaseNotes>https://allwaysync.com/news</releaseNotes>
+
+    <dependencies>
+        <dependency id="shimgen.extension" version="[2.0.3,)"/>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
