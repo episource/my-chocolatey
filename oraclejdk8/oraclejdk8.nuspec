@@ -7,9 +7,9 @@
     <authors>Oracle Corporation</authors>
     <owners>episource</owners>
     
-    <title>Java SE Development Kit</title>
-    <summary>Official java development kit including the java runtime.</summary>
-    <tags>admin java jdk jre javase oracle runtime</tags>
+    <title>Java SE Development Kit (Version 8)</title>
+    <summary>Official java development kit including the java runtime (version 8).</summary>
+    <tags>admin java jdk jre javase oracle runtime java8 jdk8</tags>
     
     <iconUrl>https://chocolatey.org/content/packageimages/jdk8.8.0.121.svg</iconUrl>
     <projectUrl>http://www.oracle.com/technetwork/java/javase/downloads/index.html</projectUrl>

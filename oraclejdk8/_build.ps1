@@ -10,15 +10,16 @@ $ErrorAction = "Stop"
 
 # Retrieve version + url
 $dlIndexUrl = "http://www.oracle.com/technetwork/java/javase/downloads/index.html"
+$jdkVersion = 8
 
 $dlIndexRaw = Invoke-WebRequest -UseBasicParsing $dlIndexUrl
-$dlIndexRaw -match "href=""(?<JDKINDEXURL>/technetwork/java/javase/downloads/jdk\d+-downloads-\d+.html)""" | Out-Null
+$dlIndexRaw -match "href=""(?<JDKINDEXURL>/technetwork/java/javase/downloads/jdk${jdkVersion}+-downloads-\d+.html)""" | Out-Null
 $dlJdkIndexUrl = "http://www.oracle.com" + $Matches.JDKINDEXURL
 $dlJdkIndexRaw = Invoke-WebRequest -UseBasicParsing $dlJdkIndexUrl
 
-$dlJdkIndexRaw -match "\['jdk-(?<VERSION>\d+\.\d+\.\d+)_windows-x64_bin.exe'\] = {[^}]*""filepath"":""(?<URL>[^""]+)""[^}]*""SHA256"":""(?<SHA256>[^""]+)""" | Out-Null
+$dlJdkIndexRaw -match "\['jdk-(?<VERMAJOR>\d+)u(?<VERPATCH>\d+)-windows-x64.exe'\] = {[^}]*""filepath"":""(?<URL>[^""]+)""[^}]*""SHA256"":""(?<SHA256>[^""]+)""" | Out-Null
 
-$jdkVersion = $Matches.VERSION
+$jdkVersion = "$($Matches.VERMAJOR).0.$($Matches.VERPATCH)"
 $jdkWin64Url = $Matches.URL
 $jdkWin64Sha256 = $Matches.SHA256.ToLower()
 

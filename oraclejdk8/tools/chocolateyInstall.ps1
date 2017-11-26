@@ -7,8 +7,10 @@ $tmpDir = Join-Path $toolsDir "tmp"
 
 # Extract tools.zip
 # Credits: https://techtavern.wordpress.com/2014/03/25/portable-java-8-sdk-on-windows/
-$installerExe = Get-Item "$toolsDir/jdk-*windows-x64_bin.exe"
+$installerExe = Get-Item "$toolsDir/jdk-*windows-x64.exe"
 Get-ChocolateyUnzip -FileFullPath $installerExe.FullName -Destination $tmpDir
+$jdkCab = Get-Item "$tmpDir/.rsrc/1033/JAVA_CAB10/111"
+Get-ChocolateyUnzip -FileFullPath $jdkCab.FullName -Destination $tmpDir
 $jdkZip = Get-Item "$tmpDir/tools.zip"
 Get-ChocolateyUnzip -FileFullPath $jdkZip.FullName -Destination $toolsDir
 
@@ -23,27 +25,21 @@ Get-ChildItem -Recurse $toolsDir  -Filter "*.pack" | %{
     & $unpackExe -r $_.FullName $newName
 }
 
-# Only create shims for the files listed in $withDefaultShim
-$withDefaultShim = @(
-    "$toolsDir\bin\javac.exe",
-    "$toolsDir\bin\jconsole.exe",
-    "$toolsDir\bin\jdb.exe",
-    "$toolsDir\bin\jmc.exe",
-    "$toolsDir\bin\java.exe",
-    "$toolsDir\bin\javaw.exe"
-)
-Set-AutoShim -Pattern $withDefaultShim -Invert -Mode Ignore | Out-Null
+# Create a reduced set of shims
+Set-AutoShim -Pattern "**" -Mode Ignore | Out-Null
+Install-Shim -Name "java8" -Path "$toolsDir\bin\java.exe"
+Install-Shim -Name "javaw8" -Path "$toolsDir\bin\javaw.exe"
+Install-Shim -Name "javac8" -Path "$toolsDir\bin\javac.exe"
+Install-Shim -Name "jdb8" -Path "$toolsDir\bin\jdb.exe"
 
 # Install start menu shortcuts for jmc + jvisualvm
-$startJconsole = @{ LinkName="Java/Java Monitoring & Management Console (JConsole)"; TargetPath="$toolsDir\bin\jconsole.exe" }
+$startJconsole = @{ LinkName="Java8/Java Monitoring & Management Console (JConsole)"; TargetPath="$toolsDir\bin\jconsole.exe" }
 Install-StartMenuLink @startJconsole
-$startJmc = @{ LinkName="Java/Java Mission Control"; TargetPath="$toolsDir\bin\jmc.exe" }
+$startJvisualvm = @{ LinkName="Java8/Java VisualVM"; TargetPath="$toolsDir\bin\jvisualvm.exe" }
+Install-StartMenuLink @startJvisualvm
+$startJmc = @{ LinkName="Java8/Java Mission Control"; TargetPath="$toolsDir\bin\jmc.exe" }
 Install-StartMenuLink @startJmc
-
-# Setup JAVA_HOME
-Install-ChocolateyEnvironmentVariable -VariableType "Machine" `
-    -VariableName "JAVA_HOME" -VariableValue "$toolsDir"
-    
+   
 # Register JDK to be found by launchers looking at oracles registry paths
 # (e.g. launch4j)
 $versionOut = & "$toolsDir/bin/java.exe" -version 2>&1
@@ -52,7 +48,7 @@ $internalVersion = $Matches.INTERNAL_VERSION
 
 $jdk = @{
     "HKLM:\SOFTWARE\JavaSoft\Java Development Kit" = @{
-        "CurrentVersion" = $internalVersion;
+#        "CurrentVersion" = $internalVersion;
         "$internalVersion" = @{
             "JavaHome" = $toolsDir;
             "RuntimeLib" = "$toolsDir\jre\bin\server\jvm.dll"
@@ -65,8 +61,8 @@ Install-RegistryImage -Force $jdk
 # (global HKCR associaton, might be overwritten by HKCU:SOFTWARE\Classes\.jar)
 $ftype = "jar_jdk-$internalVersion"
 & cmd /c "ftype $ftype=""$toolsDir\bin\javaw.exe"" -jar ""%1"" ""%~1"""
-& cmd /c "assoc .jar=$ftype"
+& cmd /c "assoc .jar8=$ftype"
 
 $uninstallScript = "$toolsDir/chocolateyUninstall.ps1"
 Add-Content $uninstallScript -Value "`n& cmd /c ""ftype $ftype="""
-Add-Content $uninstallScript -Value "`n& cmd /c ""assoc .jar="""
+Add-Content $uninstallScript -Value "`n& cmd /c ""assoc .jar8="""
