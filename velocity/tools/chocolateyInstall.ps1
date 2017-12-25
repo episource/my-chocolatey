@@ -8,7 +8,7 @@ $msi      = Get-Item "$toolsDir\VelocitySetup*.msi"
 $pkg      = Move-Item $msi "$toolsDir\.." -PassThru
 
 Start-Process -Wait msiexec @(
-    "/a", $pkg, "/passive", "/qn", "TARGETDIR=$toolsDir",
+    "/a", $pkg, "/norestart", "/passive", "/qn", "TARGETDIR=$toolsDir",
     "/liwe", "$toolsDir\msi.log"
 )
 
