@@ -22,6 +22,7 @@ Set-Acl $settingsDir $acl
 @( "x64", "x32" ) | % {
     $platform = $_
     
+    # world-writable symbols directory
     $symSrc = "$toolsDir/release/$platform/symbols"
     $symSrcItem = Get-Item $symSrc -ErrorAction SilentlyContinue
     $symTgt = "$settingsDir/symbols"
@@ -39,7 +40,8 @@ Set-Acl $settingsDir $acl
         New-Item -Path $symSrc -ItemType SymbolicLink -Value $symTgt
     }
         
-    @( "x64dbg.ini", "snowman.ini" ) | %{
+    # world-writable configuration file
+    @( "${platform}dbg.ini", "snowman.ini" ) | %{
         $iniSrc = "$toolsDir/release/$platform/$_"
         $iniSrcItem = Get-Item $iniSrc -ErrorAction SilentlyContinue
         $iniTgt = "$settingsDir/$(Split-Path -Leaf $iniSrc)"
@@ -56,6 +58,26 @@ Set-Acl $settingsDir $acl
             "" >> $iniTgt
             New-Item -Path $iniSrc -ItemType SymbolicLink -Value $iniTgt
         }
+    }
+    
+    # world-writable database directory
+    # note: currently db compression needs to be disabled for x64dbg to pickup
+    # database files from this directory
+    $dbSrc = "$toolsDir/release/$platform/db"
+    $dbSrcItem = Get-Item $dbSrc -ErrorAction SilentlyContinue
+    $dbTgt = "$settingsDir/db"
+    
+    If ($dbSrcItem -and $dbSrcItem.Attributes -match "ReparsePoint") {
+        # link already exists - nothing to do
+    } Else {
+        If ($dbSrcItem) {
+            $dbBak = "$dbSrc.bak"
+            Remove-Item -R $dbBak -ErrorAction SilentlyContinue
+            Move-Item $dbSrc $dbSrcBak
+        }
+        
+        New-Item -Type Directory $dbTgt -ErrorAction SilentlyContinue
+        New-Item -Path $dbSrc -ItemType SymbolicLink -Value $dbTgt
     }
 }
 
