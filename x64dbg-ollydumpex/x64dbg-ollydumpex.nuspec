@@ -7,7 +7,7 @@
     <authors>low-priority</authors>
     <owners>episource</owners>
     
-    <title>Package Title</title>
+    <title>OllyDumpEx (x64dbg Plugin)</title>
     <summary>A process memory dumper plugin for x64dbg.</summary>
     <tags>admin x64dbg dbg debug debugger reversing</tags>
     

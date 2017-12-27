@@ -9,9 +9,9 @@ $ErrorAction = "Stop"
 
 $dlIndexRaw = Invoke-WebRequest -UseBasicParsing "http://low-priority.appspot.com/ollydumpex/"
 
-$dlIndexRaw -match "(?si)<a href=""OllyDumpEx\.zip"">OllyDumpEx.zip</a>.*?Version: v(?<VERSION>(?:\d+\.){1,3}\d+).*?MD5.*?(?<MD5>[0-9a-fA-F]{32})" | Out-Null
-$checksum = "md5:$($Matches.MD5)"
-$versionParts = $Matches.VERSION.Split(".")
+$dlIndexRaw -match "(?si)<a href=""OllyDumpEx_v(?<VERSION>(?:\d+\.){1,3}\d+)\.zip"">v\<VERSION></a>" | Out-Null
+$versionRaw = $Matches.VERSION
+$versionParts = $versionRaw.Split(".")
 While ($versionParts.Length -lt 3) {
     $versionParts += "0"
 }
@@ -27,7 +27,6 @@ $changes = $Matches.Changes `
 
 New-Package -VersionInfo @{
     Version = $version
-    FileUrl = "http://low-priority.appspot.com/ollydumpex/OllyDumpEx.zip"
-    Checksum = $checksum
+    FileUrl = "https://github.com/lowpriority/release_archive/blob/master/ollydumpex/OllyDumpEx_v$versionRaw.zip?raw=true"
     ReleaseNotes = $changes
 }
