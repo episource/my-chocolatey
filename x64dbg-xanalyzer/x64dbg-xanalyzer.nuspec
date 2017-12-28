@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>ThunderCls</authors>
+    <owners>episource</owners>
+    
+    <title>xAnalyzer (x64dbg Plugin)</title>
+    <summary>xAnalyzer is capable of doing various types of analysis over the static code of the debugged application to give more extra information to the user.</summary>
+    <tags>admin x64dbg dbg debug debugger reversing plugin</tags>
+    
+    <!--<iconUrl>https://the.url/</iconUrl>-->
+    <projectUrl>https://github.com/ThunderCls/xAnalyzer</projectUrl>
+    <projectSourceUrl>https://github.com/ThunderCls/xAnalyzer</projectSourceUrl>
+    <bugTrackerUrl>https://github.com/ThunderCls/xAnalyzer/issues</bugTrackerUrl>
+    <!--<docsUrl>https://the.url/</docsUrl>-->
+    <!--<mailingListUrl>https://the.url/</mailingListUrl>-->
+    
+    <licenseUrl>https://github.com/ThunderCls/xAnalyzer/blob/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright (c) 2016 ThunderCls</copyright>
+    
+    <description>
+xAnalyzer is a plugin for the x86/x64 x64dbg debugger by @@mrexodia. This plugin is based on APIInfo Plugin by @@mrfearless, although some improvements and additions have been made. xAnalyzer is capable of doing various types of analysis over the static code of the debugged application to give more extra information to the user. This plugin is going to make an extensive API functions call detections to add functions definitions, arguments and data types as well as any other complementary information, something close at what you get with OllyDbg analysis engine, in order to make it even more comprehensible to the user just before starting the debuggin task.
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="x64dbg" version="[2017.12.24.1329,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
