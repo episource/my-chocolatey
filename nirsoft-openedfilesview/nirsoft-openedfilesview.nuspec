@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Nir Sofer</authors>
+    <owners>episource</owners>
+    
+    <title>OpenedFilesView</title>
+    <summary>iew opened/locked files in your system (sharing violation issues) </summary>
+    <tags>admin file sharing debug nirsoft</tags>
+    
+    <iconUrl>http://www.nirsoft.net/utils/openedfilesview_icon.gif</iconUrl>
+    <projectUrl>http://www.nirsoft.net/utils/opened_files_view.html</projectUrl>
+    
+    <licenseUrl>http://www.nirsoft.net/utils/opened_files_view.html</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright (c) 2006 - 2017 Nir Sofer</copyright>
+    
+    <description>
+= Description =
+OpenedFilesView displays the list of all opened files on your system. For each opened file, additional information is displayed: handle value, read/write/delete access, file position, the process that opened the file, and more...
+Optionally, you can also close one or more opened files, or close the process that opened these files.
+
+This utility is especially useful if you try to delete/move/open a file and you get one of the following error messages:
+
+ * Cannot delete [filename]: There has been a sharing violation. The source or destination file may be in use.
+ * Cannot delete [filename]: It is being used by another person or program. Close any programs that might be using the file and try again. 
+
+When you get one of these error messages, OpenedFilesView will show you which process lock your file. Closing the right process will solve this problem. optionally, you can also release the file by closing the handle from OpenedFilesView utility. However, be aware that after closing a file in this way, the program that opened the file may become unstable, and even crash. 
+
+= System Requirements =
+This utility works properly on Windows 2000, Windows XP, Windows 2003/2008, Windows Vista, Windows 7, Windows 8, Windows 10. On 64-bit systems, you have to use the 64-bit version of OpenedFilesView. Older versions of Windows (NT/9x/ME) are not supported. Also, you must have administrative privilege in order to run this utility. 
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+        <dependency id="shimgen.extension" version="[2.0.3,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
