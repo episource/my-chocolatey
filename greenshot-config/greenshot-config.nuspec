@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>1.0.0</version>
+    <authors>episource</authors>
+    <owners>episource</owners>
+    
+    <title>Greenshot Custom Configuration</title>
+    <summary>My default greenshot configuration.</summary>
+    <tags>admin greenshot screenshot screen capture</tags>
+    
+    <iconUrl>http://getgreenshot.org/favicon.ico</iconUrl>
+    
+    <licenseUrl>https://opensource.org/licenses/Apache-2.0</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    
+    <description>
+Important: All configuration options can be overwritten by
+"%APPDATA%\greenshot\greenshot.ini". If this file already contains a specific
+configuration option, the defaults of this package won't be applied. Close
+greenshot, remove your user configuration file and restart greenshot to force
+all defaults to be effective.
+
+Configuration:
+ * All plugins disabled except "External command"
+ * Default destination: Editor+Clipboard
+ * Default output file format: png
+ * Clipboard format: png,dib
+ * Disable check for updates
+    </description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="greenshot" version="[1.2.10.6,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
