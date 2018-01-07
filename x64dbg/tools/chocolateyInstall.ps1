@@ -74,7 +74,7 @@ Set-Acl $settingsDir $acl
             # link already exists - nothing to do
         } Else {
             If ($dirLnkItem) {
-                $dirBak = "$symSrc.bak"
+                $dirBak = "$dirLnk.bak"
                 Remove-Item -R $dirBak -ErrorAction SilentlyContinue
                 Move-Item $dirLnk $dirBak
             }
