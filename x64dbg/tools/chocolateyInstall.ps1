@@ -10,74 +10,77 @@ Set-AutoShim -Pattern "**" -Mode Ignore | Out-Null
 Install-StartMenuLink -LinkName "x64dbg (x86)" -TargetPath "$toolsDir\release\x32\x32dbg.exe"
 Install-StartMenuLink -LinkName "x64dbg (x64)" -TargetPath "$toolsDir\release\x64\x64dbg.exe"
 
-# create world-writable settings at an central place
+
+# Access rules & security identifiers needed below
+$usersSid = [SecurityIdentifier]::new([WellKnownSidType]::BuiltinUsersSid, $null)
+$ownersSid = [SecurityIdentifier]::new([WellKnownSidType]::CreatorOwnerSid, $null)
+$usersCreateChildren = [FileSystemAccessRule]::new($usersSid, "CreateFiles,CreateDirectories", "ContainerInherit,ObjectInherit", "None", "Allow")
+$usersCanModifyChildren = [FileSystemAccessRule]::new($usersSid, "Modify", "ContainerInherit,ObjectInherit", "None", "Allow")
+$usersCantDeleteThis = [FileSystemAccessRule]::new($usersSid, "Delete", "None", "None", "Deny")
+$ownersCanModifyChildren = [FileSystemAccessRule]::new($ownersSid, "Modify", "ContainerInherit,ObjectInherit", "None", "Allow")
+
+# world-writable data directory at an central place
 $settingsDir = "$env:ProgramData/x64dbg"
 New-Item -Type Directory "$env:ProgramData/x64dbg" -ErrorAction SilentlyContinue
 $acl = Get-Acl $settingsDir
-$usersSid = [SecurityIdentifier]::new([WellKnownSidType]::BuiltinUsersSid, $null)
-$usersFullControlAr = [FileSystemAccessRule]::new($usersSid, "FullControl", "ContainerInherit,ObjectInherit", "None", "Allow")
-$acl.SetAccessRule($usersFullControlAr)
+$acl.SetAccessRule($usersCanModifyChildren)
 Set-Acl $settingsDir $acl
 
-@( "x64", "x32" ) | % {
+@( "x64", "x32" ) | % {     
     $platform = $_
+    $binDir = "$toolsDir/release/$platform"
     
-    # world-writable symbols directory
-    $symSrc = "$toolsDir/release/$platform/symbols"
-    $symSrcItem = Get-Item $symSrc -ErrorAction SilentlyContinue
-    $symTgt = "$settingsDir/symbols"
-    
-    If ($symSrcItem -and $symSrcItem.Attributes -match "ReparsePoint") {
-        # link already exists - nothing to do
-    } Else {
-        If ($symSrcItem) {
-            $symBak = "$symSrc.bak"
-            Remove-Item -R $symBak -ErrorAction SilentlyContinue
-            Move-Item $symSrc $symSrcBak
-        }
-        
-        New-Item -Type Directory $symTgt -ErrorAction SilentlyContinue
-        New-Item -Path $symSrc -ItemType SymbolicLink -Value $symTgt
-    }
-        
-    # world-writable configuration file
+    # permit temporary files in program directories
+    $acl = Get-Acl $binDir
+    $acl.SetAccessRule($usersCreateChildren)
+    $acl.SetAccessRule($ownersCanModifyChildren)
+    Set-Acl $binDir $acl
+  
+    # world-writable configuration files
     @( "${platform}dbg.ini", "snowman.ini" ) | %{
-        $iniSrc = "$toolsDir/release/$platform/$_"
-        $iniSrcItem = Get-Item $iniSrc -ErrorAction SilentlyContinue
-        $iniTgt = "$settingsDir/$(Split-Path -Leaf $iniSrc)"
+        $iniLnk = "$binDir/$_"
+        $iniLnkItem = Get-Item $iniLnk -ErrorAction SilentlyContinue
+        $iniFile = "$settingsDir/$_"
+        New-Item -Type File $iniFile -ErrorAction SilentlyContinue
+        "" >> $iniFile
         
-        If ($iniSrcItem -and $iniSrcItem.Attributes -match "ReparsePoint" ) {
+        # prevent users from deleting config files
+        $acl = Get-Acl $iniFile
+        $acl.SetAccessRule($usersCantDeleteThis)
+        Set-Acl $iniFile $acl
+        
+        If ($iniLnkItem -and $iniLnkItem.Attributes -match "ReparsePoint" ) {
             # link already exists - nothing to do
         } Else {
-            If ($iniSrcItem) {
-                $iniBak = "$iniSrc.bak"
+            If ($iniLnkItem) {
+                $iniBak = "$iniLnk.bak"
                 Remove-Item $iniBak -ErrorAction SilentlyContinue
-                Move-Item $iniSrc $iniBak
+                Move-Item $iniLnk $iniBak
             }
             
-            "" >> $iniTgt
-            New-Item -Path $iniSrc -ItemType SymbolicLink -Value $iniTgt
+            
+            New-Item -Path $iniLnk -ItemType SymbolicLink -Value $iniFile
         }
     }
     
-    # world-writable database directory
-    # note: currently db compression needs to be disabled for x64dbg to pickup
-    # database files from this directory
-    $dbSrc = "$toolsDir/release/$platform/db"
-    $dbSrcItem = Get-Item $dbSrc -ErrorAction SilentlyContinue
-    $dbTgt = "$settingsDir/db"
-    
-    If ($dbSrcItem -and $dbSrcItem.Attributes -match "ReparsePoint") {
-        # link already exists - nothing to do
-    } Else {
-        If ($dbSrcItem) {
-            $dbBak = "$dbSrc.bak"
-            Remove-Item -R $dbBak -ErrorAction SilentlyContinue
-            Move-Item $dbSrc $dbSrcBak
-        }
+    # world-writable data directories
+    @( "db", "memdumps", "symbols" ) | %{
+        $dirLnk = "$binDir/$_"
+        $dirLnkItem = Get-Item $dirLnk -ErrorAction SilentlyContinue
+        $dirTgt = "$settingsDir/$_"
+        New-Item -Type Directory $dirTgt -ErrorAction SilentlyContinue
         
-        New-Item -Type Directory $dbTgt -ErrorAction SilentlyContinue
-        New-Item -Path $dbSrc -ItemType SymbolicLink -Value $dbTgt
+        If ($dirLnkItem -and $dirLnkItem.Attributes -match "ReparsePoint") {
+            # link already exists - nothing to do
+        } Else {
+            If ($dirLnkItem) {
+                $dirBak = "$symSrc.bak"
+                Remove-Item -R $dirBak -ErrorAction SilentlyContinue
+                Move-Item $dirLnk $dirBak
+            }
+            
+            New-Item -Path $dirLnk -ItemType SymbolicLink -Value $dirTgt
+        }
     }
 }
 
