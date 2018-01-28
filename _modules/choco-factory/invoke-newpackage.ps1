@@ -57,6 +57,8 @@ function Invoke-NewPackage {
     $ProgressBarState.max = $templates | Measure-Object | 
         Select-Object -ExpandProperty Count
     
+    
+    $FailedPkgList = @()
     ForEach ($nuspec in $templates) {
         $ProgressBarState.status = "Building $($nuspec.FullName)"
         _Update-Progress $ProgressBarState
@@ -64,17 +66,24 @@ function Invoke-NewPackage {
         $scriptPath  = Join-Path $nuspec.DirectoryName "_build.ps1"
         $templateDir = Split-Path -Parent $scriptPath
         
+        Write-Host "Building package: $templateDir"
         If (Test-Path $scriptPath) {
             # Invoke accompanying build script
             Try {
                 & $scriptPath | Out-Null
             } Catch {
                 Write-Warning "Failed to build nuspec: $templateDir`n$_"
+                $FailedPkgList += $templateDir
             }
         } Else {
             # Build stand-alone nuspec template
             Write-Verbose "Building stand-alone nuspec template: $nuspec"
             New-Package -TemplateDir $templateDir | Out-Null
         }
+    }
+    
+    If ($FailedPkgList) {
+        Write-Warning `
+            "The following packages failed to build:`n`t$([String]::Join("`n`t", $FailedPkgList)))"
     }
 }
