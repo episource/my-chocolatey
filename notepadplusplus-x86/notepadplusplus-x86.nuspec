@@ -4,7 +4,7 @@
   <metadata>
     <id>@Package.id</id>
     <version>@Package.version</version>
-    <title>Notepad++</title>
+    <title>Notepad++ (x86)</title>
     <authors>Don Ho</authors>
     <owners>episource</owners>
     <projectUrl>https://notepad-plus-plus.org/</projectUrl>
