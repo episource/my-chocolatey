@@ -4,7 +4,7 @@
   <metadata>
     <id>@Package.id</id>
     <version>1.3.0</version>
-    <title>Notepad++ Custom Configuration (x64)</title>
+    <title>Notepad++ Custom Configuration (x86)</title>
     <authors>episource</authors>
     <owners>episource</owners>
     <projectUrl>https://notepad-plus-plus.org/</projectUrl>
@@ -32,7 +32,7 @@ v1.0.0 : Initial version
     <summary>My default notepad++ configuration.</summary>
     <tags>admin notepad notepadplusplus notepad-plus-plus notepad++ editor scintilla config</tags>
     <dependencies>
-      <dependency id="notepadplusplus" version="[7.5.4,)"/>
+      <dependency id="notepadplusplus-x86" version="[7.5.4,)"/>
       <dependency id="notepadplusplus-config-common" version="[1.3.0,)"/>
     </dependencies>
   </metadata>
