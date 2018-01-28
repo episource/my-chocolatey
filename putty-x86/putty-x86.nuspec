@@ -4,7 +4,7 @@
   <metadata>
     <id>@Package.id</id>
     <version>@Package.version</version>
-    <title>Putty</title>
+    <title>Putty (x86)</title>
     <authors>Simon Tatham</authors>
     <owners>episource</owners>
     <projectUrl>http://www.chiark.greenend.org.uk/~sgtatham/putty/</projectUrl>
