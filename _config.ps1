@@ -31,3 +31,11 @@ $privateConfigPath = "$PSScriptRoot/_config.private.ps1"
 If (Test-Path -Path $privateConfigPath) {
     . $privateConfigPath
 }
+
+# Make sure, that all tls protocols are supported, excluding insecure Ssl3
+[Net.ServicePointManager]::SecurityProtocol = 0
+[Net.SecurityProtocolType].GetEnumNames() | ?{
+    $_ -ne "SystemDefault" -and $_ -ne "Ssl3" } | %{
+    [Net.ServicePointManager]::SecurityProtocol = `
+    [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]$_ 
+}
