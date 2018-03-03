@@ -84,6 +84,10 @@ function Invoke-GithubApi {
             } Catch {
                 # Invoke-WebRequest throws @ 4XX
                 $response = $_.Exception.Response
+                if ($response -eq $Null) {
+                    Write-Error $_
+                    return
+                }
             }
                 
             Write-Debug "Raw response:`n$(_Format-Object $response)"

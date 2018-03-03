@@ -19,7 +19,7 @@
 RootModule = 'github-api.psm1'
 
 # Version number of this module.
-ModuleVersion = '2016.10.01'
+ModuleVersion = '2018.03.01'
 
 # ID used to uniquely identify this module
 GUID = 'ac2595ca-456c-472e-bc22-8301da84b73c'
@@ -120,6 +120,7 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
+v2018.03.01 - Better reporting of connection problems
 v2016.10.01 - Initial version
 "@
 
