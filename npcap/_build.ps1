@@ -16,7 +16,7 @@ If ($apiToken) {
 $release = Invoke-GithubApi @apiArgs
 
 $distVersion = $release.tag_name.TrimStart("v")
-$versionParts = $distVersion.Split(".")
+$versionParts = $distVersion.replace("-r", ".").Split(".")
 While ($versionParts.Length -lt 3) {
     $versionParts += "0"
 }
