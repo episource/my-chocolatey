@@ -98,7 +98,7 @@ function Get-VtScan{
     $urlReportPermalink = $null 
     $fileScanId         = $null
     
-    $delaySec           = 1
+    $delaySec           = 5
     
     For (; $scanTimeout -gt $now; $now = Get-Date) {
         $percent = 100 - ($scanTimeout - $now).TotalSeconds / `
@@ -109,7 +109,7 @@ function Get-VtScan{
         }
         
         # We are interested in the file scan result, but me must query the url
-        # reprot first
+        # report first
         If ($fileScanId) {
             Write-Progress -Activity $pActivity `
                 -Id $ProgressBarId -ParentId ($ProgressBarId - 1) `
@@ -149,7 +149,7 @@ function Get-VtScan{
             Write-Verbose "Result not yet available - Retrying!"
             
             $now = Get-Date
-            $delayTimeout = $now + $delay
+            $delayTimeout = $now + $delaySec
             For (; $delayTimeout -gt $now; $now = Get-Date) {
                 If ($now -gt $scanTimeout) {
                     Write-Error "VirusTotal timeout ($vtTimeout)."
@@ -165,7 +165,7 @@ function Get-VtScan{
                 Start-Sleep -Seconds 1
             }
             
-            $delay *= 2
+            $delaySec *= 2
         } Else {
             If ($fileScanId) { # A file scan result has been retrieved
                 # Too few results:
