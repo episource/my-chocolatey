@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>@Package.Id</id>
+    <version>@Package.Version</version>
+    <authors>Martin Přikryl</authors>
+    <owners>episource</owners>
+    
+    <title>winscp</title>
+    <summary>WinSCP is a popular SFTP client and FTP client for Microsoft Windows</summary>
+    <tags>admin sftp s3 file copy scp ssh explorer system tool</tags>
+    
+    <iconUrl>https://winscp-static-746341.c.cdn77.org/assets/images/logos/logo.png?v=2658</iconUrl>
+    <projectUrl>https://winscp.net/eng/index.php</projectUrl>
+    <projectSourceUrl>https://github.com/winscp/winscp</projectSourceUrl>
+    <bugTrackerUrl>https://winscp.net/tracker/buglist.cgi?bug_status=NEW&amp;bug_status=ASSIGNED&amp;bug_status=REOPENED&amp;order=bugs.priority</bugTrackerUrl>
+    <docsUrl>https://winscp.net/eng/docs/start</docsUrl>
+    <mailingListUrl>https://winscp.net/forum/index.php</mailingListUrl>
+    
+    <licenseUrl>https://winscp.net/eng/docs/license</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright © 2000–2018 Martin Přikryl</copyright>
+    
+    <description>Copy file between a local computer and remote servers using FTP, FTPS, SCP, SFTP, WebDAV or S3 file transfer protocols.</description>
+    <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
+
+    <dependencies>
+        <dependency id="startmenu.extension" version="[1.1.1,)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
