@@ -47,7 +47,7 @@ Install-ChocolateyEnvironmentVariable -VariableType "Machine" `
 # Register JDK to be found by launchers looking at oracles registry paths
 # (e.g. launch4j)
 $versionOut = & "$toolsDir/bin/java.exe" -version 2>&1
-$versionOut[0] -match "^java version ""(?<INTERNAL_VERSION>[^""]+)""$" | Out-Null
+$versionOut[0] -match "^java version ""(?<INTERNAL_VERSION>[^""]+)""" | Out-Null
 $internalVersion = $Matches.INTERNAL_VERSION
 
 $jdk = @{
