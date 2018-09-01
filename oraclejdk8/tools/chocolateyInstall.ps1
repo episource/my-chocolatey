@@ -33,11 +33,11 @@ Install-Shim -Name "javac8" -Path "$toolsDir\bin\javac.exe"
 Install-Shim -Name "jdb8" -Path "$toolsDir\bin\jdb.exe"
 
 # Install start menu shortcuts for jmc + jvisualvm
-$startJconsole = @{ LinkName="Java8/Java Monitoring & Management Console (JConsole)"; TargetPath="$toolsDir\bin\jconsole.exe" }
+$startJconsole = @{ LinkName="Java8/Java Monitoring & Management Console (JConsole, JDK8)"; TargetPath="$toolsDir\bin\jconsole.exe" }
 Install-StartMenuLink @startJconsole
-$startJvisualvm = @{ LinkName="Java8/Java VisualVM"; TargetPath="$toolsDir\bin\jvisualvm.exe" }
+$startJvisualvm = @{ LinkName="Java8/Java VisualVM  (JDK8)"; TargetPath="$toolsDir\bin\jvisualvm.exe" }
 Install-StartMenuLink @startJvisualvm
-$startJmc = @{ LinkName="Java8/Java Mission Control"; TargetPath="$toolsDir\bin\jmc.exe" }
+$startJmc = @{ LinkName="Java8/Java Mission Control (JDK8)"; TargetPath="$toolsDir\bin\jmc.exe" }
 Install-StartMenuLink @startJmc
    
 # Register JDK to be found by launchers looking at oracles registry paths
