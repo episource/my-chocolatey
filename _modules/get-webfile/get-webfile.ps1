@@ -57,6 +57,8 @@ Turn off the progress reports.
 .NOTES 	
     Get-WebFile (aka wget for PowerShell)	
     History:
+    v2018.10.01 - Use BITS (Background Intelligent Transfer Service) if
+                  applicable
     v2017.03.01 - Add support for sending cookies
     v2016.11.01 - Ignore URI fragments (http://my.uri/file#fragment -> use
                   'file' as name instead of 'file#fragment')
@@ -138,7 +140,8 @@ function Get-WebFile {
             -Id $ProgressBarId -ParentId ($ProgressBarId - 1) -PercentComplete 0
     
     $vtResult = $null
-	if ($Url -match "^https?://") {
+    $isHttp = $Url -match "^https?://"
+	if ($isHttp) {
    		$request = [System.Net.HttpWebRequest]::Create($Url)
         
         #http://stackoverflow.com/questions/518181/too-many-automatic-redirections-were-attempted-error-message-when-using-a-httpw
@@ -188,7 +191,7 @@ function Get-WebFile {
             Write-Verbose "Redirect detected: $Url`n => $realUrl"
         }
         
-        If ($realUrl -match "^https?://") {
+        If ($isHttp) {
             If ($VTApiKey -ne $null -and $VtApiKey -ne "") {
                 $vtResult = $null
                 Try {
@@ -258,8 +261,20 @@ function Get-WebFile {
                 
             $OutFile = Join-Path $OutDir $fileName
         }
+        
+        $isDone = $false
+        if ($isHttp) {
+            try {
+                Start-BitsTransfer -Source $realUrl -Destination $OutFile `
+                    -Description "Downloading $realUrl..." `
+                    -RetryTimeout 7200 -RetryInterval 60
+                $isDone = $(Get-Item $OutFile).Length -gt 0
+            } catch {
+                # just continue with $isDone = $false
+            }
+        }
      
-        if ( ($response.StatusCode -eq 200) `
+        if ( -not $isDone -and ($response.StatusCode -eq 200) `
                 -or ($response.StatusCode -eq [System.Net.FtpStatusCode]::OpeningData)) {
             $outStream = New-Object System.IO.FileStream $OutFile, Create
         
