@@ -8,12 +8,15 @@ $ErrorAction = "Stop"
 . $PSScriptRoot/../_root.ps1
 
 
-$apiArgs = @{ ApiEndpoint = "/repos/nmap/npcap/releases/latest" }
+$apiArgs = @{ ApiEndpoint = "/repos/nmap/npcap/releases" }
 $apiToken = Get-Variable "CFGithubToken" -ErrorAction SilentlyContinue
 If ($apiToken) {
     $apiArgs.ApiToken = $apiToken.Value
 }
-$release = Invoke-GithubApi @apiArgs
+$releaseList = Invoke-GithubApi @apiArgs
+$release = $releaseList `
+    | ?{ $_.name -match "npcap \d+(\.\d+){1,2}(-r\d+)?" } `
+    | Select-Object -first 1
 
 $distVersion = $release.tag_name.TrimStart("v")
 $versionParts = $distVersion.replace("-r", ".").Split(".")
