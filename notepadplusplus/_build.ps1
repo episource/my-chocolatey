@@ -14,7 +14,7 @@ function _Resolve-Uri($pageUri, $linkUri) {
 $downloadPageUrl = "https://notepad-plus-plus.org/download/"
 $versionRegex    = '<title>Notepad\+\+ v(?<VERSION>\d+(?:\.\d+){0,2}) - Current Version</title>'
 $zipPackageRegex = '>Notepad\+\+ zip package 64-bit x64<'
-$hashFileRegex   = '>SHA-1/MD5 digests for binary packages<'
+$hashFileRegex   = '>SHA-256/SHA-1/MD5 digests for binary packages<'
 
 
 # Query download page
@@ -30,32 +30,32 @@ While ($versionParts.length -lt 3) {
 }
 $version = [String]::Join(".", $versionParts)
 
-$zipUrl  = $null
-$sha1Url = $null
+$zipUrl = $null
+$shaUrl = $null
 ForEach ($link in $htmlResponse.Links) {
     $href = _Resolve-Uri $downloadPageUrl $link.href
     If ($link.outerHTML -match $zipPackageRegex) {
         $zipUrl = $href
     } ElseIf ($link.outerHTML -match $hashFileRegex) {
-        $sha1Url = $href
+        $shaUrl = $href
     }
 }
-If (-not $zipUrl -or -not $sha1Url) {
+If (-not $zipUrl -or -not $shaUrl) {
     Write-Error "Failed to parse notepad++ download page - download link not found!"
     return
 }
 
 
 # Extract checksum
-$sha1 = Get-ChecksumFromWeb -Url $sha1url -Filename (Split-Path -Leaf $zipUrl) `
-    -ValueOnly
+$sha = Get-ChecksumFromWeb -Url $shaurl -ChecksumType Sha256 `
+    -Filename (Split-Path -Leaf $zipUrl) -ValueOnly
 
 
 # Format version info
 $versionInfo = @{
     Version  = $version
     FileUrl  = $zipUrl
-    Checksum = "sha1:$sha1"
+    Checksum = "sha256:$sha"
 }
 Write-Verbose `
     "Notepad++ version info`n$($versionInfo | Format-List | Out-String)"
