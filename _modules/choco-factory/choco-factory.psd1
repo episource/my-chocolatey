@@ -19,7 +19,7 @@
 RootModule = 'choco-factory.psm1'
 
 # Version number of this module.
-ModuleVersion = '2017.04.03'
+ModuleVersion = '2019.03'
 
 # ID used to uniquely identify this module
 GUID = 'ff3deb25-4873-4bd2-9bfc-71fdddd7df14'
@@ -121,6 +121,7 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
+v2019.03    - Add ChecksumType option to `Get-ChecksumFromWeb`
 v2017.04.03 - Make `Select-BuildDependency` return detailed results including
               the actual package version
 v2017.04.02 - Make `Select-BuildDependency` use nuget version strings

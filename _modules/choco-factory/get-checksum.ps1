@@ -20,6 +20,15 @@ $ErrorAction = "Stop"
 Import-Module import-callerpreference
 
 
+enum ChecksumType
+{
+    Any
+    Md5
+    Sha1
+    Sha256
+}
+
+
 <#
 .SYNOPSIS
     Retrieves a file's checksum from a checksum file found at some url.
@@ -55,7 +64,9 @@ function Get-ChecksumFromWeb {
         [Parameter(Mandatory=$false)] [Switch]   $EnableRegex
             = $false,
         [Parameter(Mandatory=$false)] [Switch]   $ValueOnly
-            = $false
+            = $false,
+        [Parameter(Mandatory=$false)] [ChecksumType] $ChecksumType
+            = [ChecksumType]::Any
     )
     Import-CallerPreference
     If (-not (Get-Variable -Scope script -Name lastFileContent `
@@ -99,8 +110,22 @@ function Get-ChecksumFromWeb {
     
     
     return $Filename | %{
-        $checksumRegex = "(?m)^(?<CHECKSUM>[a-zA-Z0-9]+)\s+\*?(?<FILENAME>$_)"
-
+        $fileName = $_
+        $checksumRegex = "(?m)^(?<CHECKSUM>[a-zA-Z0-9]+)\s+\*?(?<FILENAME>$fileName)"
+        switch ($ChecksumType) {
+            Md5 {
+                $checksumRegex = "(?m)^(?<CHECKSUM>[a-zA-Z0-9]{32})\s+\*?(?<FILENAME>$fileName)"
+            }
+            
+            Sha1 {
+                $checksumRegex = "(?m)^(?<CHECKSUM>[a-zA-Z0-9]{40})\s+\*?(?<FILENAME>$fileName)"
+            }
+            
+            Sha256 {
+                $checksumRegex = "(?m)^(?<CHECKSUM>[a-zA-Z0-9]{64})\s+\*?(?<FILENAME>$fileName)"
+            }
+        }
+        
         If (-not ($checksumFileContent -match $checksumRegex)) {
             Write-Error "Failed to retrieve checksum of $_!"
             return $null
