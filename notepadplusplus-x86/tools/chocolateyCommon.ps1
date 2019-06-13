@@ -11,7 +11,7 @@ $exe       = Join-Path $destDir "notepad++.exe"
 $startName = "notepad++"
 $menuKey   = "HKCR:/*/shell/chocolatey.$env:chocolateyPackageName"
 $menuEntry = "Open with notepad++"
-$menuCmd   = "$exe %1"
+$menuCmd   = "$exe `"%1`""
 $menuIcon  = $exe
 
 If (-not (Test-Path HKCR:)) {
