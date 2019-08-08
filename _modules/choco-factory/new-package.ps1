@@ -36,10 +36,14 @@ $defaultPrepareFilesHook = {
     $csumList    = @() + $_['Checksum']
     
     For ($i = 0; $i -lt $urlList.Length; $i++) {
-        $params = @{ Url = $urlList[$i]; AutoUnzip = $true }
+        $params = @{ Url = $urlList[$i]; AutoUnzip = $AutoUnzip }
         
         If ($i -lt $cookiesList.Length -and $cookiesList[$i]) {
             $params.Cookies = $cookiesList[$i]
+        }
+        
+        If ($i -lt $csumList.Length -and $csumList[$i]) {
+            $params.Checksum = $csumList[$i]
         }
         
         Import-PackageResource @params
@@ -120,13 +124,15 @@ $defaultPrepareFilesHook = {
     description above) is available via the variables $_ and $PkgData. 
         $_, $PkgData: All PkgData also available within the nuspec template
                       (see Description above).
+        $AutoUnzip:   Value of the `AutoUnzip` parameter
     
     The behavior of the default hook (see below) is made available as cmdlet
     Import-PackageResource.
     
     If no hook is provided, all files specified by the $PkgData.FileUrl array
     are downloaded to the package's tools folder. If the file extension is
-    '.zip', the file is extracted and deleted afterwards.
+    '.zip' and `AutoUnzip` isn't `false`, the file is extracted and deleted
+    afterwards.
     
     If the global variable $global:CFApiKey is set, the default hook queries
     VirusTotal.com prior to downloading a file.
@@ -176,6 +182,10 @@ $defaultPrepareFilesHook = {
     
     This parameter defaults to $global:CFNoScan if defined. Otherwise to $false.
     
+.PARAMETER AutoUnzip
+    OPTIONAL - Unzip *.zip files to the within TargetDirectory. Defaults to
+    `true`.
+    
 .PARAMETER VTApiKey
     OPTIONAL - VirusTotal.com API key: See $NoScan for details.
     
@@ -221,6 +231,9 @@ function New-Package {
         [Switch] $NoScan = (_Get-Var 'global:CFNoScan' $false),
         
         [Parameter(Mandatory=$false)]
+        [Switch] $AutoUnzip = $true,
+        
+        [Parameter(Mandatory=$false)]
         [String] $VTApiKey = (_Get-Var 'global:CFVtApiKey' $null)
     )   
     Import-CallerPreference -AdditionalPreferences @{ ProgressBarId = 0 }
@@ -230,6 +243,7 @@ function New-Package {
             $script:pkgData = $pkgData
             $PrepareFilesHook.InvokeWithContext(@{}, @(
                     [PSVariable]::new('_', $pkgData)
+                    [PSVariable]::new('AutoUnzip', $AutoUnzip)
                     [PSVariable]::new('PkgData', $pkgData)     
                     [PSVariable]::new('DefaultHook', $defaultPrepareFilesHook)
                 )

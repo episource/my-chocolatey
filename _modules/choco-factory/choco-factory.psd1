@@ -19,7 +19,7 @@
 RootModule = 'choco-factory.psm1'
 
 # Version number of this module.
-ModuleVersion = '2019.03'
+ModuleVersion = '2019.08'
 
 # ID used to uniquely identify this module
 GUID = 'ff3deb25-4873-4bd2-9bfc-71fdddd7df14'
@@ -121,6 +121,10 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
+v2019.08    - Properly pass checksum to package hook
+            - Add option `AutoUnzip` to `New-Package`
+            - Get-VersionInfoFromGithub: Include older releases
+            - Export tokenize-semver
 v2019.03    - Add ChecksumType option to `Get-ChecksumFromWeb`
 v2017.04.03 - Make `Select-BuildDependency` return detailed results including
               the actual package version

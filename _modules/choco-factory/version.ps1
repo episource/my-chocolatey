@@ -19,6 +19,98 @@ $ErrorAction = "Stop"
 
 Import-Module import-callerpreference
 
+<#
+.SYNOPSIS
+    Extracts version tokens of a semver version string.
+    
+.DESCRIPTION
+    Parses semver version string and extracts the following tokens:
+      - MAJOR
+      - MINOR
+      - PATCH
+      - REVISION
+      - PRERELEASE
+      - BUILD
+
+    
+.PARAMETER Version
+    Semver version string.
+    
+.PARAMETER SortablePrerelease
+    Set `PRERELEASE` to U+10FFFF = 0xdbffdfff (highest UTF-16 code point) if
+    no PRERELEASE information is available. This simplifies sorting:
+    Versions without prerelease string have higher priority!
+    
+.PARAMETER OmitMissing
+    Omit missing components from the returned hash table instead of setting them
+    to $null. MAJOR/MINOR/PATCH are not omited if `DefaultMajorMinorPatch` is
+    used as well.
+    
+.PARAMETER DefaultMajorMinorPatch
+    Set MAJOR/MINOR/PATCH to `0` instead of `$null` if missing.
+    
+.OUTPUT
+    Ordered dictionary with values of the tokens listed above. Omited tokens
+    are returned as `$null`.
+    
+#>
+function Get-SemverTokens {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [String] $version,
+        
+        [Parameter(Mandatory=$false)]
+        [Switch] $sortablePrerelease = $false,
+        
+        [Parameter(Mandatory=$false)]
+        [Switch] $omitMissing = $false,
+        
+        [Parameter(Mandatory=$false)]
+        [Switch] $defaultMajorMinorPatch = $false
+    )
+    Import-CallerPreference
+    
+    # version without prerelease string has higher priority
+    # example: 1.0.0-SNAPSHOT < 1.0.0
+    # U+10FFFF = 0xdbffdfff is the highest UTF-16 code point
+    # see also https://en.wikipedia.org/wiki/UTF-16
+    $tokens = [ordered]@{ 
+        "MAJOR"      = $null
+        "MINOR"      = $null
+        "PATCH"      = $null
+        "REVISION"   = $null
+        "PRERELEASE" = $null
+        "BUILD"      = $null
+    }
+    $keyList = @() + $tokens.Keys
+    
+    if ($sortablePrerelease) {
+        $tokens["PRERELEASE"] = "$([char]0xdbff)$([char]0xdfff)"
+    }
+    if ($defaultMajorMinorPatch) {
+        $tokens["MAJOR"] = 0
+        $tokens["MINOR"] = 0
+        $tokens["PATCH"] = 0
+    }
+    
+    if ($version -match $_semverRegex) {
+        $keyList | %{
+            if ($Matches[$_]) {
+                $tokens[$_] = $Matches[$_]
+            }
+        }
+    } else {
+        write-error "Failed to parse version string: $version"
+    }
+    
+    if ($omitMissing) {
+        $keyList | ?{ $tokens[$_] -eq $null } | %{ $tokens.Remove($_) }
+    }
+    
+    return $tokens
+}
+
 
 # See ConvertTo-SortedByVersion
 class VersionComparer : System.Collections.Generic.IComparer[Object] {
@@ -52,37 +144,17 @@ class VersionComparer : System.Collections.Generic.IComparer[Object] {
     }
     
     [Int] CompareImpl([String]$v1, [String]$v2) {
-        function tokenize-semver($version) {
-            If ($version -match $_semverRegex) {
-                $tokens = @(
-                    $Matches.MAJOR,
-                    $Matches.MINOR,
-                    $Matches.PATCH 
-                )
-                
-                # Might not exist -> bracket operator!
-                $tokens += $Matches['REVISION']
-                If ($Matches['PRERELEASE']) {
-                    $tokens += $Matches['PRERELEASE']
-                } Else {
-                    # version without prerelease string has higher priority
-                    # example: 1.0.0-SNAPSHOT < 1.0.0
-                    # U+10FFFF = 0xdbffdfff is the highest UTF-16 code point
-                    # see also https://en.wikipedia.org/wiki/UTF-16
-                    $tokens += "$([char]0xdbff)$([char]0xdfff)"
-                }
-                
-                $tokens += $Matches['BUILD']
-                return $tokens
-            }
-            
-            return $null
+        try {    
+            $v1Tokens = Get-SemverTokens $v1 -SortablePrerelease -ErrorAction "Stop"
+            $v1Tokens = @() + $v1Tokens.Values
+        } catch {
+            $v1Tokens = $v1.Split(".-+")
         }
         
-        $v1Tokens  = tokenize-semver $v1
-        $v2Tokens  = tokenize-semver $v2
-        If (-not ($v1Tokens -and $v2Tokens)) {
-            $v1Tokens = $v1.Split(".-+")
+        try {    
+            $v2Tokens = Get-SemverTokens $v2 -SortablePrerelease -ErrorAction "Stop"
+            $v2Tokens = @() + $v2Tokens.Values
+        } catch {
             $v2Tokens = $v2.Split(".-+")
         }
 
@@ -129,7 +201,7 @@ public static class StableSort {
 .SYNOPSIS
     Sort by version information.
     
-.Descending
+.DESCRIPTION
     Sorts a list of version strings or a list of objects with associated version
     information. The default sort order is ascending.
     

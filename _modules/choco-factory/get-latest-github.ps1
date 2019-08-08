@@ -55,6 +55,18 @@ Import-Module github-api
     
     The default is to return the tag name with any leading 'v' removed.
     
+.PARAMETER Limit
+    OPTIONAL - The number of releases to search for the given assets. A value
+    of `1` means only the latest release should be searched.
+    
+    Defaults to `1`.
+    
+.PARAMETER FindMax
+    OPTIONAL - Search up to `Limit` releases to find the release with the
+    highest version number.
+    
+    Defaults to `$false`.
+    
 .OUTPUT
     A VersionInfo structure according to the description of the Export-Package
     cmdlet.
@@ -80,24 +92,69 @@ function Get-VersionInfoFromGithub {
         [ScriptBlock] $ExtractVersionHook = $null,
         
         [Parameter(Mandatory=$false)]
+        [Int] $Limit = 1,
+        
+        [Parameter(Mandatory=$false)]
+        [Switch] $FindMax = $false,
+        
+        [Parameter(Mandatory=$false)]
         [String] $ApiToken = (_Get-Var 'global:CFGithubToken' $null)
     )
     Import-CallerPreference -AdditionalPreferences @{ ProgressBarId = 0 }
     
-    
-    $args = @{
-        GithubResponse = Invoke-GithubApi `
-            -ApiEndpoint "/repos/$($repo.Trim('/'))/releases/latest" `
+    $maxVi = $null
+    $firstAssetError = $null
+    for ($pageIndex = 0; $pageIndex -lt $Limit; $pageIndex++) {
+        $ghResponse = Invoke-GithubApi `
+            -ApiEndpoint "/repos/$($repo.Trim('/'))/releases?per_page=1&page=$pageIndex" `
             -ApiToken $ApiToken
-        File           = $File
-        EnableRegex   = $EnableRegex
+        
+        $args = @{
+            GithubResponse = $ghResponse
+            File           = $File
+            EnableRegex    = $EnableRegex
+            NoValidation   = $true
+        }
+        
+        if ($ExtractVersionHook) {
+            $args.ExtractVersionHook = $ExtractVersionHook
+        }
+        
+        $vi = $null
+        try {
+            $vi = Get-VersionInfoFromGithubResponse @args
+        } catch {
+            write-verbose "Release[$pageIndex] didn't match:`n$_"
+        
+            if (-not $firstAssetError) {
+                $firstAssetError = $_
+            }
+        }
+        
+        if ($vi) {
+            if (-not ($vi.Version -match $_semverRegex)) {
+                Write-Error "$($vi.Version) does not comply with semver specification"
+                return
+            }
+            if (-not $FindMax) {
+                return $vi
+            }
+            
+            if (-not $maxVi) {
+                $maxVi = $vi
+            } else {
+                $vis = @() + $vi + $maxVi
+                $vis = ConvertTo-SortedByVersion $vis -Property "Version" -Descending
+                $maxVi = $vis[0]
+            }
+        }
     }
     
-    If ($ExtractVersionHook) {
-        $args.ExtractVersionHook = $ExtractVersionHook
+    if (-not $maxVi) {
+        Write-Error "No release has been found, that provides the requested files.`n$firstAssetError"
+        return
     }
-    
-    return Get-VersionInfoFromGithubResponse @args
+    return $maxVi
 }
 
 
@@ -120,6 +177,10 @@ function Get-VersionInfoFromGithub {
     
 .PARAMETER EnableRegex
     Interpret $File as regular expression.
+    
+.PARAMETER NoValidation
+    OPTIONAL - Disable validation of extracted version string. The only
+    validation currently implemented is checking against semver specification.
     
 .PARAMETER ExtractVersionHook
     A user defined script block to extract the version string from the release
@@ -161,6 +222,9 @@ function Get-VersionInfoFromGithubResponse {
         
         [Parameter(Mandatory=$false)]
         [Switch] $EnableRegex = $false,
+        
+        [Parameter(Mandatory=$false)]
+        [Switch] $NoValidation = $false,
         
         [Parameter(Mandatory=$false)] 
         [ScriptBlock] $ExtractVersionHook = { 
@@ -233,7 +297,7 @@ function Get-VersionInfoFromGithubResponse {
     
         # Extract and validate version
         $version = Invoke-ExtractVersionHook
-        If (-not ($version -match $_semverRegex)) {
+        If (-not $NoValidation -and -not ($version -match $_semverRegex)) {
             Write-Error "$version does not comply with semver specification"
             return
         }
