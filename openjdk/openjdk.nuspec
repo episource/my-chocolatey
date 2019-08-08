@@ -7,18 +7,18 @@
     <authors>Oracle Corporation</authors>
     <owners>episource</owners>
     
-    <title>Java SE Development Kit</title>
-    <summary>Official java development kit including the java runtime.</summary>
-    <tags>admin java jdk jre javase oracle runtime</tags>
+    <title>OpenJDK development kit</title>
+    <summary>Community builds using source code from OpenJDK project.</summary>
+    <tags>admin java jdk jre javase runtime</tags>
     
     <iconUrl>https://chocolatey.org/content/packageimages/jdk8.8.0.121.svg</iconUrl>
-    <projectUrl>http://www.oracle.com/technetwork/java/javase/downloads/index.html</projectUrl>
-    <bugTrackerUrl>http://bugs.java.com/</bugTrackerUrl>
-    <docsUrl>http://www.oracle.com/technetwork/java/api-141528.html</docsUrl>
+    <projectUrl>https://github.com/ojdkbuild/ojdkbuild</projectUrl>
+    <bugTrackerUrl>https://github.com/ojdkbuild/ojdkbuild</bugTrackerUrl>
+    <docsUrl>https://github.com/ojdkbuild/ojdkbuild</docsUrl>
     
-    <licenseUrl>http://www.oracle.com/technetwork/java/javase/terms/license/index.html</licenseUrl>
+    <licenseUrl>https://github.com/ojdkbuild/ojdkbuild/blob/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <copyright>Copyright © Oracle</copyright>
+    <copyright>Copyright ©</copyright>
     
     <description>All you need to build and run java applications.</description>
     <releaseNotes><![CDATA[@Package.ReleaseNotes]]></releaseNotes>
