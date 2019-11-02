@@ -3,48 +3,25 @@
 # Import my-chocolatey config & modules
 . $PSScriptRoot/../_root.ps1
 
-function _Resolve-Uri($pageUri, $linkUri) {
-    return New-object -TypeName System.Uri -ArgumentList `
-        @([System.Uri]$pageUri, $linkUri) | `
-        Select-Object -ExpandProperty "AbsoluteUri"
-}
-
 
 # Parameters for parsing the download page
-$downloadPageUrl = "https://notepad-plus-plus.org/download/"
-$versionRegex    = '<title>Notepad\+\+ v(?<VERSION>\d(?:\.\d){0,2}) - Current Version</title>'
-$zipPackageRegex = '>Notepad\+\+ zip package 32-bit x86<'
-$hashFileRegex   = '>SHA-256 digests of binary packages<'
+$githubRepo      = "notepad-plus-plus/notepad-plus-plus"
+$downloadPrefix  = "http://download.notepad-plus-plus.org/repository"
 
-
-# Query download page
-$htmlResponse    = Invoke-WebRequest -UseBasicParsing -Uri $downloadPageUrl
-
-If (-not ($htmlResponse.Content -match $versionRegex)) {
-    Write-Error "Failed to parse notepad++ download page - version not found"
-    return
+# Note: Scraping new notepad-plus-plus.org site is blocked by cloudflare
+$githubRelease   = Invoke-GithubApi `
+        -ApiEndpoint "/repos/$githubRepo/releases/latest" `
+        -ApiToken $global:CFGithubToken
+$tagVersion      = $githubRelease.tag_name -replace "^v"
+$fullVersion     = $tagVersion
+while ($fullVersion.Split('.').length -lt 3) {
+    $fullVersion += '.0'
 }
-$versionParts = @($Matches.VERSION.Split(".") | %{ [Int]$_ })
-While ($versionParts.length -lt 3) {
-    $versionParts += 0
-}
-$version = [String]::Join(".", $versionParts)
+$majorVersion = $fullVersion.Split('.')[0]
 
-$zipUrl = $null
-$shaUrl = $null
-ForEach ($link in $htmlResponse.Links) {
-    $href = _Resolve-Uri $downloadPageUrl $link.href
-    If ($link.outerHTML -match $zipPackageRegex) {
-        $zipUrl = $href
-    } ElseIf ($link.outerHTML -match $hashFileRegex) {
-        $shaUrl = $href
-    }
-}
-If (-not $zipUrl -or -not $shaUrl) {
-    Write-Error "Failed to parse notepad++ download page - download link not found!"
-    return
-}
-
+# Build download urls
+$zipUrl = "$downloadPrefix/$majorVersion.x/$tagVersion/npp.$tagVersion.bin.zip"
+$shaUrl = "$downloadPrefix/$majorVersion.x/$tagVersion/npp.$tagVersion.checksums.sha256"
 
 # Extract checksum
 $sha = Get-ChecksumFromWeb -Url $shaurl -ChecksumType Sha256 `
@@ -53,7 +30,7 @@ $sha = Get-ChecksumFromWeb -Url $shaurl -ChecksumType Sha256 `
 
 # Format version info
 $versionInfo = @{
-    Version  = $version
+    Version  = $fullVersion
     FileUrl  = $zipUrl
     Checksum = "sha256:$sha"
 }
