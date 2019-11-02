@@ -87,6 +87,9 @@ function Get-VersionInfoFromGithub {
         
         [Parameter(Mandatory=$false)]
         [Switch] $EnableRegex = $false,
+        
+        [Parameter(Mandatory=$false)]
+        [Switch] $IncludePreRelease = $false,
             
         [Parameter(Mandatory=$false)]
         [ScriptBlock] $ExtractVersionHook = $null,
@@ -108,6 +111,15 @@ function Get-VersionInfoFromGithub {
         $ghResponse = Invoke-GithubApi `
             -ApiEndpoint "/repos/$($repo.Trim('/'))/releases?per_page=1&page=$pageIndex" `
             -ApiToken $ApiToken
+        
+        if ($ghResponse.draft) {
+            $Limit++
+            continue
+        }        
+        if ($ghResponse.prerelease -and -not $IncludePreRelease) {
+            $Limit++
+            continue
+        }
         
         $args = @{
             GithubResponse = $ghResponse

@@ -19,7 +19,7 @@
 RootModule = 'choco-factory.psm1'
 
 # Version number of this module.
-ModuleVersion = '2019.08'
+ModuleVersion = '2019.11'
 
 # ID used to uniquely identify this module
 GUID = 'ff3deb25-4873-4bd2-9bfc-71fdddd7df14'
@@ -121,6 +121,7 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
+v2019.11    - Ignore github pre-releases per default, with option to include
 v2019.08    - Properly pass checksum to package hook
             - Add option `AutoUnzip` to `New-Package`
             - Get-VersionInfoFromGithub: Include older releases
