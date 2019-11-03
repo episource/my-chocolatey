@@ -11,8 +11,21 @@ Get-ChocolateyUnzip -FileFullPath $portableZip.FullName -Destination $destdir
 Remove-Item $portableZip
 
 # Run portable git post install script: It creates necessary hardlinks
+# First to some workarounds needed for the script to run properly during
+# chocolatey install.
+# Note: The post install script deletes itself causing a non zero exit code
+# ("The batch file cannot be found.") which in turn fails the chocolatey
+# installation. A temporary copy of the install script can be used as workarounds
+# as the file is deleted by (original) name.
+write-output "pre post-install!!!"
 Set-Location $destdir
-& ./git-bash.exe --no-needs-console --hide --no-cd --command=post-install.bat
+New-Item "dev/shm" -ItemType Directory | Out-Null
+New-Item "dev/mqueue" -ItemType Directory | Out-Null
+'export PATH="/mingw64/bin:$PATH"' | Out-File etc/post-install/00-path.post -Encoding ASCII
+
+Copy-Item post-install.bat post-install.tmp.bat | Out-Null
+& ./post-install.tmp.bat
+Remove-Item post-install.tmp.bat
 
 
 # Only create shims for the files listed in $withDefaultShim
