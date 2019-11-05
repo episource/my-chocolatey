@@ -2,7 +2,7 @@ $toolsDir = "$(Split-Path -Parent $MyInvocation.MyCommand.Definition)"
 Set-Location $toolsDir
 
 
-$msiArgs  = '/quiet /qn /norestart REBOOT=ReallySupress ADDLOCAL=ALL REMOVE=CrashReporter,ProtocolAssocGithub,ProtocolAssocSmartgit'
+$msiArgs  = '/quiet /qn /norestart REBOOT=ReallySupress ADDLOCAL=ALL REMOVE=CrashReporter'
 $validExitCodes = @(
     # https://msdn.microsoft.com/en-us/library/windows/desktop/aa376931(v=vs.85).aspx
     0,   # all ok
