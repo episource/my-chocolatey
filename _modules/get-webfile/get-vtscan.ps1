@@ -93,7 +93,7 @@ function Get-VtScan{
     $initialdelay    = New-TimeSpan -Seconds 1
     $delay           = $initialdelay
     
-    $contentLength      = _Get-ContentLength $Url
+    $contentLength   = _Get-ContentLength $Url
     if ( -not $contentLength ) {
         Write-Error "No file has been scanned. Failed to retrieve content length!"
         return

@@ -63,6 +63,7 @@ Turn off the progress reports.
                   (HTTP Head request)
                 - Use VirusTotal Api v3 beta (v2 ceised to reference file scan
                   results for files downloaded during url scan)
+                - Don't try bits transfer if head request is denied
     v2018.10.01 - Use BITS (Background Intelligent Transfer Service) if
                   applicable
     v2017.03.01 - Add support for sending cookies
@@ -231,7 +232,8 @@ function Get-WebFile {
         }
         
         $isDone = $false
-        if ($isHttp) {
+        $contentLength = _Get-ContentLength $Url # attempts head request
+        if ($isHttp -and $contentLength) {
             try {
                 Start-BitsTransfer -Source $realUrl -Destination $OutFile `
                     -Description "Downloading $realUrl..." `
