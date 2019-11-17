@@ -61,6 +61,8 @@ Turn off the progress reports.
     v2019.11.01 - Skip VirusTotal scan if file size is >32Mb
                 - Skip VirusTotal scan if file size cannot be retrieved
                   (HTTP Head request)
+                - Use VirusTotal Api v3 beta (v2 ceised to reference file scan
+                  results for files downloaded during url scan)
     v2018.10.01 - Use BITS (Background Intelligent Transfer Service) if
                   applicable
     v2017.03.01 - Add support for sending cookies

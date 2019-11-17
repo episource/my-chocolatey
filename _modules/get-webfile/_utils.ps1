@@ -40,3 +40,12 @@ function _Get-ContentLength($url) {
         return $null
     }
 }
+
+function _Get-Field($data, $query) {
+    try {
+        &$query $data
+    } catch {
+        write-debug "an error occured: $_"
+        return $null
+    }
+}
