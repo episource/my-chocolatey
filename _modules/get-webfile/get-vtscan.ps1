@@ -20,6 +20,7 @@
 Set-StrictMode -Version latest
 $ErrorActionPreference = "Stop"
 
+. $PSScriptRoot/_utils.ps1
 Import-Module import-callerpreference
 
 $vtApiUrlReport  = "http://www.virustotal.com/vtapi/v2/url/report"
@@ -28,6 +29,7 @@ $vtApiFileReport = "https://www.virustotal.com/vtapi/v2/file/report"
 # max. $vtLimit Requests / $vtLimitWindow permitted
 $vtLimit         = 4                       
 $vtLimitWindow   = New-TimeSpan -Minutes 1
+$vtSizeLimit     = 32000000 #32MB
 
 # timestamps of recent API invocations
 $global:GWFVirusTotalInvocations = @()
@@ -100,6 +102,15 @@ function Get-VtScan{
     
     $delaySec           = 5
     
+    $contentLength      = _Get-ContentLength $Url
+    if ( -not $contentLength ) {
+        Write-Error "No file has been scanned. Failed to retrieve content length!"
+        return
+    } elseif ( $contentLength -gt $vtSizeLimit ) {
+        Write-Error "No file has been scanned. Filesize > 32MB!"
+        return
+    }
+    
     For (; $scanTimeout -gt $now; $now = Get-Date) {
         $percent = 100 - ($scanTimeout - $now).TotalSeconds / `
             $vtTimeout.TotalSeconds * 100
@@ -144,8 +155,10 @@ function Get-VtScan{
                
         $responseCode = $apiResult | Select-Object `
             -ExpandProperty "response_code" -ErrorAction SilentlyContinue
-            
-        If ($responseCode -ne 1) {
+        
+        $hasFileScanId = _get-propexists $apiResult "filescan_id"
+        If ($responseCode -ne 1 -or ( 
+                $hasFileScanId -and -not $apiResult.filescan_id )) {
             Write-Verbose "Result not yet available - Retrying!"
             
             $now = Get-Date
@@ -293,14 +306,4 @@ function _Invoke-VtApi($ApiUrl, $Params, $AbsTimeout) {
     
     # Ups, we didn't receive HTTP 200 - Retry
     return _Invoke-VtApi -ApiUrl $ApiUrl -Params $Params -AbsTimeout $AbsTimeout
-}
-
-function _Format-Hash($Hash) {
-    $obj = New-Object psobject -Property $Hash
-    return _Format-Object $obj
-}
-
-function _Format-Object($Obj) {
-    $str = $Obj | Format-List | Out-String
-    return $str.Trim()
 }
