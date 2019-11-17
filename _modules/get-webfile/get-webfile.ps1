@@ -21,6 +21,7 @@
 Set-StrictMode -Version latest
 $ErrorActionPreference = "Stop"
 
+. $PSScriptRoot/_utils.ps1
 Import-Module import-callerpreference
 
 <# 
@@ -57,6 +58,12 @@ Turn off the progress reports.
 .NOTES 	
     Get-WebFile (aka wget for PowerShell)	
     History:
+    v2019.11.01 - Skip VirusTotal scan if file size is >32Mb
+                - Skip VirusTotal scan if file size cannot be retrieved
+                  (HTTP Head request)
+                - Use VirusTotal Api v3 beta (v2 ceised to reference file scan
+                  results for files downloaded during url scan)
+                - Don't try bits transfer if head request is denied
     v2018.10.01 - Use BITS (Background Intelligent Transfer Service) if
                   applicable
     v2017.03.01 - Add support for sending cookies
@@ -191,45 +198,7 @@ function Get-WebFile {
             Write-Verbose "Redirect detected: $Url`n => $realUrl"
         }
         
-        If ($isHttp) {
-            If ($VTApiKey -ne $null -and $VtApiKey -ne "") {
-                $vtResult = $null
-                Try {
-                    $vtResult = Get-VtScan -ApiKey $VtApiKey -Url $realUrl
-                } Catch {
-                    Write-Warning `
-                        "VirusTotal.com scan did not provide any results:`n$_"
-                }
-                    
-                If ($vtResult) {
-                    $urlInfo = $realUrl
-                    If ($Url -ne $realUrl) {
-                        $urlInfo += " (redirected from $Url)"
-                    }
-                    
-                    If ($vtResult.positives -eq 0) {
-                        Write-Verbose (
-                            "No threat found!`n -> $urlInfo`n" +
-                            "VirusTotal.com positives: " +
-                            "$($vtResult.positives)/$($vtResult.totalScans)`n" +
-                            "Detailed VirusTotal.com reports:`n" +
-                            " -> File: $($vtResult.permalink)`n" +
-                            " -> Url : $($vtResult.urlPermalink)"
-                        )
-                    } Else {
-                        Write-Warning -WarningAction Inquire (
-                            "Threat found!`n -> $urlInfo`n" +
-                            "VirusTotal.com positives: " +
-                            "$($vtResult.positives)/$($vtResult.totalScans)`n" +
-                            "Detailed VirusTotal.com reports:`n" +
-                            " -> File: $($vtResult.permalink)`n" +
-                            " -> Url : $($vtResult.urlPermalink)`n" +
-                            "Please check detailed report! Press [H] if unsure."
-                        )
-                    }
-                }
-            }
-        }
+        _Invoke-Virustotal
         
         if ( $OutFile -and -not (Split-Path $OutFile) ) {
             $OutFile = Join-Path $location $OutFile
@@ -263,7 +232,8 @@ function Get-WebFile {
         }
         
         $isDone = $false
-        if ($isHttp) {
+        $contentLength = _Get-ContentLength $Url # attempts head request
+        if ($isHttp -and $contentLength) {
             try {
                 Start-BitsTransfer -Source $realUrl -Destination $OutFile `
                     -Description "Downloading $realUrl..." `
@@ -332,4 +302,46 @@ function Get-WebFile {
     }
     
    	return  Get-Item $OutFile
+}
+
+function _Invoke-Virustotal() {
+    If ($isHttp) {
+        If ($VTApiKey -ne $null -and $VtApiKey -ne "") {
+            $vtResult = $null
+            Try {
+                $vtResult = Get-VtScan -ApiKey $VtApiKey -Url $realUrl
+            } Catch {
+                Write-Warning `
+                    "VirusTotal.com scan did not provide any results:`n$_"
+            }
+                
+            If ($vtResult) {
+                $urlInfo = $realUrl
+                If ($Url -ne $realUrl) {
+                    $urlInfo += " (redirected from $Url)"
+                }
+                
+                If ($vtResult.positives -eq 0) {
+                    Write-Verbose (
+                        "No threat found!`n -> $urlInfo`n" +
+                        "VirusTotal.com positives: " +
+                        "$($vtResult.positives)/$($vtResult.totalScans)`n" +
+                        "Detailed VirusTotal.com reports:`n" +
+                        " -> File: $($vtResult.permalink)`n" +
+                        " -> Url : $($vtResult.urlPermalink)"
+                    )
+                } Else {
+                    Write-Warning -WarningAction Inquire (
+                        "Threat found!`n -> $urlInfo`n" +
+                        "VirusTotal.com positives: " +
+                        "$($vtResult.positives)/$($vtResult.totalScans)`n" +
+                        "Detailed VirusTotal.com reports:`n" +
+                        " -> File: $($vtResult.permalink)`n" +
+                        " -> Url : $($vtResult.urlPermalink)`n" +
+                        "Please check detailed report! Press [H] if unsure."
+                    )
+                }
+            }
+        }
+    }
 }

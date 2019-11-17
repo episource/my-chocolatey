@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-Set-StrictMode –Version Latest
+Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $env:PSModulePath += ";$PSScriptRoot/_modules/"

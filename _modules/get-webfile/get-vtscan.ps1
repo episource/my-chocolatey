@@ -12,28 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Based on Version 3.7.3 taken from http://poshcode.org/3226
-# Authors: Joel Bennet, Bill Barry, Gwen Dallas, Mike Ling
-# Original license: CC0 "No Rights Reserved"
-# (see http://poshcode.org/Terms.html)
-
 Set-StrictMode -Version latest
 $ErrorActionPreference = "Stop"
 
+. $PSScriptRoot/_utils.ps1
 Import-Module import-callerpreference
 
-$vtApiUrlReport  = "http://www.virustotal.com/vtapi/v2/url/report"
-$vtApiFileReport = "https://www.virustotal.com/vtapi/v2/file/report"    
+$vtApiScanUrl  = "https://www.virustotal.com/api/v3/urls"
+$vtApiQueryFile = "https://www.virustotal.com/api/v3/files/"
+$vtApiReport = "https://www.virustotal.com/api/v3/analyses/"
+$vtGuiFile = "https://www.virustotal.com/gui/file/"   
+$vtGuiUrl = "https://www.virustotal.com/gui/url/"
 
 # max. $vtLimit Requests / $vtLimitWindow permitted
 $vtLimit         = 4                       
 $vtLimitWindow   = New-TimeSpan -Minutes 1
+$vtSizeLimit     = 32000000 #32MB
 
 # timestamps of recent API invocations
 $global:GWFVirusTotalInvocations = @()
 
-# consider the scan result incomplete if not this amount of scans is available
-$vtMinResults    = 50
 
 # VirusTotal timeout
 $vtTimeout       = New-TimeSpan -Minutes 5
@@ -57,10 +55,6 @@ $vtTimeout       = New-TimeSpan -Minutes 5
 .PARAMETER Url
     The file to be scaned. Must be a http(s) Url pointing to a public web
     resource.
-    
-.PARAMETER MinResults
-    The minimum number of scan results (scan engines) for a request to be
-    considered successful.
 
 .OUTPUT
     Returns a result hash with the following content:
@@ -81,8 +75,7 @@ function Get-VtScan{
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true)]  [String]$ApiKey,
-        [Parameter(Mandatory=$true)]  [String]$Url,
-        [Parameter(Mandatory=$false)]    [int]$MinResults = $vtMinResults
+        [Parameter(Mandatory=$true)]  [String]$Url
     )
     Import-CallerPreference -AdditionalPreferences @{ ProgressBarId = 0 }
     
@@ -92,129 +85,142 @@ function Get-VtScan{
     $now                = Get-Date
     $scanTimeout        = $now + $vtTimeout
     
-    $resultCount        = 0
-    $positveCount       = $null
-    $urlScanId          = $null
-    $urlReportPermalink = $null 
-    $fileScanId         = $null
+    $urlReportId        = $null
+    $urlId              = $null
+    $fileHash           = $null
+    $fileId             = $null
     
-    $delaySec           = 5
+    $initialdelay    = New-TimeSpan -Seconds 1
+    $delay           = $initialdelay
+    
+    $contentLength   = _Get-ContentLength $Url
+    if ( -not $contentLength ) {
+        Write-Error "No file has been scanned. Failed to retrieve content length!"
+        return
+    } elseif ( $contentLength -gt $vtSizeLimit ) {
+        Write-Error "No file has been scanned. Filesize > 32MB!"
+        return
+    }
     
     For (; $scanTimeout -gt $now; $now = Get-Date) {
         $percent = 100 - ($scanTimeout - $now).TotalSeconds / `
             $vtTimeout.TotalSeconds * 100
             
-        $params = @{
-            'apikey' = $ApiKey
-        }
+        $method = ""
+        $params = @{}
         
         # We are interested in the file scan result, but me must query the url
         # report first
-        If ($fileScanId) {
+        If ($fileHash) {
             Write-Progress -Activity $pActivity `
                 -Id $ProgressBarId -ParentId ($ProgressBarId - 1) `
-                -PercentComplete $percent -Status "Query file scan result..."
+                -PercentComplete $percent -Status "Awaiting file scan result..."
         
-            $vtApiUrl        = $vtApiFileReport
-            $params.resource = $fileScanId
-        } ElseIf ($urlScanId) {
+            $vtApiUrl = $vtApiQueryFile + $fileHash
+            $method = "GET"
+        } ElseIf ($urlReportId -or $fileId) {
             Write-Progress -Activity $pActivity `
                 -Id $ProgressBarId -ParentId ($ProgressBarId - 1) `
                 -PercentComplete $percent -Status "Awaiting url scan result..."
         
-            $vtApiUrl        = $vtApiUrlReport
-            $params.resource = $Url
+            if ($fileId) {
+                $vtApiUrl = $vtApiReport + $fileId
+            } else {
+                $vtApiUrl = $vtApiReport + $urlReportId
+            }
+            $method = "GET"
         } Else {
             Write-Progress -Activity $pActivity `
                 -Id $ProgressBarId -ParentId ($ProgressBarId - 1) `
-                -PercentComplete $percent -Status "Query url scan result..."
+                -PercentComplete $percent -Status "Request url scan.."
         
-            $vtApiUrl        = $vtApiUrlReport
-            $params.resource = $Url
-            $params.scan     = '1'
+            $vtApiUrl = $vtApiScanUrl
+            $method = "POST"
+            $params.url = $Url
         }
         
         Try {
-            $apiResult = _Invoke-VtApi -ApiUrl $vtApiUrl -Params $params `
-                -AbsTimeout $scanTimeout
+            $apiResult = _Invoke-VtApi -ApiUrl $vtApiUrl -Method $method `
+                -ApiKey $ApiKey -Params $params -AbsTimeout $scanTimeout
         } Catch {
-            Write-Error $_.Exception.Message
+            Write-Progress -Activity $pActivity `
+                -Id $ProgressBarId -ParentId ($ProgressBarId - 1) `
+                -Completed
+            Write-Error $_.Exception.Message -TargetObject $_
             return
         }
-               
-        $responseCode = $apiResult | Select-Object `
-            -ExpandProperty "response_code" -ErrorAction SilentlyContinue
-            
-        If ($responseCode -ne 1) {
-            Write-Verbose "Result not yet available - Retrying!"
-            
-            $now = Get-Date
-            $delayTimeout = $now + $delaySec
-            For (; $delayTimeout -gt $now; $now = Get-Date) {
-                If ($now -gt $scanTimeout) {
-                    Write-Error "VirusTotal timeout ($vtTimeout)."
-                    return
-                }
-            
-                $remainingSeconds = ($delayTimeout - $now).TotalSeconds
+                      
+        If (-not $urlReportId) {
+            $urlReportId = _Get-Field $apiResult { param($d) $d.data.id }
+            if ($urlReportId) {
+                $delay = $initialdelay
+            }
+        } ElseIf (-not $fileHash -and -not $fileId) {
+            # file_analysis_info may be returned file is scanned for first time
+            $fileId = _Get-Field $apiResult { param($d) $d.meta.file_analysis_info.id }
+            $fileHash = _Get-Field $apiResult { param($d) $d.meta.file_info.sha256 }
+            $urlId = _Get-Field $apiResult { param($d) $d.meta.url_info.id }
+            if ($fileHash) {
+                $delay = $initialdelay
+            }
+        } Else {
+            $type = _Get-Field $apiResult { param($d) $d.data.type }
+            $lastRes = _Get-Field $apiResult { param($d) $d.data.attributes.last_analysis_results }
+            $stats = _Get-Field $apiResult { param($d) $d.data.attributes.last_analysis_stats }
+            if ($type -ne "file") {
                 Write-Progress -Activity $pActivity `
                     -Id $ProgressBarId -ParentId ($ProgressBarId - 1) `
-                    -Status "Waiting for next request..." `
-                    -SecondsRemaining $remainingSeconds `
-                    
-                Start-Sleep -Seconds 1
+                    -Completed
+                Write-Error "Response object type is '$type', but expected 'file'!" `
+                    -TargetObject $apiResult
+                return
+            }
+            if (-not $fileHash) {
+                $fileHash = _Get-Field $apiResult { param($d) $d.meta.file_info.sha256 }
             }
             
-            $delaySec *= 2
-        } Else {
-            If ($fileScanId) { # A file scan result has been retrieved
-                # Too few results:
-                # When submitting a file to the web frontend, not all results
-                # are available immediately. Maybe it's the same with the API.
-                # => Retry
-                If ($resultCount -lt $MinResults) {
-                    Write-Verbose "Received $resultCount results. At least $MinResults wanted. Retrying!"
-                } Else { # We are done
-                    $result = @{
-                        'positives'    = $apiResult.positives
-                        'totalScans'   = $apiResult.total
-                        'sha256'       = $apiResult.sha256
-                        'permalink'    = $apiResult.permalink
-                        'urlPermalink' = $urlReportPermalink
-                    }
-                    
-                    Write-Verbose "Scan result:`n$(_Format-Hash $result)"
-                    Write-Progress -Activity $pActivity `
-                        -Id $ProgressBarId -ParentId ($ProgressBarId - 1) `
-                        -Completed
-                    
-                    return $result
-                }
+            
+            if ($lastRes -and $stats) {
+                $result = @{}
+                $result.positives = [int]$stats.suspicious + [int]$stats.malicious
+                $result.totalScans = $result.positives `
+                        + [int]$stats.harmless + [int]$stats.undetected
+                $result.sha256 = $fileHash
+                $result.permalink = $vtGuiFile + $fileHash
+                $result.urlPermalink = $vtGuiUrl + $urlId
                 
-            } Else { # A url scan result has been retrieved
-                $resultCount  = $apiResult | Select-Object `
-                    -ExpandProperty "total" -ErrorAction SilentlyContinue
-                $fileScanId         = $apiResult | Select-Object `
-                    -ExpandProperty "filescan_id" -ErrorAction SilentlyContinue
-                $urlScanId          = $apiResult | Select-Object `
-                    -ExpandProperty "scan_id" -ErrorAction SilentlyContinue
-                $urlReportPermalink = $apiResult | Select-Object `
-                    -ExpandProperty "permalink" -ErrorAction SilentlyContinue
-                    
-                If (($resultCount -gt 0) -and ($fileScanId -eq $null)) {
-                    Write-Error "No file has been scanned. Filesize > 32MB?"
-                    return
-                }
+                Write-Verbose "Scan result:`n$(_Format-Hash $result)"
+                Write-Progress -Activity $pActivity `
+                    -Id $ProgressBarId -ParentId ($ProgressBarId - 1) `
+                    -Completed
+                
+                return $result
+            }
+        }
+        
+        $now = Get-Date
+        $delayTimeout = $now + $delay
+        For (; $delayTimeout -gt $now; $now = Get-Date) {
+            If ($now -gt $scanTimeout) {
+                Write-Error "VirusTotal timeout ($vtTimeout)."
+                return
             }
         
+            $remainingSeconds = ($delayTimeout - $now).TotalSeconds
+            Write-Progress -Activity $pActivity `
+                -Id $ProgressBarId -ParentId ($ProgressBarId - 1) `
+                -Status "Awaiting next request..." `
+                -SecondsRemaining $remainingSeconds `
+                
+            Start-Sleep -Seconds 1
         }
+        $delay = New-TimeSpan -Seconds $($delay.Seconds * 3)
     }
     
-    Write-Error ("VirusTotal timeout ($vtTimeout):`n" + `
-        " -> Received $total/$MinScans scan results")
+    Write-Error "VirusTotal timeout ($vtTimeout)."
 }
 
-function _Invoke-VtApi($ApiUrl, $Params, $AbsTimeout) {
+function _Invoke-VtApi($ApiUrl, $Method, $ApiKey, $Params, $AbsTimeout) {
     $ProgressBarId = $ProgressBarId + 1
     $pActivity    = "Invoke VirusTotal.com API: $ApiUrl"
     $pId          = 1
@@ -257,30 +263,40 @@ function _Invoke-VtApi($ApiUrl, $Params, $AbsTimeout) {
         Write-Progress -Activity $pActivity `
             -Id $ProgressBarId -ParentId ($ProgressBarId - 1) `
             -Status "Awaiting API response..." -SecondsRemaining 0
-        Write-Debug "POST $ApiUrl`n$(_Format-Hash $Params)"
+        Write-Verbose "$Method x-apikey=$ApiKey from/to $ApiUrl`n$(_Format-Hash $Params)"
         
         $now = Get-Date
         $remainingSeconds = ($AbsTimeout - $now).TotalSeconds
-        $response = Invoke-WebRequest -Uri $ApiUrl -Method POST -Body $Params `
-            -TimeoutSec $remainingSeconds -Verbose:$false `
-            -UseBasicParsing
+        Try {
+            $response = Invoke-WebRequest -Uri $ApiUrl -Method $Method `
+                -Headers @{ "x-apikey" = $ApiKey } `
+                -Body $Params -TimeoutSec $remainingSeconds -Verbose:$false `
+                -UseBasicParsing -ErrorAction SilentlyContinue
+        } Catch {
+            $response = $_.Exception.Response
+        }
         
         Write-Debug "Raw response:`n$(_Format-Object $response)"
+        Write-Verbose "Virus total answer:`n$($response.Content)"
         
-        If ($response.StatusCode -eq 200) {
+        $sc = $response.StatusCode
+        If ($sc -eq 200) {
             $json = $response.Content | ConvertFrom-Json
             Write-Debug "Got VirusTotal.com API response:`n$(_Format-Object $json)"
        
             return $json
-        } ElseIf ($response.StatusCode -eq 403) {
-            Write-Error "Received HTTP 403 - Wrong ApiKey?"
+        } ElseIf ($sc -eq 401) {
+            Write-Error "Received HTTP 401 - Check ApiKey!" -TargetObject $response
             return
-        } ElseIf ($response.StatusCode -ne 204) {
-            Write-Error "Received HTTP $($response.StatusCode)"
+        } ElseIf ($sc -eq 403 ) {
+            Write-Error "Received HTTP 403 - Wrong ApiKey?" -TargetObject $response
+            return
+        } ElseIf ($sc -ne 429) {
+            Write-Error "Received HTTP $sc - giving up!" -TargetObject $response
             return
         }
         
-        Write-Verbose "Received HTTP $($response.StatusCode) - Retrying"
+        Write-Verbose "Received HTTP $sc - Retrying"
     } Finally {
         $invocations += Get-Date
         $global:GWFVirusTotalInvocations = $invocations
@@ -293,14 +309,4 @@ function _Invoke-VtApi($ApiUrl, $Params, $AbsTimeout) {
     
     # Ups, we didn't receive HTTP 200 - Retry
     return _Invoke-VtApi -ApiUrl $ApiUrl -Params $Params -AbsTimeout $AbsTimeout
-}
-
-function _Format-Hash($Hash) {
-    $obj = New-Object psobject -Property $Hash
-    return _Format-Object $obj
-}
-
-function _Format-Object($Obj) {
-    $str = $Obj | Format-List | Out-String
-    return $str.Trim()
 }
