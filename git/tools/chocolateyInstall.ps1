@@ -17,10 +17,9 @@ Remove-Item $portableZip
 # ("The batch file cannot be found.") which in turn fails the chocolatey
 # installation. A temporary copy of the install script can be used as workarounds
 # as the file is deleted by (original) name.
-write-output "pre post-install!!!"
 Set-Location $destdir
-New-Item "dev/shm" -ItemType Directory | Out-Null
-New-Item "dev/mqueue" -ItemType Directory | Out-Null
+New-Item "dev/shm" -Force -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
+New-Item "dev/mqueue" -Force -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
 'export PATH="/mingw64/bin:$PATH"' | Out-File etc/post-install/00-path.post -Encoding ASCII
 
 Copy-Item post-install.bat post-install.tmp.bat | Out-Null
