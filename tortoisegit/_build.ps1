@@ -18,9 +18,8 @@ $version = $Matches.VERSION
 $releaseNotesUrl     = "https://tortoisegit.org/docs/releasenotes/"
 $releaseNotesContent = Invoke-WebRequest -UseBasicParsing -Uri $releaseNotesUrl
 $releaseNotesContent -match `
-    "(?is)<pre[^>]*class=releasenotes>\s*(?<RELEASENOTES>.+)</pre>" | Out-Null
+    "(?is)<pre[^>]*class=releasenotes[^>]*>\s*(?<RELEASENOTES>.+)</pre>" | Out-Null
 $releaseNotes = $Matches.RELEASENOTES -replace '<[^>]+?/?>',''
-    
     
 New-Package -VersionInfo @{
     Version      = $version
