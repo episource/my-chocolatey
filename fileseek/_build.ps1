@@ -6,7 +6,8 @@
 
 $versionRegex         = 'Latest Version:\s*[^v]*v(?<VERSION>\d+(\.\d+){1,2})'
 $zipSha1Regex         = '<b>Without Installer \(ZIP\):</b>\s*(?<SHA1>[0-9a-fA-F]{40})'
-$downloadUrlTemplate  = 'https://binaryfortressdownloads.com/Download/BFSFiles/103/FileSeek-$rawVersion.zip'
+#$downloadUrlTemplate  = 'https://binaryfortressdownloads.com/Download/BFSFiles/103/FileSeek-$rawVersion.zip'
+$downloadUrlTemplate = 'https://www.binaryfortress.com/Data/Download/?package=fileseek&noinstall=1&log=103' #redirect to current version
 $downloadHtmlResponse = Invoke-WebRequest -UseBasicParsing `
     -Uri "https://www.fileseek.ca/Download/"
     
