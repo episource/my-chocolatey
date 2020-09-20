@@ -21,7 +21,7 @@ $majorVersion = $fullVersion.Split('.')[0]
 
 # Build download urls
 $zipUrl = "$downloadPrefix/$majorVersion.x/$tagVersion/npp.$tagVersion.bin.x64.zip"
-$shaUrl = "$downloadPrefix/$majorVersion.x/$tagVersion/npp.$tagVersion.checksums.sha256"
+$shaUrl = "$downloadPrefix/$majorVersion.x/$tagVersion/npp.$tagVersion.checksums.sha256.txt"
 
 # Extract checksum
 $sha = Get-ChecksumFromWeb -Url $shaurl -ChecksumType Sha256 `
