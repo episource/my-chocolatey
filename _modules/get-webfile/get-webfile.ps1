@@ -58,6 +58,7 @@ Turn off the progress reports.
 .NOTES 	
     Get-WebFile (aka wget for PowerShell)	
     History:
+    v2020.09.01 - Increase download buffer size
     v2019.11.01 - Skip VirusTotal scan if file size is >32Mb
                 - Skip VirusTotal scan if file size cannot be retrieved
                   (HTTP Head request)
@@ -252,7 +253,7 @@ function Get-WebFile {
                 [long]$goal = $response.ContentLength
                 $responseStream = $response.GetResponseStream()
           
-                [byte[]]$buffer = New-Object byte[] 4096
+                [byte[]]$buffer = New-Object byte[] (1024*1024)
                 [long]$total = [long]$count = 0
                 do {
                     $count = $responseStream.Read($buffer, 0, $buffer.Length);
