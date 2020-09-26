@@ -11,7 +11,7 @@ $hashfile = "$filename\.sha256"
 
 
 # Export the package (subject to _config.ps1)
-$vi = Get-VersionInfoFromGithub -Repo $repo -File $filename -EnableRegex -Limit 10 -FindMax |
+$vi = Get-VersionInfoFromGithub -Repo $repo -File $filename -EnableRegex -Limit 20 -FindMax |
       Add-ChecksumFromGithubAsset -ChecksumFileRegex $hashfile -Algorithm sha256
       
 # Massage the version identifier
