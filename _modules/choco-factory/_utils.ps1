@@ -44,6 +44,31 @@ $_semverRegex = @"
 ))?
 $
 "@
+$_semverRegexOptionalMinorPatch = @"
+(?x)^
+(?<MAJOR>(?:
+    0|(?:[1-9]\d*)
+))
+(?:\.
+(?<MINOR>(?:
+    0|(?:[1-9]\d*)
+))
+(?:\.
+(?<PATCH>(?:
+    0|(?:[1-9]\d*)
+)))?)?
+(?:\.
+(?<REVISION>(?:
+    0|(?:[1-9]\d*)
+)))?
+(?:-(?<PRERELEASE>
+    [0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*
+))?
+(?:\+(?<BUILD>
+    [0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*
+))?
+$
+"@
 
 $_nupkgRegex = $_semverRegex -replace '\^','^(?<pkgId>[^\.]+(?:\.[^0-9]+)?)\.(?<pkgVersion>' -replace '\$',').nupkg$'
 

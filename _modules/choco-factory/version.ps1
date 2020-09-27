@@ -49,6 +49,8 @@ Import-Module import-callerpreference
 .PARAMETER DefaultMajorMinorPatch
     Set MAJOR/MINOR/PATCH to `0` instead of `$null` if missing.
     
+.PARAMETER TolerantParsing
+    Tolerate missing minor and patch versions.
 .OUTPUT
     Ordered dictionary with values of the tokens listed above. Omited tokens
     are returned as `$null`.
@@ -67,7 +69,10 @@ function Get-SemverTokens {
         [Switch] $omitMissing = $false,
         
         [Parameter(Mandatory=$false)]
-        [Switch] $defaultMajorMinorPatch = $false
+        [Switch] $defaultMajorMinorPatch = $false,
+        
+        [Parameter(Mandatory=$false)]
+        [Switch] $tolerantParsing = $false
     )
     Import-CallerPreference
     
@@ -94,7 +99,12 @@ function Get-SemverTokens {
         $tokens["PATCH"] = 0
     }
     
-    if ($version -match $_semverRegex) {
+    $regex = $_semverRegex
+    if ($tolerantParsing) {
+        $regex = $_semverRegexOptionalMinorPatch
+    }
+    
+    if ($version -match $regex) {
         $keyList | %{
             if ($Matches[$_]) {
                 $tokens[$_] = $Matches[$_]
@@ -145,14 +155,14 @@ class VersionComparer : System.Collections.Generic.IComparer[Object] {
     
     [Int] CompareImpl([String]$v1, [String]$v2) {
         try {    
-            $v1Tokens = Get-SemverTokens $v1 -SortablePrerelease -ErrorAction "Stop"
+            $v1Tokens = Get-SemverTokens $v1 -SortablePrerelease -TolerantParsing -ErrorAction "Stop"
             $v1Tokens = @() + $v1Tokens.Values
         } catch {
             $v1Tokens = $v1.Split(".-+")
         }
         
         try {    
-            $v2Tokens = Get-SemverTokens $v2 -SortablePrerelease -ErrorAction "Stop"
+            $v2Tokens = Get-SemverTokens $v2 -SortablePrerelease -TolerantParsing -ErrorAction "Stop"
             $v2Tokens = @() + $v2Tokens.Values
         } catch {
             $v2Tokens = $v2.Split(".-+")
