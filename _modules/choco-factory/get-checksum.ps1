@@ -89,9 +89,9 @@ function Get-ChecksumFromWeb {
 
     # Cache last web request to accomodate Add-ChecksumFromWeb which might
     # perform repeated requests for the same set of urls
-    If ($script:lastFileContent.Url -eq $Url.ToString()) {
-        Write-Verbose "Using cached checksum file!"
+    If ($script:lastFileContent.Url -eq ($Url -join ";")) {
         $checksumFileContent = $script:lastFileContent.Content
+        Write-Verbose "Using cached checksum file!`nUrls: $Url`nContent:`n$checksumFileContent"
     } Else {
         $checksumFileContent = ""
     
@@ -104,7 +104,7 @@ function Get-ChecksumFromWeb {
             $checksumFileContent += "`n" + $checksumWebResponse.ToString()
         }
         
-        $script:lastFileContent.Url     = $Url.ToString()
+        $script:lastFileContent.Url     = $Url -join ";"
         $script:lastFileContent.Content = $checksumFileContent
     }
     

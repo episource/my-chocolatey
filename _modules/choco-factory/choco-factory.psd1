@@ -19,7 +19,7 @@
 RootModule = 'choco-factory.psm1'
 
 # Version number of this module.
-ModuleVersion = '2020.09'
+ModuleVersion = '2020.09.01'
 
 # ID used to uniquely identify this module
 GUID = 'ff3deb25-4873-4bd2-9bfc-71fdddd7df14'
@@ -121,6 +121,7 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
+v2020.09.01 - Fix caching of checksum files
 v2020.09    - Optionally parse versions strings not fully semver compliant
 v2019.11    - Ignore github pre-releases per default, with option to include
 v2019.08    - Properly pass checksum to package hook
