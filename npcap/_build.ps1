@@ -19,7 +19,8 @@ $release = $releaseList `
     | Select-Object -first 1
 
 $distVersion = $release.tag_name.TrimStart("v")
-$versionParts = $distVersion.replace("-r", ".").Split(".")
+$versionParts = $distVersion.replace("-r", ".").Split(".") `
+    | % { $_ -replace "^0+$","0" }
 While ($versionParts.Length -lt 3) {
     $versionParts += "0"
 }
