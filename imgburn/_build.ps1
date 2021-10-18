@@ -12,7 +12,7 @@ Select-BuildDependency -Name "7zip" -Version "16.4.0" | Out-Null
 $dlIndexUrl = "http://www.imgburn.com/index.php?act=download"
 $dlIndexRaw = Invoke-WebRequest -UseBasicParsing $dlIndexUrl
 
-$dlIndexRaw -match "(?<FILEURL>http://download.imgburn.com/SetupImgBurn_(?<VERSION>(?:\d+\.){2,3}\d+).exe)" | %{
+$dlIndexRaw -match "(?<FILEURL>https://download.imgburn.com/SetupImgBurn_(?<VERSION>(?:\d+\.){2,3}\d+).exe)" | %{
     If (-not $_) { Write-Error "Failed to parse imgburn's web page." }
 }
 $fileUrl = $Matches.FILEURL
