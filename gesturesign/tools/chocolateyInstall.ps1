@@ -5,13 +5,6 @@ $destdir = "$(Split-Path -Parent $MyInvocation.MyCommand.Definition)"
 $startMenu = @{ LinkName="GestureSign"; TargetPath="$destdir\GestureSign.exe" }
 
 
-# Extract GestureSign
-Set-Location $destdir
-$setupExe = Get-Item "GestureSignSetup-*.exe"
-Get-ChocolateyUnzip -FileFullPath $setupExe.FullName -Destination $destdir
-Remove-Item $setupExe
-Remove-Item -Recurse '$PLUGINSDIR'
-
 # Don't create any shims
 Set-AutoShim -Pattern "**" -Mode Ignore | Out-Null
 

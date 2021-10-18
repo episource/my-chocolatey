@@ -22,7 +22,7 @@ function Normalize-Version($versionString) {
 
 
 $repo = "TransposonY/GestureSign"
-$filenameRegex = "^GestureSignSetup-\d(\.\d)+\.zip$"
+$filenameRegex = "^GestureSign-\d(\.\d)+-Portable\.zip$"
 
 $apiArgs = @{ ApiEndpoint = "/repos/$repo/releases" }
 $apiToken = Get-Variable "CFGithubToken" -ErrorAction SilentlyContinue
