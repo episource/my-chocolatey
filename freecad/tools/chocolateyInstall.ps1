@@ -3,7 +3,7 @@ $ErrorAction = "Stop"
 $toolsDir = "$(Split-Path -Parent $MyInvocation.MyCommand.Definition)"
 
 
-$installerExe = Get-Item "$toolsDir/*-installer.exe"
+$installerExe = Get-Item "$toolsDir/*-installer1?.exe"
 Get-ChocolateyUnzip -FileFullPath $installerExe.FullName -Destination $toolsDir
 Remove-Item $installerExe
 Remove-Item "$toolsDir/uninstall.exe"

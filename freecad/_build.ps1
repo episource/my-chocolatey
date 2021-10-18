@@ -8,5 +8,5 @@ $ErrorAction = "Stop"
 . $PSScriptRoot/../_root.ps1
 
 
-Get-VersionInfoFromGithub -Repo "FreeCAD/FreeCAD" -File "FreeCAD[-_](?<VERSION>\d+\.\d+\.\d+)(?:\.[0-9a-zA-Z]+)?[-_](?:WIN[-_])?x64[-_](?:setup|installer)\.exe" -EnableRegex |
+Get-VersionInfoFromGithub -Repo "FreeCAD/FreeCAD" -File "FreeCAD[-_](?<VERSION>\d+\.\d+\.\d+)(?:\.[0-9a-zA-Z]+)?[-_](?:WIN[-_])?x64[-_](?:setup|installer1?)\.exe" -EnableRegex |
 New-Package
