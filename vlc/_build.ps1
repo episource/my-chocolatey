@@ -7,7 +7,7 @@
 $fileListUrl = "http://download.videolan.org/vlc/last/win64"
 $fileList = Invoke-Webrequest -UseBasicParsing $fileListUrl
 
-$zipRegex = "vlc-(?<VERSION>\d+(?:\.\d+){1,2})-win64\.zip"
+$zipRegex = "vlc-(?<VERSION>\d+(?:\.\d+){1,3})-win64\.zip"
 $zipUrl = $null
 $sha256Url = $null
 $version = $null
