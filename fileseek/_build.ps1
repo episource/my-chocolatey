@@ -5,7 +5,7 @@
 
 
 $versionRegex         = 'Latest Version:\s*[^v]*v(?<VERSION>\d+(\.\d+){1,2})'
-$zipSha1Regex         = '<b>Without Installer \(ZIP\):</b>\s*(?<SHA1>[0-9a-fA-F]{40})'
+$zipSha1Regex         = '<b>Without Installer \(ZIP\) SHA1:</b> <code class="FontNormalMinus3">(?<SHA1>[0-9a-fA-F]{40})'
 #$downloadUrlTemplate  = 'https://binaryfortressdownloads.com/Download/BFSFiles/103/FileSeek-$rawVersion.zip'
 $downloadUrlTemplate = 'https://www.binaryfortress.com/Data/Download/?package=fileseek&noinstall=1&log=103' #redirect to current version
 $downloadHtmlResponse = Invoke-WebRequest -UseBasicParsing `
@@ -28,20 +28,23 @@ If (-not ($downloadHtmlResponse.Content -match $zipSha1Regex)) {
 $sha1 = $Matches.SHA1
 
 
-$changesRegex        = "(?si)(?<CHANGELOG><h1.+FileSeek Change Log</h1>.+First public version</li>\s*</ul>)"
+$changesRegex        = "(?si)(?<CHANGELOG><h1.+FileSeek Change Log</h1>.+</ul>.*?Next Page)"
 $changesHtmlResponse = Invoke-WebRequest -UseBasicParsing `
     -Uri "https://www.fileseek.ca/ChangeLog/"
 If (-not ($changesHtmlResponse.Content -match $changesRegex)) {
     Throw "Failed to parse fileseek download page: changelog not found"
 }
 $changelog = $Matches.CHANGELOG `
-    -replace '<h1[^>]*>([^<]+)</h1>','# $1' `
-    -replace '<h2[^>]*>([^<]+)</h2>','## $1' `
+    -replace '<h1[^>]*>([^<]+)</h1>',("`n"+'# $1'+"`n") `
+    -replace '<h2[^>]*>([^<]+)</h2>',("`n"+'## $1'+"`n") `
+    -replace '<h3[^>]*>([^<]+)</h3>',("`n"+'## $1'+"`n") `
     -replace '<ul[^>]*>\s*','' `
     -replace '</ul>','' `
     -replace '<li>',' * ' `
     -replace '</li>','' `
     -replace '&bull;','-' `
+    -replace '</div>','' `
+    -replace '<div.*?>',''
 
 
 New-Package @{
