@@ -8,7 +8,7 @@ $ErrorAction = "Stop"
 . $PSScriptRoot/../_root.ps1
 
 
-$dlIndexUrl = "http://speedcrunch.org/download.html"
+$dlIndexUrl = "https://heldercorreia.bitbucket.io/speedcrunch/download.html"
 $dlIndexRaw = Invoke-WebRequest -UseBasicParsing $dlIndexUrl
 
 # don't use the portable build - prefer the installer: the config file location
