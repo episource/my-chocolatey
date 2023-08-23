@@ -30,7 +30,11 @@ $ErrorActionPreference = "Stop"
         
 .PARAMETER Path
     Where to search for packages. Subdirectories are searched recursively.
-           
+    
+.PARAMETER Exclude
+    Array of filter patterns matched against nuspec directory path relative
+    to Path. Matching packages are excluded.
+    
 .OUTPUT
     The paths of the nupkgs that have been built.
            
@@ -38,7 +42,8 @@ $ErrorActionPreference = "Stop"
 function Invoke-NewPackage {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$false)] [String]      $Path = $(Get-Location)
+        [Parameter(Mandatory=$false)] [String]      $Path = $(Get-Location),
+        [Parameter(Mandatory=$false)] [String[]]    $Exclude = @()
     )   
     Import-CallerPreference -AdditionalPreferences @{ ProgressBarId = 0 }
     
@@ -52,8 +57,19 @@ function Invoke-NewPackage {
     }
     _Update-Progress $ProgressBarState -noIncrease
     
-    
-    $templates = Get-ChildItem -Path $Path -Filter "*.nuspec" -Recurse
+    $absPath = _Get-AbsolutePath $Path
+    $templates = Get-ChildItem -Path $absPath -Filter "*.nuspec" -Recurse | ? {
+        $p = $(_Get-AbsolutePath $_.FullName)
+        if ($p.StartsWith($absPath)) {
+            $p = $p.Substring($absPath.length).TrimStart("\")
+        }
+        ForEach ($ex in $Exclude) {
+            if ($p -like $ex) {
+                return $false
+            }
+        }
+        return $true
+    }
     $ProgressBarState.max = $templates | Measure-Object | 
         Select-Object -ExpandProperty Count
     

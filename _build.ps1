@@ -27,5 +27,5 @@ if (-not $NoTest) {
     Assert-Admin
 }
 
-Invoke-NewPackage -Path $PSScriptRoot
+Invoke-NewPackage -Path $PSScriptRoot -Exclude @("_disabled\*", "_template\*")
 Publish-Packages -AssumeVm:$AssumeVm -NoTest:$NoTest
