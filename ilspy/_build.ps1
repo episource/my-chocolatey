@@ -10,7 +10,7 @@ $ErrorAction = "Stop"
 
 # Query github API to get url and version of the latest release
 $repo = 'icsharpcode/ILSpy'
-$filename = "ILSpy_[bB]inaries.*?(?<VERSION>\d+(?:\.\d+){1,3})\.zip"
+$filename = "ILSpy_[bB]inaries.*?(?<VERSION>\d+(?:\.\d+){1,3})-x64\.zip"
 
 
 # Export the package (subject to _config.ps1)
