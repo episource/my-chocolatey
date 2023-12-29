@@ -121,6 +121,7 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
+v2023.12.01 - Handle truncated version number in nupkg file names
 v2020.09.01 - Fix caching of checksum files
 v2020.09    - Optionally parse versions strings not fully semver compliant
 v2019.11    - Ignore github pre-releases per default, with option to include

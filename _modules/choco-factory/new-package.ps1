@@ -429,8 +429,6 @@ function New-Package {
             }
         }
         
-        $nupkgTmpFile = _Get-AbsolutePath ( Join-Path $pkgData.BuildDir $nupkgName )
-        $nupkgOutFile = _Get-AbsolutePath (  Join-Path $OutDir $nupkgName )
         
         $ProgressBarState.Activity = "Building $($pkgData.Id)-$($pkgData.Version)..."
         _Update-Progress $ProgressBarState
@@ -498,7 +496,8 @@ function New-Package {
             
         
         # prepare output
-        If (-not (Test-Path $nupkgTmpFile)) {
+        $nupkgTmpFile = Get-Item "*.nupkg"
+        If (-not $nupkgTmpFile) {
             Write-Error "Nupkg has not been built: $nupkgTmpFile"
             return
         }
@@ -506,6 +505,7 @@ function New-Package {
             New-Item -Path $OutDir -ItemType Directory | Out-Null
         }
         
+        $nupkgOutFile = _Get-AbsolutePath (  Join-Path $OutDir $nupkgName )
         Move-Item -Path $nupkgTmpFile -Destination $nupkgOutFile -Force
     } Finally {
         $ProgressBarState.status = "Cleaning up..."
