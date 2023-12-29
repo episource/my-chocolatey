@@ -3,7 +3,7 @@ $ErrorAction = "Stop"
 $toolsDir = "$(Split-Path -Parent $MyInvocation.MyCommand.Definition)"
 
 
-$installerExe = Get-Item "$toolsDir/Wireshark-win64-*.exe"
+$installerExe = Get-Item "$toolsDir/Wireshark-latest-x64.exe"
 Get-ChocolateyUnzip -FileFullPath $installerExe.FullName -Destination $toolsDir
 Remove-Item $installerExe
 Remove-Item "$toolsDir/uninstall.exe"
