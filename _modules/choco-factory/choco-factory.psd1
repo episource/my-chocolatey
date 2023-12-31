@@ -19,7 +19,7 @@
 RootModule = 'choco-factory.psm1'
 
 # Version number of this module.
-ModuleVersion = '2020.09.01'
+ModuleVersion = '2020.12.02'
 
 # ID used to uniquely identify this module
 GUID = 'ff3deb25-4873-4bd2-9bfc-71fdddd7df14'
@@ -121,6 +121,7 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @"
+v2023.12.02 - Push and read nupkgs from hosted repository
 v2023.12.01 - Handle truncated version number in nupkg file names
 v2020.09.01 - Fix caching of checksum files
 v2020.09    - Optionally parse versions strings not fully semver compliant

@@ -27,6 +27,7 @@ $global:CFCacheDir = "$PSScriptRoot/_cache"
 #   global:CFGithubToken : The github token used to do authenticated API
 #                          requests. Providing such a token increases the rate
 #                          limit.
+#   global:CFRepoToken   : Chocolatey / Nexus repository token
 $privateConfigPath = "$PSScriptRoot/_config.private.ps1"
 If (Test-Path -Path $privateConfigPath) {
     . $privateConfigPath

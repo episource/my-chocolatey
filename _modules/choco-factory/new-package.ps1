@@ -198,8 +198,8 @@ $defaultPrepareFilesHook = {
            
 .OUTPUT
     The path of the exported nupkg as FileInfo object. If new new package is
-    build due to the IfNotInRepository option, the existing package is returned
-    instead.
+    build due to the IfNotInRepository option, the existing package or name of
+    the package found on the server is returned instead.
            
 .EXAMPLE
     TODO
@@ -251,6 +251,21 @@ function New-Package {
         } Catch {
             # Propagate original exception
             throw $_.Exception.InnerException
+        }
+    }
+    
+    function _Test-Exists {
+        If ($IfNotInRepository) {
+            $chocoArgs = @('search', '--exact', $pkgData.Id, '--version', $pkgData.Version, '-s', $IfNotInRepository, '-r', '--ignore-http-cache')
+            
+            #$token = _Get-Var 'global:CFRepoToken'
+            #If ($token) {
+            #    $chocoArgs += '-k'
+            #    $chocoArgs += $token
+            #}
+            
+            Write-Verbose "Testing for existing package: choco $chocoArgs"
+            & choco $chocoArgs
         }
     }
 
@@ -326,13 +341,10 @@ function New-Package {
             _Get-AbsolutePath -Path "$BuildRoot/$($pkgData.Id)-$($pkgData.Version)"
         $nupkgName = "$($pkgData.Id).$($pkgData.Version).nupkg"
             
-        If ($IfNotInRepository) {
-            $queryPath   = Join-Path $IfNotInRepository $nupkgName
-            $existingPkg = Get-Item -Path $queryPath -ErrorAction SilentlyContinue
-            If ($existingPkg) {
-                Write-Verbose "Existing package found: $existingPkg"
-                return $existingPkg
-            }
+        $existingPkg = _Test-Exists
+        If ($existingPkg) {
+            Write-Verbose "Existing package found: $existingPkg"
+            return $existingPkg
         }
     }
     
@@ -418,14 +430,10 @@ function New-Package {
                 return
             }  
             
-            $nupkgName = "$($pkgData.Id).$($pkgData.Version).nupkg"
-            If ($IfNotInRepository) {
-                $queryPath = Join-Path $IfNotInRepository $nupkgName
-                $existingPkg = Get-Item -Path $queryPath -ErrorAction SilentlyContinue
-                If ($existingPkg) {
-                    Write-Verbose "Existing package found: $existingPkg"
-                    return $existingPkg
-                }
+            $existingPkg = _Test-Exists
+            If ($existingPkg) {
+                Write-Verbose "Existing package found: $existingPkg"
+                return $existingPkg
             }
         }
         

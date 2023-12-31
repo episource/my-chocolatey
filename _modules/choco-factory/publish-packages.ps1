@@ -82,14 +82,6 @@ function Publish-Packages {
         Write-Warning "Build root directory does not exist: $BuildRoot"
         return
     }
-    If (-not $Repository -or -not `
-            (Test-Path -Path $Repository -PathType Container)) {
-        Write-Warning (
-            "Repository directory does not exist: $Repository`n" +
-            "Press [Y] to create or [H] to abort."
-        )
-        New-Item -Path $Repository -ItemType Directory
-    }
     
     $pkgsUntested  = @()
     $pkgsUntested += Get-ChildItem -Path $BuildRoot -Filter *.nupkg -Recurse | 
@@ -159,13 +151,28 @@ function Publish-Packages {
         $ProgressBarState.max += $pkgsPassed.length
     }
     
+    
+    
     $pkgsPublished = @()
     ForEach ($pkg in $pkgsPassed) {
         $ProgressBarState.status = "Moving packages to repository..."
         _Update-Progress $ProgressBarState
         
-        $pkgsPublished += Move-Item -Path $pkg -Destination $Repository `
-            -PassThru
+        $chocoArgs = @('push', $pkg, '-s', $Repository, "--force")
+        $token = _Get-Var 'global:CFRepoToken'
+        If ($token) {
+            $chocoArgs += '-k'
+            $chocoArgs += $token
+        }
+        
+        Write-Verbose "PUshing package: choco $chocoArgs"
+        $chocoOut = & choco $chocoArgs | Out-String
+        
+        If ($LASTEXITCODE -eq 0) {
+            $pkgsPublished += Split-Path -leaf $pkg
+        } Else {
+            Write-Error "Choco returned exit code $LASTEXITCODE.`n$chocoOut"
+        }
     }
     
     If ($pkgsPublished.length -eq 0) {
