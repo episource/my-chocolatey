@@ -11,7 +11,7 @@ $ErrorAction = "Stop"
 # Parameters for parsing the download page
 $baseUrl         = "https://winscp.net"
 $downloadPageUrl = $baseUrl + "/eng/downloads.php"
-$zipRegex        = 'href="(?<URL>/download/WinSCP-(?<VERSION>\d+(?:\.\d+){0,2})-Portable.zip)"'
+$zipRegex        = 'href="(?<URL>/download/WinSCP-(?<VERSION>\d+(?:\.\d+){0,2})-Portable.zip)/download"'
 
 
 # Query download page
