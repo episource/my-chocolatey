@@ -154,6 +154,7 @@ function Publish-Packages {
     
     
     $pkgsPublished = @()
+    $pkgsFailed = @()
     ForEach ($pkg in $pkgsPassed) {
         $ProgressBarState.status = "Moving packages to repository..."
         _Update-Progress $ProgressBarState
@@ -165,22 +166,32 @@ function Publish-Packages {
             $chocoArgs += $token
         }
         
-        Write-Verbose "PUshing package: choco $chocoArgs"
+        Write-Verbose "Pushing package: choco $chocoArgs"
         $chocoOut = & choco $chocoArgs | Out-String
         
         If ($LASTEXITCODE -eq 0) {
             $pkgsPublished += Split-Path -leaf $pkg
+            Remove-Item $pkg
         } Else {
-            Write-Error "Choco returned exit code $LASTEXITCODE.`n$chocoOut"
+            $pkgName = Split-Path -leaf $pkg
+            $pkgsFailed += $pkgName
+            Write-Error "Choco returned exit code $LASTEXITCODE. Failed to push $pkgName.`n$chocoOut" `
+                -ErrorAction Continue
         }
     }
     
     If ($pkgsPublished.length -eq 0) {
-        Write-Host "No packages were published."
+        Write-Host "No packages were published."        
     } Else {
         Write-Host (
             "Published packages:`n" +
             "$($pkgsPublished | Split-Path -Leaf | Format-List | Out-String)"
+        )
+    }
+    If ($pkgsFailed.length -gt 0) {
+        Write-Warning (
+            "Failed packages:`n" +
+            "$($pkgsFailed | Split-Path -Leaf | Format-List | Out-String)"
         )
     }
     return $pkgsPublished
