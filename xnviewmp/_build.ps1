@@ -9,7 +9,7 @@ $ErrorAction = "Stop"
 
 
 # Parameters for parsing the download page
-$downloadPageUrl = "http://www.xnview.com/en/xnviewmp/"
+$downloadPageUrl = "https://www.xnview.com/en/xnview-mp/"
 $versionRegex    = 'Download.+XnView MP (?<VERSION>\d+(?:\.\d+){1,2})'
 $hrefRegex       = '<a.*href="(?<HREF>[^"]+)".*>.*Zip Win 64bit.*</a>'
 
@@ -31,7 +31,7 @@ If (-not ($htmlResponse.Content -match $hrefRegex)) {
     return
 }
 # append version => unique url for proper caching
-$href = $Matches.HREF + "?version=$version"
+$href = "https://www.xnview.com/" + $Matches.HREF + "?version=$version"
 
 # Build the package
 @{
